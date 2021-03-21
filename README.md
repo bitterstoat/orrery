@@ -11,7 +11,7 @@ It's definitely better as a desktop web experience than mobile for now.
 - Tween.js
 
 ## Features
-- Ephemerides for most astronomical bodies in the Solar System, searachable for all above 1km in radius (currently moons of asteroids and dwarf planets are not include but coming soon)
+- Ephemerides for most astronomical bodies in the Solar System, searachable for all above 1km in radius (currently moons of asteroids and dwarf planets are not included but coming soon)
 - Exaggerated orrery view at the solar system scale, zoomable to true scale for planetary systems
 - Live data readout for the body's physical and orbital characteristics, and RA/Dec and Alt/Az relative to Earth
 - Links to articles and images from Wikipedia
