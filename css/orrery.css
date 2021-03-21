@@ -1,0 +1,225 @@
+@font-face {
+    font-family: 'barlowregular';
+    src: url('../fonts/Barlow-Regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'barlowbold';
+    src: url('../fonts/Barlow-Bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'barlowlight';
+    src: url('../fonts/Barlow-Light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'barlowsemicondensed_light';
+    src: url('../fonts/barlowsemicondensed-light-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000;
+}
+
+canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+    border: 0;
+}
+
+.label, .gratLabel { 
+    position: absolute;
+    font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 2;
+    font-size: 14px;
+    top: -999px;
+    left: -999px;
+    cursor: pointer
+}
+
+a:hover, .label:hover {
+    color: #ffff66;
+}
+
+.tag0 {
+    color: #6a6affcc;
+}
+
+.tag1, .tag2, .tag3 {
+    color: #4444ff77;
+}
+
+.gratLabel {
+    color: #ffcf3344;
+}
+
+.active {
+    color: white;
+    font-family: 'barlowbold', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#autocomplete, #manualLat, #manualLon, #manualYear, #manualDay, #manualTime {
+    position:relative;
+    font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #222;
+    color: #fff;
+    font-size: 16px;
+    z-index:5;
+    border-right-color: #272727;
+    border-bottom-color: #444;
+}
+
+#autocomplete { 
+    width: 233px;
+}
+
+#manualLat, #manualLon, #manualYear, #manualDay, #manualTime {
+    width:50px;
+}
+
+#inputBox, #outputBox { 
+    position: relative;
+    width: 270px;
+    font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: rgba(17, 17, 17, 0.5);
+    font-size: 0.8em;
+}
+
+#inputBox {
+    z-index:4;
+}
+
+#outputBox {
+    z-index:5;
+    padding: 1em;
+    color: #999;
+}
+
+
+#date {
+    color: #fff;
+    font-size: 1.33em;
+}
+
+
+#infohead {
+    font-family: 'barlowlight';
+    font-size: 2.5em;
+}
+
+.wikipic {
+    width: 226px;
+    height: auto;
+    margin-top: 5px;
+}
+
+button {
+    padding: 0;
+    width: 2em;
+    height: 2em;
+    background-color: #222;
+    border-left-color: #272727;
+    border-top-color: #444;
+}
+
+button :hover {
+    background-color: #334;
+}
+
+button :active {
+    background-color: #889;
+}
+
+button img {
+    width: 100%;
+    height: auto;
+}
+
+#speedfield {
+    width: 120px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#splashScreen {
+    width: 50%;
+    height: 50%;
+    position: absolute;
+    left:25%;
+    top: 25%;
+    z-index:10;
+    background-color: #000022aa;
+    text-align: center;
+}
+
+#splashScreen p {
+    color: #aaa;
+    font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#logo {
+    width: 30%;
+    margin-top: 3%;
+    opacity: 0.6;
+}
+
+#clearSplash, #openSplash {
+    width:50px;
+    text-align: center;
+    color: #aaa;
+    font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#clearSplash {
+    visibility: hidden;
+}
+
+.ui-widget {
+    font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ui-widget-content {
+    background-image: none;
+}
+
+.ui-accordion .ui-accordion-header {
+    font-size: 1.2em;
+    padding: 0.2em 0.2em 0.1em 0.2em;
+}
+
+.ui-accordion .ui-accordion-content {
+    padding: 1em;
+}
+
+.ui-menu-item {
+    font-size: 0.8em;
+}
+
+.ui-tooltip {
+    background-color: #333;
+}
+
+.ui-tooltip-content {
+    color: #aaa;
+    font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+}
