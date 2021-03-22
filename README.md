@@ -3,20 +3,23 @@ An interactive map of the Solar System created with Three.js and jQuery.
 
 This is currently live at http://alltheseworldsareyours.com
 
-It's definitely better as a desktop web experience than mobile for now.
+It's definitely better as a desktop web experience than mobile in the current version.
 
 ## Requirements
-- three.js
-- jQuery and jQuery UI
-- Tween.js
+- [Three.js](https://github.com/mrdoob/three.js/)
+- [jQuery](https://github.com/jquery/jquery) and [jQuery UI](https://github.com/jquery/jquery-ui)
+- [Tween.js](https://github.com/tweenjs/tween.js/)
 
 ## Features
-- Ephemerides for most astronomical bodies in the Solar System, searachable for all above 1km in radius (currently moons of asteroids and dwarf planets are not included but coming soon)
+- Ephemerides for astronomical bodies in the Solar System, searachable for all above 1km in radius (currently moons of asteroids and dwarf planets are not included but coming soon)
 - Exaggerated orrery view at the solar system scale, zoomable to true scale for planetary systems
-- Live data readout for the body's physical and orbital characteristics, and RA/Dec and Alt/Az relative to Earth
+- Live data readout for the body's physical and orbital characteristics, and RA/Dec and Alt/Az coordintes relative to Earth
 - Links to articles and images from Wikipedia
 - Background stars include all above 7th magnitude
 - Celestial sphere graticule
+
+## Usage
+- No node.js setup required. Just clone the repository, start a web server in the root folder and open the index.html in a browser.
 
 ## Potential Roadmap
 - HTTPvars for LatLong and Time
@@ -42,7 +45,7 @@ It's definitely better as a desktop web experience than mobile for now.
 - Exoplanetary systems
 - Lagrange points/Hill spheres for planets
 - XR
-- Hohmann transfer orbits/window solver
+- Hohmann transfer orbits, launch window solver, delta-v requirements
 - Gravitational simulations
 - Selectable stars/DSOs
 - Compute shaders
