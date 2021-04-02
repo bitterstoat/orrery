@@ -7,6 +7,8 @@ const AU = 1.495978707e+11; // astronomical unit
 const gravConstant = 6.6743015e-11;
 const sunGravConstant = 1.32712440042e+20; // gravitational constant for heliocentric orbits
 const earthRadius = 6371000;
+const earthBary = 4670 / 388400; // Earth barycentric offset relative to Moon's semimajor axis
+const plutoBary = 2110 / 19600; // Pluto barycentric offset relative to Charon's semimajor axis
 
 // temporal constants
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -25,7 +27,7 @@ function plotPoint(meanAnomaly, eccentricity, semiMajorAxis, runKepler) { // plo
 function kepler(e, m) { // numerical approximation of Kepler's equation
     let result = 0;
     let lastResult, delta;
-    const tolerance = 0.00000002;
+    const tolerance = 0.00000001;
     do {
         lastResult = result;
         result = m + e * Math.sin(result);
@@ -36,7 +38,7 @@ function kepler(e, m) { // numerical approximation of Kepler's equation
 }
 
 function celestial(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // transform to Cartesian coordinates relative to the celestial sphere
-    let v = new THREE.Vector3(xLocal, 0, yLocal);
+    const v = new THREE.Vector3(xLocal, 0, yLocal);
     v.applyAxisAngle( celestialZAxis, longPeriapsis ).applyAxisAngle( celestialXAxis, inclination ).applyAxisAngle( celestialZAxis, longAscNode );
     return v.applyAxisAngle( celestialXAxis, eclInclination );
 }
@@ -48,10 +50,7 @@ function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLocal, yLo
         case "L" : // relative to local Lagrangian
             v.applyAxisAngle(y, Math.PI/2 - dec).applyAxisAngle(celestialZAxis, ra);
         break;
-        case ("Q") : // relative to the planet's equator
-            v.applyAxisAngle(y, Math.PI/2 - system[orbitId].axisDec + inclination).applyAxisAngle(celestialZAxis, system[orbitId].axisRA);
-        break;
-        case ("B") : // relative to the planet's equator at barycenter (same as "Q" for now)
+        case "Q" : // relative to the planet's equator
             v.applyAxisAngle(y, Math.PI/2 - system[orbitId].axisDec + inclination).applyAxisAngle(celestialZAxis, system[orbitId].axisRA);
         break;
         default: // aka "E", relative to the ecliptic
@@ -76,8 +75,8 @@ function reAxis(obj, ra, dec) {
 }
 
 function orbitPath(i) { // plot orbital paths
-    system[i].updateOrbit(0);
-    let orbitPath = system[i].celestial;
+    system[i].updateOrbit();
+    const orbitPath = system[i].celestial;
     const orbitGeometry = new THREE.BufferGeometry().setFromPoints( orbitPath );
     const path = new THREE.LineLoop( orbitGeometry, pathMaterials[system[i].type]);
     path.initMaterial = pathMaterials[system[i].type];
@@ -85,8 +84,15 @@ function orbitPath(i) { // plot orbital paths
     return path;
 }
 
+function redraw(i) { // plot orbital paths
+    orbitPoints = pointCount;
+    system[i].updateOrbit();
+    paths[i].geometry = new THREE.BufferGeometry().setFromPoints( system[i].celestial );
+    orbitPoints = 1;
+}
+
 function RADecToVector(ra, dec) { // right ascension and declination to vector
-    let v = new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), (90-dec)*toRad);
+    const v = new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), (90-dec)*toRad);
     return v.applyAxisAngle(new THREE.Vector3(0, 1, 0), ((ra + 6) % 24) * 15 * toRad );
 }
 
@@ -97,11 +103,11 @@ function vectorToRADec(v) { // vector to right ascension and declination
 }
 
 function decToMinSec(n) { // decimal angle to DMS
-    const sign = Math.sign(n);
+    sign = Math.sign(n);
     n = Math.abs(n);
     let deg = Math.floor(n);
     let min = parseFloat(("0" + Math.floor((n - deg) * 60)).slice(-2));
-    let sec = (n - deg - min/60) * 3600;
+    const sec = (n - deg - min/60) * 3600;
     if (sec >= 60) {
         min++;
         sec-=60;
@@ -110,8 +116,7 @@ function decToMinSec(n) { // decimal angle to DMS
         deg++;
         min-=60;
     }
-    deg *= sign;
-    return { deg:deg, min:min, sec:sec }
+    return { sign:(sign<0) ? "-" : "", deg:deg, min:min, sec:sec }
 }
 
 function estRadius(h, p = 0.15) { // estimate asteroid radius from absolute magnitude
@@ -125,13 +130,14 @@ function visViva(mu, r, a) { // compute instantaneous orbital speed
 function displayLatLong(a, b) {
     const lat = decToMinSec(a);
     const lon = decToMinSec(b);
-    $("#lat").html(Math.abs(lat.deg) + '&deg;&nbsp;' + lat.min + '&rsquo;&nbsp;' + lat.sec.toFixed(1) + '&rdquo;&nbsp;' + ((latitude > 0) ? 'N' : 'S' + ','));
-    $("#long").html(Math.abs(lon.deg) + '&deg;&nbsp;' + lon.min + '&rsquo;&nbsp;' + lon.sec.toFixed(1) + '&rdquo;&nbsp;' + ((longitude > 0) ? 'E' : 'W'));
+    $("#lat").html(Math.abs(lat.deg) + '&deg;&nbsp;' + lat.min + '&rsquo;&nbsp;' + lat.sec.toFixed(1) + '&rdquo;&nbsp;' + ((lat.sign == "-") ? 'S,' : 'N,'));
+    $("#long").html(Math.abs(lon.deg) + '&deg;&nbsp;' + lon.min + '&rsquo;&nbsp;' + lon.sec.toFixed(1) + '&rdquo;&nbsp;' + ((lon.sign == "-") ? 'W' : 'E'));
 }
 
 function getLatLong(response) {
     latitude = response.coords.latitude;
     longitude = response.coords.longitude;
+    latLongDefault = false;
     displayLatLong(latitude, longitude);
 }
 
@@ -165,27 +171,28 @@ function ephTimeReadout(d) { // display time
 
 function slowTime() { // slow/reverse time
     speed = Math.max(speed-1, 0);
+    rate = rates[speed];
 }
 
 function speedTime() { // speeed up time
     speed = Math.min(speed+1, rates.length-1);
+    rate = rates[speed];
 }
 
-function realTime() { // reset to current realtime
-    ephTime = MJDToEphTime(unixToMJD(Date.now()));
-    for (let i = 0; i < system.length; i++) {
-        system[i].set(ephTime);
-    }
-    speed = 8;
-}
-
-function setTime(time) { // reset to arbitrary realtime
+function setTime(time) { // reset to arbitrary time
+    const oldTime = ephTime;
     ephTime = MJDToEphTime(time);
-    console.log(ephTime);
+    const delta = ephTime - oldTime;
     for (let i = 0; i < system.length; i++) {
         system[i].set(ephTime);
     }
+    orbitPoints = pointCount;
+    for (let i = 0; i < precessing.length; i++) {
+        redraw(i);
+    }
+    orbitPoints = 1;
     speed = 8;
+    rate = rates[speed];
 }
 
 function localSiderealTime(ephTime) {
@@ -194,10 +201,15 @@ function localSiderealTime(ephTime) {
     return lst = (100.46 + (0.985647 * ephTime * daysPerCent) + longitude + (15 * timeUTC) + 360) % 360;
 }
 
-function altAz(ra, dec) {
-    const t = MJDtoUnix(ephTimeToMJD(ephTime));
-    const hourAngle = ((localSiderealTime(ephTime) - (ra * 15) + 360) % 360) * toRad;
-    console.log;
+function getRA(obj) {
+    const earthRad = system[earthID].radius / AU;
+        const earthSurfPos = new THREE.Vector3( earthRad * Math.cos(longitude * toRad + system[earthID].phase), earthRad * Math.sin(latitude * toRad), earthRad * Math.sin(longitude * toRad + system[earthID].phase));
+        const parallaxPos = system[earthID].celestialPos.clone().add(earthSurfPos).add(system[earthID].baryPos);
+        return vectorToRADec( (obj.sysId == earthID) ? parallaxPos.multiplyScalar(-1) : obj.celestialPos.clone().sub(parallaxPos) );
+}
+
+function altAz(ra, dec, t) {
+    const hourAngle = ((localSiderealTime(t) - (ra * 15) + 360) % 360) * toRad;
     dec *= toRad;
     const cD = Math.cos(dec);
     const lat = (90 - latitude) * toRad;
@@ -213,6 +225,30 @@ function altAz(ra, dec) {
     return { alt: alt, az: az, ha: hourAngle * toDeg / 15 };
 }
 
+function riseSet(obj) { // brute force rise/set time solver
+    const RADec = getRA(obj);
+    const day = (1 / daysPerCent);
+    const min = day / 1440; 
+    const startTime = ephTime - 0.5 * day;
+    const crossings = [];
+    let readout = "";
+    for (let i = 0; i < 1441; i++) {
+        const altA = altAz(RADec.ra, RADec.dec, startTime + i * min).alt;
+        const altB = altAz(RADec.ra, RADec.dec, startTime + (i + 1) * min).alt;
+        if (altA * altB < 0) {
+            crossings.push( {type: (altA > 0) ? "Sets: " : "Rises: ", time: ephTimeReadout(startTime + i * min).b.substr(30) + ephTimeReadout(startTime + i * min).d} );
+        }
+    }
+    if (crossings.length == 0) {
+        readout = "Circumpolar";
+    } else {
+        const n = (crossings[0].type == "Rises: ") ? 0 : 1;
+        readout += (crossings[n].type + crossings[n].time + '<br>');
+        readout += (crossings[1 - n].type + crossings[1 - n].time + '<br>');
+    }
+    $("#riseSet, #earthRiseSet").html(readout);
+}
+
 function lerp(start, end, x) { // linear interpolation
     return (end - start) * x + start;
 }
@@ -221,8 +257,8 @@ function lerp(start, end, x) { // linear interpolation
 function apparentMag(i) { // apparent magnitude
     const dBO = i.toEarth.length();
     const dBS = i.toSun;
-    let cAlpha = (dBO * dBO + dBS * dBS - 1) / (2 * dBO * dBS);
-    alpha = (Math.abs(cAlpha) > 1) ? 1 : Math.acos(cAlpha); // patch for the Moon
+    const cAlpha = (dBO * dBO + dBS * dBS - 1) / (2 * dBO * dBS);
+    const alpha = (Math.abs(cAlpha) > 1) ? 1 : Math.acos(cAlpha); // patch for the Moon
     return i.absoluteMag + 5 * Math.log10( dBS * dBO ) - 2.5 * Math.log10(i.phaseIntegral(alpha));
 }
 
@@ -264,4 +300,11 @@ function BVToRGB(bv) { // BV color index to RGB
         b = 0.63 - (0.6 * t * t);
     }
     return {r:r, g:g, b:b};
+}
+
+function extinction(magnitude, alt) {
+    const angle = 90-alt;
+    const airmass = Math.min(1/Math.cos(angle * toRad), Math.max(20, 6.2 * (angle) - 520));
+    const extMag = 0.129 * airmass + magnitude;
+    return { mag: extMag, airmass: airmass }
 }

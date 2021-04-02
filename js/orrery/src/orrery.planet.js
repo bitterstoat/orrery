@@ -14,7 +14,12 @@ class Planet extends Body {
         this.c = this.hasData(params.c) ? parseFloat(params.c) : 0;
         this.s = this.hasData(params.s) ? parseFloat(params.s) : 0;
         this.f = this.hasData(params.f) ? parseFloat(params.f) * toRad : 0;
-        this.phase = this.hasData(params.phase) ? parseFloat(params.phase) * toRad : 1.4;
+
+        this.phase = this.hasData(params.phase) ? parseFloat(params.phase) * toRad : 0;
+        this.moons = 0;
+        this.largestMoon = "";
+        this.largestMoonRadius = 0;
+        this.secondMoon = "";
     
         // retain initial epoch values
         this.aStart = this.semiMajorAxis;
@@ -33,13 +38,11 @@ class Planet extends Body {
         this.inclination = offset * this.iDot + this.incStart;
         this.meanLongitude = offset * this.lDot + this.lStart;
         this.longPeriapsis = offset * this.wDot + this.wStart;
-        this.omegaDot = offset * this.omegaDot + this.omegaStart;
+        this.longAscNode = offset * this.omegaDot + this.omegaStart;
         this.phase = offset * this.thetaDot + this.phaseStart;
     }
 
-    updateOrbit(dt) {
-        this.meanLongitude += (this.lDot * dt); // update longitude
-
+    updateOrbit() {
         // plot full orbit in local space
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, this.b, this.c, this.s, this.f, orbitPoints);
 
@@ -50,13 +53,13 @@ class Planet extends Body {
         this.celestialPos = this.celestial[0];
     }
 
-    update(dt) {
+    update(dt) {  
         this.meanLongitude += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, this.b, this.c, this.s, this.f)
         this.celestialPos = celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
-    precess(dt) { // periodic updates to the orbital elements - expand to redraw orbital paths
+    precess(dt) { // periodic updates to the orbital elements
         this.semiMajorAxis += (this.aDot * dt);
         this.eccentricity += (this.eDot * dt);
         this.inclination += (this.iDot * dt);
@@ -65,7 +68,7 @@ class Planet extends Body {
     }
 
     longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, b, c, s, f, points = 1) { // generate longitude points
-        let orbitPoints = [];
+        const orbitPoints = [];
         const span = Math.PI * 2 / points;
         let meanAnomaly = meanLongitude - longPeriapsis + (b * ephTime * ephTime) + (c * Math.cos(f * ephTime)) + (s * Math.sin(f * ephTime));
         for (let i=0; i<points; i++) {

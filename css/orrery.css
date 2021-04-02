@@ -54,7 +54,7 @@ a {
     font-size: 14px;
     top: -999px;
     left: -999px;
-    cursor: pointer
+    cursor: pointer;
 }
 
 a:hover, .label:hover {
@@ -65,7 +65,7 @@ a:hover, .label:hover {
     color: #6a6affcc;
 }
 
-.tag1, .tag2, .tag3 {
+.tag1, .tag2, .tag3, .tag4 {
     color: #4444ff77;
 }
 
@@ -97,34 +97,44 @@ a:hover, .label:hover {
     width:50px;
 }
 
-#inputBox, #outputBox { 
+#inputBox { 
     position: relative;
     width: 270px;
     font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
     background-color: rgba(17, 17, 17, 0.5);
     font-size: 0.8em;
-}
-
-#inputBox {
     z-index:4;
 }
-
-#outputBox {
-    z-index:5;
-    padding: 1em;
-    color: #999;
-}
-
 
 #date {
     color: #fff;
     font-size: 1.33em;
 }
 
+#info {
+    margin-top: 21px;
+}
+
+.obscured {
+    color: #99a;
+}
 
 #infohead {
     font-family: 'barlowlight';
     font-size: 2.5em;
+    line-height: 0.8em;
+}
+
+fieldset {
+    border: #333 solid 1px;
+}
+
+legend {
+    color: #777;
+}
+
+#moonBox, #asteroidBox, #cometBox {
+    padding: 0;
 }
 
 .wikipic {
@@ -222,4 +232,8 @@ button img {
 .ui-tooltip-content {
     color: #aaa;
     font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ui-helper-reset {
+    line-height: 1em;
 }

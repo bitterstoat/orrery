@@ -1,32 +1,34 @@
 class Asteroid extends Body {
     constructor(params) {
         super (params);
-        this.name += "Asteroid";
         this.catalogNumber = this.hasData(params.num) ? parseFloat(params.num) : 0;
+        this.name = (this.catalogNumber != 0) ? this.catalogNumber + " " + this.name : this.name;
         this.lDot = 360 / this.period * toRad; // get lDot from period
         this.argPeriapsis = this.w;
-        this.meanAnomaly = (typeof params.m != "undefined") ? parseFloat(params.m) * toRad : 0;
-        this.meanLongitude = 0;
+        this.meanAnomaly = this.hasData(params.m) ? parseFloat(params.m) * toRad : 0;
         this.phase = 0;
         this.slope = this.hasData(params.G) ? parseFloat(params.G) : 0.15;
-        this.info = (this.info == "default" && this.catalogNumber > 0) ? "Asteroid (" + this.catalogNumber + ")" : this.info;
-        this.wiki = (this.wiki == "default" && this.catalogNumber > 0 && this.displayName != "Unnamed") ? "https://en.wikipedia.org/wiki/" + this.catalogNumber + "_" + this.displayName : this.wiki;
-
+        this.classifications = this.sieve(this);
+        this.info = (this.info == "default" && this.catalogNumber > 0) ? "Asteroid" : this.info;
+        this.wiki = (this.wiki == "default" && this.catalogNumber > 0 && this.name != "Unnamed") ? "https://en.wikipedia.org/wiki/" + this.name.replace(" ", "_") : this.wiki;
+        this.moons = 0;
+        this.largestMoon = "";
+        this.largestMoonRadius = 0;
+        this.secondMoon = "";
+        
         // retain initial epoch values
-        this.lStart = this.meanLongitude;
+        this.mStart = this.meanAnomaly;
         this.wStart = this.argPeriapsis;
         this.phaseStart = this.phase;
     } 
 
     set(t) { // update Keplerian orbital elements from the given epoch
         const offset = t - MJDToEphTime(this.epoch);
-        this.meanLongitude = offset * this.lDot + this.lStart;
+        this.meanAnomaly = offset * this.lDot + this.mStart;
         this.phase = this.phaseStart;
     }
 
-    updateOrbit(dt) {
-        this.meanLongitude += (this.lDot * dt); // update longitude
-
+    updateOrbit() {
         // plot full orbit in local space
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, orbitPoints);
 
@@ -38,14 +40,13 @@ class Asteroid extends Body {
     }
 
     update(dt) {
-        this.meanLongitude += (this.lDot * dt); // update longitude
+        this.meanAnomaly += (this.lDot * dt); // update longitude
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis);
         this.celestialPos = celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
     longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) { // generate longitude points
-        let orbitPoints = [];
-        meanAnomaly += this.meanLongitude;
+        const orbitPoints = [];
         const span = Math.PI * 2 / points;
         for (let i=0; i<points; i++) {
             meanAnomaly += span;
@@ -60,5 +61,17 @@ class Asteroid extends Body {
         const b = Math.pow(-1.862 * Math.pow(Math.tan(alpha / 2), 1.218 ), 10);
         return (1 - this.slope) * a  + this.slope * b;
     }
-}
 
+    sieve(obj) {
+        const aClasses = [1, 2.5, 2.706, 2.82, 3.03, 3.27];
+        const periClasses = [0.7184, 0.9833, 1.1, 29];
+        const MORClasses = [1.78, 2, 2.25, 2.5, 2.7, 2.8, 3.1, 3.27, 3.7, 4.2, 5.05, 5.4, 30, 39, 40.5, 47];
+        const a = aClasses.findIndex( function(e) { return e > obj.semiMajorAxis });
+        const p = periClasses.findIndex( function(e) { return e > obj.periapsis });
+        const m = MORClasses.findIndex( function(e) { return e > obj.meanOrbit });
+        const aNames = ["Aten", "Apollo", "Inner main belt", "Middle main belt", "Outer main belt"];
+        const pNames = ["Mercury-crosser", "Venus-crosser", "Amor", "Scattered disc object", "Detached object"];
+        const mNames = ["Hungaria", "Phocaea", "Alinda", "Pallas", "Griqua", "Cybele", "Hilda", "Trojan", "Centaur", "KBO", "Plutino", "Cubewano"];
+        return {aN: a, a: aNames[a], pN:p, p: pNames[p], mN: m, m: mNames[m]};
+    }
+}

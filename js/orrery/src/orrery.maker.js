@@ -23,16 +23,14 @@ function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, a
 }
 
 function makePoint (name, sysId) {
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array([0,0,0]), 3 ) );
-    const point = new THREE.Points( geometry, pointMaterial );
+    const point = new THREE.Points( pointGeometry, pointMaterial );
     point.name = name;
     point.sysId = sysId;
     return point;
 }
 
 function makeLabel(i) { // make body label
-    $("body").append("<div id='" + i + "' class='label'>" + system[i].displayName + "</div>");
+    $("body").append("<div id='" + i + "' class='label'>" + system[i].name + "</div>");
     $("#" + i).addClass( "tag" + system[i].type ).click( function() {
         $(".label").removeClass( "active" );
         if ( clickedLabel != "" && $(this)[0].id == clickedLabel[0].id ) {
@@ -40,7 +38,16 @@ function makeLabel(i) { // make body label
         } else {
             clickTag($(this)[0].id);
         }
-    })
+    }).hover( function() {
+        if (clickedLabel != "" && $(this)[0].id != clickedLabel[0].id) {
+            hoverLabel = $(this);
+            hoverContent = $(this).html();
+            hoverLabel.html(hoverContent + '<span id="distToActive"></span>');
+        }
+    }, function() {
+        $("#distToActive").remove();
+        hoverLabel = false;
+    });
 }
 
 function makeGratLabel(i, text) { // make graticule label
@@ -52,7 +59,7 @@ function makeGraticules() {
     const points = 360;
     const longDivisions = 12;
     const latDivisions = 12;
-    let ringPoints = [];
+    const ringPoints = [];
 
     for (let i = 0; i <= points; i++) {
         let p = new THREE.Vector3(0, gratRadius, 0);
@@ -61,7 +68,7 @@ function makeGraticules() {
     }
     const ringGeometry = new THREE.BufferGeometry().setFromPoints( ringPoints );
 
-    let rings = [];
+    const rings = [];
     for (let i = 0; i < longDivisions / 2; i++) {
         const tempRing = ringGeometry.clone();
         tempRing.rotateY( i * Math.PI * 2 / longDivisions );
@@ -89,8 +96,8 @@ function makeGraticules() {
 function makeRefPoints() {
     const longDivisions = 12;
     const latDivisions = 12;
-    let refPoints = [0, gratRadius, 0];
-    let labels = ["NP"];
+    const refPoints = [0, gratRadius, 0];
+    const labels = ["NP"];
 
     for (let i = 1; i < latDivisions; i++) {
         const latLabel = 90 - i * 15;

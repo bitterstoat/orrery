@@ -1,7 +1,27 @@
 /* INITITALIZATION */
-$(document).ready( function () {
+$(document).ready( function() {
+    fullLoad();
+    makeGraticules();
+    makeRefPoints();
+    graticule.visible = false;
+});
+
+let JSONsystem = [];
+function JSONtest() {
     $.ajax({ // load planet data
-        url: "data/planets_1850ad_to_2050ad.csv",
+        url: "data/system.json",
+        async: true,
+        success: function(list) { JSONsystem = jQuery.parseJSON(list); },
+        dataType: "text",
+        complete: function () {
+            console.log(JSONsystem);
+        }
+    });
+}
+
+function fullLoad() {
+    $.ajax({ // load planet data
+        url: "data/planets_3000bc_to_3000ad.csv",
         async: true,
         beforeSend: function() { datasets++; },
         success: function(list) { planetData = $.csv.toObjects(list); },
@@ -10,7 +30,43 @@ $(document).ready( function () {
             for (let i = 0; i < planetData.length; i++) {
                 let newPlanet = new Planet(planetData[i]);
                 system.push(newPlanet);
-                contents.push(newPlanet.displayName);
+                planetNames.push(newPlanet.name);
+                precessing.push(newPlanet.name);
+            }
+            finalize();
+        }
+    });
+
+
+    $.ajax({ // load asteroid data
+        url: "data/asteroids.csv",
+        async: true,
+        beforeSend: function() { datasets++; },
+        success: function(list) { asteroidData = $.csv.toObjects(list); },
+        dataType: "text",
+        complete: function () {
+            for (let i = 0; i < asteroidData.length; i++) {
+                let newAsteroid = new Asteroid(asteroidData[i]);
+                system.push(newAsteroid);
+                asteroidNames.push(newAsteroid.name);
+            }
+            finalize();
+        }
+    });
+
+    $.ajax({ // load extended asteroid data
+        url: "data/asteroids2.csv",
+        async: true,
+        beforeSend: function() { datasets++; },
+        success: function(list) { asteroidData = $.csv.toObjects(list); },
+        dataType: "text",
+        complete: function () {
+            smallAsteroids = asteroidData.length;
+            for (let i = 0; i < asteroidData.length; i++) {
+                if (i > vars.n) { break; } // these can be reduced to improve frame rate
+                let newAsteroid = new Asteroid(asteroidData[i]);
+                system.push(newAsteroid);
+                asteroidNames.push(newAsteroid.name);
             }
             finalize();
         }
@@ -27,45 +83,13 @@ $(document).ready( function () {
                 let newMoon = new Moon(moonData[i]);
                 system.push(newMoon);
                 moons.push(newMoon);
-                contents.push(newMoon.displayName);
+                moonNames.push(newMoon.name);
             }
             finalize();
         }
     });
 
-    $.ajax({ // load asteroid data
-        url: "data/asteroids.csv",
-        async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { asteroidData = $.csv.toObjects(list); },
-        dataType: "text",
-        complete: function () {
-            for (let i = 0; i < asteroidData.length; i++) {
-                let newAsteroid = new Asteroid(asteroidData[i]);
-                system.push(newAsteroid);
-                contents.push(newAsteroid.displayName);
-            }
-            finalize();
-        }
-    });
-
-    $.ajax({ // load more asteroid data
-        url: "data/asteroids2.csv",
-        async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { asteroidData = $.csv.toObjects(list); },
-        dataType: "text",
-        complete: function () {
-            for (let i = 0; i < asteroidData.length; i++) {
-                let newAsteroid = new Asteroid(asteroidData[i]);
-                system.push(newAsteroid);
-                contents.push(newAsteroid.displayName);
-            }
-            finalize();
-        }
-    });
-
-    $.ajax({ // load asteroid moon data
+    $.ajax({ // load comet data
         url: "data/comets.csv",
         async: true,
         beforeSend: function() { datasets++; },
@@ -75,25 +99,24 @@ $(document).ready( function () {
             for (let i = 0; i < cometData.length; i++) {
                 let newComet = new Comet(cometData[i]);
                 system.push(newComet);
-                contents.push(newComet.displayName);
+                cometNames.push(newComet.name);
             }
             finalize();
         }
     });
 
     /*
-    $.ajax({ // load asteroid moon data
-        url: "data/moons2.csv",
+    $.ajax({ // load non-periodic object data
+        url: "data/hyperbolic.csv",
         async: true,
         beforeSend: function() { datasets++; },
-        success: function(list) { moonData = $.csv.toObjects(list); },
+        success: function(list) { hyperData = $.csv.toObjects(list); },
         dataType: "text",
         complete: function () {
-            for (let i = 0; i < moonData.length; i++) {
-                let newMoon = new Moon(moonData[i]);
-                system.push(newMoon);
-                moons.push(newMoon);
-                contents.push(newMoon.displayName);
+            for (let i = 0; i < hyperData.length; i++) {
+                let newHyperbolic = new Hyperbolic(hyperData[i]);
+                system.push(newHyperbolic);
+                contents.push(newHyperbolic.name);
             }
             finalize();
         }
@@ -127,44 +150,66 @@ $(document).ready( function () {
             starfieldObj = starfield;
         }
     });
-});
+}
 
 function finalize() {
     flags++;
     if (flags == datasets) {
+        if (parsedDate != 0 && !isNaN(parsedDate)) {
+            ephTime = MJDToEphTime(unixToMJD(parsedDate));
+        }
+        for (let i = 0; i < system.length; i++) {
+            orderedNames.push(system[i].name);
+        }
+        for (let i = 0; i < moons.length; i++) {
+            moons[i].orbitId = orderedNames.findIndex( function(e) {
+                return e == moons[i].orbiting;
+            });
+        }
+
         for (let i = 0; i < system.length; i++) {
             system[i].set(ephTime);
             const path = orbitPath(i);
             paths.push(path);
             system[i].sysId = i;
             system[i].path = paths.length - 1;
-            let added;
-            if (system[i].type < 3 ) {
+            if (system[i].type < 3 || system[i] instanceof Moon == true ) {
                 scene.add(path);
                 majorBodies.push(system[i]);
-                added = scene.add(makeBody(loader, system[i].texture, system[i].exagRadius, system[i].name, i, system[i].ringRadius, system[i].ringTexture, system[i].axisDec, system[i].axisRA, system[i].phase, system[i].thetaDot));
+                scene.add(makeBody(loader, system[i].texture, system[i].exagRadius, system[i].name, i, system[i].ringRadius, system[i].ringTexture, system[i].axisDec, system[i].axisRA, system[i].phase, system[i].thetaDot));
                 makeLabel(i);
             } else {
-                added = scene.add(makePoint(system[i].name, i));
+                scene.add(makePoint(system[i].name, i));
             }
             system[i].childId = scene.children.length-1;
         }
-        earthID = scene.getObjectByName("Earth").sysId;
+        
         for (let i = 0; i < moons.length; i++) {
-            const orbitId = scene.getObjectByName(moons[i].orbiting).sysId;
-            const sysId = scene.children[moons[i].childId].sysId;
-            moons[i].orbitId = orbitId;
-            moons[i].sysId = sysId;
-            paths[moons[i].path].orbitId = orbitId;
-            if (moons[i].type > 2) {
-                scene.add(paths[moons[i].path]);
-                makeLabel(moons[i].sysId);
+            paths[moons[i].path].orbitId = moons[i].orbitId;
+            system[moons[i].orbitId].moons++;
+            const rad = parseFloat(moons[i].radius);
+            if (rad > system[moons[i].orbitId].largestMoonRadius) {
+                system[moons[i].orbitId].secondMoon = system[moons[i].orbitId].largestMoon;
+                system[moons[i].orbitId].largestMoon = moons[i].name;
+                system[moons[i].orbitId].largestMoonRadius = rad;
             }
-            $("#" + sysId ).hide();
+            $("#" + moons[i].sysId ).hide();
         }
-        makeGraticules();
-        makeRefPoints();
-        graticule.visible = false;
+
+        // barycentric bodies
+        earthID = orderedNames.findIndex( function(e) { return e == "Earth" });
+        moonID = orderedNames.findIndex( function(e) { return e == "Moon" });
+        plutoID = orderedNames.findIndex( function(e) { return e == "Pluto" });
+        charonID = orderedNames.findIndex( function(e) { return e == "Charon" });
+
+        for (let i = 0; i < precessing.length; i++) {
+            precessing[i] = orderedNames.findIndex( function(e) { return e == precessing[i] });
+        }
+
+        $( "#smallRoids" ).html(smallAsteroids);
+
+        contents = planetNames.concat(moonNames, asteroidNames, cometNames);
+
         animate(); // start the main loop
     }
 }

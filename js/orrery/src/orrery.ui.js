@@ -25,6 +25,7 @@ function pauseResume() {
         lastSpeed = speed;
         speed = pauseRate;
     }
+    rate = rates[speed];
 }
 
 $(document).keydown(function(event) { // keystroke handler
@@ -36,7 +37,7 @@ $(document).keydown(function(event) { // keystroke handler
             speedTime();
         break;
         case 40 : 
-            realTime();
+            setTime(unixToMJD(Date.now()));
         break;
         case 32 :
             pauseResume();
@@ -47,15 +48,16 @@ $(document).keydown(function(event) { // keystroke handler
             }
         break;
         case 38 :
-            const scaleRadius = clickedPlanet.exagRadius / 2000;
-            following = (clickedLabel != "") ? !following : false;
-            (following) ? zoomIn(scaleRadius) : zoomOut(scaleRadius);
+            zoomToggle();
         break;
         case 113:
-            $("#inputBox, #outputBox").toggle(300);
+            $("#inputBox").toggle(300);
         break;
         case 115:
             graticule.visible = !graticule.visible;
+        break;
+        case 119:
+            extraData = !extraData;
         break;
     }
     rate = rates[speed]; // apply speed changes
@@ -72,9 +74,10 @@ function clickTag(t) {
     }
     clickedPlanet = system[t];
     paths[clickedPlanet.path].material = selectedPathMat;
-    if (system[t].type > 2) {
+    if (system[t].type > 3) {
         scene.add(paths[clickedPlanet.path]);
     }
+    $("#distToActive").remove();
     lastClickedPlanet = clickedPlanet;
     controls.minDistance = 0.1;
     const tweenTo = new TWEEN.Tween(controls.target)
@@ -89,17 +92,33 @@ function clickTag(t) {
     } else {
         $("#info img").hide();
     }
-    $("#planetInfo").html(clickedPlanet.info);
+    const planetInfo = clickedPlanet.info;
+    let moonInfo = ""
+    if (clickedPlanet.moons > 0) {
+        moonInfo = '<br><a id="moonZoom">Moons: ' + clickedPlanet.moons + ' (' + clickedPlanet.largestMoon;
+        moonInfo +=  (clickedPlanet.moons > 1) ? ',&nbsp;&nbsp;' + clickedPlanet.secondMoon : '';
+        moonInfo += (clickedPlanet.moons > 2) ? ', et al.)</a>' : ')</a>';
+    }
+    $("#planetInfo").html( planetInfo + moonInfo );
+        $("#moonZoom").click( function() {
+        zoomToggle();
+    })
     const adjustedA = (clickedPlanet.semiMajorAxis < 0.1 ) ? (clickedPlanet.semiMajorAxis * AU).toFixed(1) + '&nbsp;km' : clickedPlanet.semiMajorAxis.toFixed(4) + '&nbsp;AU';
     $("#semiMajorAxis").html(adjustedA);
     const adjustedP = (clickedPlanet.period < 0.01 ) ? (clickedPlanet.period * daysPerCent).toFixed(3) + '&nbsp;days' : (clickedPlanet.period * 100).toFixed(3) + '&nbsp;years'
     $("#period").html(adjustedP);
     $("#eccentricity").html(clickedPlanet.eccentricity.toFixed(3));
-    $("#inclination").html((clickedPlanet.inclination * toDeg).toFixed(4));
+    $("#inclination").html((clickedPlanet.inclination * toDeg).toFixed(2));
     $("#radius").html(parseFloat(clickedPlanet.radius).toFixed(1));
     $("#absMag").html(clickedPlanet.absoluteMag.toFixed(2));
     $("#info").show(300);
-    (t == earthID) ? $("#earthRel").hide() : $("#earthRel").show();
+    if (t == earthID) { 
+        $("#earthRel").hide(); 
+        $("#earth").show(); 
+    } else { 
+        $("#earthRel").show(); 
+        $("#earth").hide(); 
+    }
 }
 
 function updateScale() {
@@ -164,21 +183,25 @@ function zoomOut() {
     planetMoons = [];
 }
 
+function zoomToggle() {
+    const scaleRadius = clickedPlanet.exagRadius / 2000;
+    following = (clickedLabel != "") ? !following : false;
+    (following) ? zoomIn(scaleRadius) : zoomOut(scaleRadius);
+}
+
 $( "#autocomplete" ).autocomplete({
-  source: function( request, response ) {
+    minLength: 2,
+    source: function( request, response ) {
           var matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" );
           response( $.grep( contents, function( item ){
               return matcher.test( item );
           }));
       },
       select: function( e, ui ) {
-        const index = contents.findIndex( function (i) {
-            return i == ui.item.value;
-        });
         if (clickedLabel != "") {
             closeTag(clickedLabel);
         }
-        clickTag(index);
+        clickTag(orderedNames.indexOf(ui.item.value));
         this.value = "";
         return false;
     }
@@ -202,34 +225,38 @@ function placeWidgets() {
 
 $("#reverse").click( function() {
     slowTime();
-    rate = rates[speed]; // apply speed changes
 });
 
 $("#forward").click( function() {
     speedTime();
-    rate = rates[speed]; // apply speed changes
- });
+});
 
- $("#play").click( function() {
+$("#play").click( function() {
     pauseResume();
-    rate = rates[speed]; // apply speed changes
     $("#playpause").attr('src', (speed==7) ? 'data/play.png' : 'data/pause.png');
- });
+});
 
- $("#now").click( function() {
-    realTime();
-    rate = rates[speed]; // apply speed changes
- });
+$("#now").click( function() {
+    setTime(unixToMJD(Date.now()));
+});
 
- $("#setCoords").click( function() {
+$("#moonBox, #asteroidBox, #cometBox").click( function() {
+    $("#autocomplete")[0].value = "";
+    const addMoons = $("#moonBox")[0].checked;
+    const addAsteroids = $("#asteroidBox")[0].checked;
+    const addComets = $("#cometBox")[0].checked;
+    contents = planetNames.concat( (addMoons) ? moonNames : null, (addAsteroids) ? asteroidNames : null, (addComets) ? cometNames : null );
+});
+
+$("#setCoords").click( function() {
     const lat = parseFloat($("#manualLat").val());
     const lon = parseFloat($("#manualLon").val());
     latitude = (Math.abs(lat) <=90) ? lat : 0;
     longitude = (Math.abs(lon) <=180) ? lon : 0;
     displayLatLong(latitude, longitude);
- });
+});
 
- $("#setTime").click( function() {
+$("#setTime").click( function() {
     let day = $("#manualDay").val();
     day = (day.length > 0) ? day: "0101";
     let time = $("#manualTime").val();
@@ -240,8 +267,7 @@ $("#forward").click( function() {
     const date = year + "-" + day.substr(0, 2) + "-" + day.substr(2,2) + "T" + 
     time.substr(0,2) + ":" + time.substr(2,2);
     setTime(unixToMJD(Date.parse(date)));
-    console.log(date);
- });
+});
 
 $("#clearSplash").click( function() {
     $("#splashScreen").hide(300);
@@ -254,7 +280,7 @@ $("#openSplash").click( function() {
     $("#clearSplash").css({"visibility": "visible"});
 });
 
- function closeTag(t) {
+function closeTag(t) {
     t.removeClass( "active" );
 
     if (t.hasClass( "tag3" )) {

@@ -1,15 +1,11 @@
 class Comet extends Asteroid {
     constructor(params) {
         super (params);
-        this.name += "Comet";
         this.info = (this.info == "default") ? "Periodic comet" : this.info;
         this.periapsis = this.hasData(params.q) ? parseFloat(params.q) : 1;
         this.periapsisTime = this.hasData(params.Tp) ? this.cometDate(params.Tp) : unixToMJD(Date.parse("2000-01-01T00:00:00"));
-
-        if (this.eccentricity < 1) { // periodic comets
-            this.semiMajorAxis = this.periapsis / (1 - this.eccentricity);
-            this.apoapsis = (1 + this.eccentricity) * this.semiMajorAxis;
-        }
+        this.semiMajorAxis = this.periapsis / (1 - this.eccentricity);
+        this.apoapsis = (1 + this.eccentricity) * this.semiMajorAxis;
         this.period = Math.pow(this.semiMajorAxis, 1.5) / 100; // store period in century time
         this.lDot = 360 / this.period * toRad; // get lDot from period
         this.longPeriapsis = this.w;
@@ -27,9 +23,7 @@ class Comet extends Asteroid {
         this.phase = this.phaseStart;
     }
 
-    updateOrbit(dt) {
-        this.meanLongitude += (this.lDot * dt); // update longitude
-
+    updateOrbit() {
         // plot full orbit in local space
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, orbitPoints);
 
@@ -47,7 +41,7 @@ class Comet extends Asteroid {
     }
 
     longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, points = 1) { // generate longitude points
-        let orbitPoints = [];
+        const orbitPoints = [];
         const span = Math.PI * 2 / points;
         let meanAnomaly = meanLongitude - longPeriapsis;
         for (let i=0; i<points; i++) {

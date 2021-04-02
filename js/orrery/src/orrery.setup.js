@@ -1,9 +1,9 @@
 // constants
 const fps = 60; // max FPS
-const precessFreq = 0.01; // update orbital element drift once per year
+const precessFreq = 1 / daysPerCent; // update orbital element drift 
 const rates = [ -1/20/fps, -1/100/fps, -100/daysPerCent/fps, -20/daysPerCent/fps, -1/daysPerCent/fps, -1/24/daysPerCent/fps, -1/86400/daysPerCent/fps, 0, 1/86400/daysPerCent/fps, 1/24/daysPerCent/fps, 1/daysPerCent/fps, 20/daysPerCent/fps, 100/daysPerCent/fps, 1/100/fps, 1/20/fps]; // centuries per frame
 const rateDesc = [ "-5 years/sec", "-1 year/sec", "-100 days/sec", "-20 days/sec", "-1 day/sec", "-1 hour/sec", "Reversed Time", "Paused", "Realtime", "1 hour/sec", "1 day/sec", "20 days/sec", "100 days/sec", "1 year/sec", "5 years/sec"];
-const pointCount = 360;
+const pointCount = 180;
 const materials = {};
 const pauseRate = 7;
 const initialPoint = 0.01;
@@ -12,9 +12,22 @@ const exagScale = 500000;
 const initMinDistance = 1;
 const initMaxDistance = 100;
 const gratRadius = 1000;
+const system = []; // the solar system as an associative array
+const majorBodies = []; // bodies that scale on zoom
+const moons = []; // need late update with planet references
+const paths = []; // orbital paths
+const orderedNames = [];
+const tempLabels = [];
+const gratLabels = [];
+const precessing = []; // orbits with temporal drift
+const planetNames = [];
+const moonNames = [];
+const asteroidNames = [];
+const cometNames = [];
 
 // variables
-let earthID, centerX, centerY
+let earthID, moonID, plutoID, charonID, centerX, centerY
+let hoverLabel = false;
 let starfieldObj = new THREE.Object3D();
 let graticule = new THREE.Line();
 let lastLoop = Date.now();
@@ -29,12 +42,8 @@ let flags = 0;
 let clickedLabel = "";
 let clickedPlanet = {};
 let lastClickedPlanet = {};
-let system = []; // the solar system as an associative array
-let majorBodies = []; // orbits with temporal drift
-let moons = []; // need late update with planet references
-let paths = []; // orbital paths
 let planetMoons = []; // moons of the the currently focused planet
-let contents = []; // search field list
+let contents = []; // combined search field list
 let ephTime = MJDToEphTime(unixToMJD(Date.now())); // get current time in fractional centuries since J2000
 let following = false;
 let lastFollow = new THREE.Vector3();
@@ -42,11 +51,44 @@ let planetScale = {f: 1.0};
 let latitude = 51.48; // Default is Greenwich
 let longitude = 0;
 let mousePos = new THREE.Vector3(0, 0, 1);
-let tempLabels = [];
-let gratLabels = [];
 let showSplash = false;
+let extraData = false;
+let latLongDefault = true;
+let parsedDate = 0;
+let precessCount = 0;
+let smallAsteroids = 0;
 
-navigator.geolocation.getCurrentPosition(getLatLong); // request user's coordinates
+function getUrlVars() {
+    let vars = {};
+    const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+
+const vars = getUrlVars();
+
+if (typeof vars.y == "undefined" || typeof vars.x == "undefined") {
+    navigator.geolocation.getCurrentPosition(getLatLong); // request user's coordinates, if unavailable keep Greenwich
+} else {
+    const lat = parseFloat(vars.y);
+    const lon = parseFloat(vars.x);
+    if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
+        latitude = lat;
+        longitude = lon;
+        latLongDefault = false;
+    }
+}
+
+if (typeof vars.t != "undefined" && (vars.t.length == 12 || vars.t.length == 13)) { // apply date
+    const BC = parseFloat(vars.t) < 0;
+    const split = BC ? 5 : 4;
+    const year = vars.t.substr(0, split).substr(-4);
+    const dayTime = vars.t.substr(split);
+    const dateCode = (BC ? "-00" : "") + year + "-" + dayTime.substr(0, 2) + "-" + dayTime.substr(2,2) + "T" + 
+    dayTime.substr(4,2) + ":" + dayTime.substr(6,2);
+    parsedDate = Date.parse(dateCode);
+}
 
 // three.js setup
 const scene = new THREE.Scene();
@@ -66,7 +108,7 @@ const pathMaterials = [ // path materials
     new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.3 }),
     new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.25 }),
     new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.2 }),
-    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.1 })
+    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.2 })
 ];
 const selectedPathMat = new THREE.LineBasicMaterial({ color: 0x3366ff, linewidth: 1.5, transparent:true, opacity: 0.7 });
 const defaultMaterial = new THREE.MeshStandardMaterial({ map: loader.load('data/1k_eris_fictional.jpg')});
@@ -74,6 +116,10 @@ const pointMaterial = new THREE.PointsMaterial( { color: 0xffffff, alphaMap: loa
 const darkMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
 const transparentMaterial = new THREE.LineBasicMaterial( { transparent: true, opacity: 0 } );
 
+const pointGeometry = new THREE.InstancedBufferGeometry();
+pointGeometry.setAttribute( 'position', new THREE.InstancedBufferAttribute( new Float32Array([0,0,0]), 3 ) );
+
+// set up bloom pass
 const ENTIRE_SCENE = 0, BLOOM_SCENE = 1;
 const bloomLayer = new THREE.Layers();
 bloomLayer.set( BLOOM_SCENE );
@@ -112,6 +158,7 @@ const sunlight = new THREE.PointLight( 0xffffff, 1 );
 
 scene.add(sunlight, ambient);
 
+// skysphere
 textureEquirec = loader.load( 'data/starmap_2020_8k.jpg' );
 textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
 textureEquirec.encoding = THREE.sRGBEncoding;

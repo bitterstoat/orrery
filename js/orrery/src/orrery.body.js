@@ -1,9 +1,15 @@
 class Body { // superclass for orbiting bodies - do not use directly
     constructor (params) {
         this.name = this.hasData(params.name) ? params.name : "Unnamed";
-        this.displayName = this.name;
-        this.type = this.hasData(params.type) ? parseFloat(params.type) : 3;
-        this.epoch = this.hasData(params.epoch) ? parseFloat(params.epoch) : 51543;
+        this.type = this.hasData(params.type) ? parseFloat(params.type) : 4;
+        /* BODY TYPES
+            0: planet
+            1: dwarf planets
+            2: large asteroids or moons
+            3: small moons (3 and up not labeled at launch)
+            4: small asteroids or comets (default type)
+        */
+        this.epoch = this.hasData(params.epoch) ? parseFloat(params.epoch) : 51544.5;
         this.semiMajorAxis = this.hasData(params.a) ? parseFloat(params.a) : 1;
         this.eccentricity = this.hasData(params.e) ? parseFloat(params.e) : 0;
         this.inclination = this.hasData(params.inc) ? parseFloat(params.inc) * toRad : 0; // convert angles to radians
@@ -14,7 +20,7 @@ class Body { // superclass for orbiting bodies - do not use directly
         this.ringRadius = this.hasData(params.ringRadius) ? parseFloat(params.ringRadius) : 0;
         this.texture = this.hasData(params.texture) ? params.texture : "default";
         this.ringTexture = this.hasData(params.ringTexture) ? params.ringTexture : "";
-        this.absoluteMag = this.hasData(params.H) ? parseFloat(params.H) : 7;
+        this.absoluteMag = this.hasData(params.H) ? parseFloat(params.H) : 10;
         this.zoomRatio = this.hasData(params.zoomRatio) ? parseFloat(params.zoomRatio) : 1000;
         this.radius = this.hasData(params.radius) ? parseFloat(params.radius).toFixed(3) : estRadius(this.absoluteMag).toFixed(3);
         this.mass = this.hasData(params.mass) ? (parseFloat(params.mass) * 10e+17).toFixed(3) : (8.7523e+9 * Math.pow(this.radius, 3)).toFixed(3); // mass estimation for 2.5g/cm^-3
@@ -49,4 +55,3 @@ class Body { // superclass for orbiting bodies - do not use directly
         return (2 / 3) * ((1 - alpha / Math.PI) * Math.cos(alpha) + 1 / Math.PI * Math.sin(alpha));
     }
 }
-

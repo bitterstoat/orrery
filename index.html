@@ -24,7 +24,7 @@
 		</script>
 
         <!-- local
-        <script src="js/jquery/jquery-3.5.1.min.js"></script>
+        <script src="js/jquery/jquery-3.6.0.min.js"></script>
         <script src="js/jquery/jquery-ui.min.js"></script>
         <script src="js/jquery/jquery.csv.min.js"></script>
         <script src="js/tween/tween.umd.js"></script>
@@ -35,8 +35,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r127/three.min.js"></script>
         <script src="js/three/OrbitControls.js"></script>
+        <script src="js/three/TrackballControls.js"></script>
         <script src="js/three/BufferGeometryUtils.js"></script>
         <script src="js/three/EffectComposer.js"></script>
         <script src="js/three/RenderPass.js"></script>
@@ -45,7 +46,6 @@
         <script src="js/three/CopyShader.js"></script>
         <script src="js/three/UnrealBloomPass.js"></script>
 
-        <!-- src
         <script src="js/orrery/src/orrery.body.js"></script>
         <script src="js/orrery/src/orrery.planet.js"></script>
         <script src="js/orrery/src/orrery.asteroid.js"></script>
@@ -55,15 +55,33 @@
         <script src="js/orrery/src/orrery.setup.js"></script>
         <script src="js/orrery/src/orrery.maker.js"></script>  
         <script src="js/orrery/src/orrery.loaders.js"></script>
-        -->
 
+        <!--
         <script src="js/orrery/orrery.classes.min.js"></script>
         <script src="js/orrery/orrery.init.min.js"></script>
-
+        -->
+    
         <link rel="stylesheet" href="css/jquery-ui.min.css">
         <link rel="stylesheet" href="css/jquery-ui.structure.min.css">
         <link rel="stylesheet" href="css/jquery-ui.theme.min.css">
         <link rel="stylesheet" href="css/orrery.css">
+        <link rel="apple-touch-icon" sizes="57x57" href="data/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="data/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="data/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="data/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="data/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="data/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="data/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="data/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="data/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="data/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="data/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="data/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="data/favicon-16x16.png">
+        <link rel="manifest" href="data/manifest.json">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="data/ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
     </head>
     <body>
         <div id="inputBox">
@@ -72,20 +90,20 @@
                 <table>
                     <tr>
                         <td>
-                            <button id="reverse" title="Slow/reverse time"><img src="data/rewind.png"></button>
+                            <button id="now" title="Set time to now"><img src="data/now.svg"></button>
+                        </td>
+                        <td>
+                            <button id="reverse" title="Slow/reverse time"><img src="data/rewind.svg"></button>
                         </td>
                         <td id="speedfield">
                             <span id="speed"></span><br>
                             FPS:&nbsp;<span id="fps"></span>
                         </td>
                         <td>
-                            <button id="forward" title="Advance time"><img src="data/forward.png"></button>
+                            <button id="forward" title="Advance time"><img src="data/ff.svg"></button>
                         </td>
                         <td>
-                            <button id="play" title="Play/pause"><img id="playpause" src="data/pause.png"></button>
-                        </td>
-                        <td>
-                            <button id="now" title="Set time to now"><img src="data/now.png"></button>
+                            <button id="play" title="Play/pause"><img id="playpause" src="data/pause.svg"></button>
                         </td>
                     </tr>
                     <tr>
@@ -93,7 +111,7 @@
                             Geolocation:&nbsp;<span id="lat">Default (Greenwich, UK)</span>&nbsp;<span id="long"></span>
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="extraData">
                         <td colspan="5">
                             MJD:&nbsp;<span id="mjd"></span>&nbsp;&nbsp;&bull;&nbsp;&nbsp;LST:&nbsp;<span id="lst"></span>&deg;
                         </td>
@@ -101,10 +119,19 @@
                 </table>
                 <label for="autocomplete"><b>SEARCH FOR AN OBJECT:</b></label>
                 <input id="autocomplete" title="Type an object's name">
+                <fieldset>
+                    <legend>Include:&nbsp;&nbsp;</legend>
+                    <input type="checkbox" name="moonBox" id="moonBox" checked>
+                    <label for="moonBox">Moons</label>&nbsp;&nbsp;
+                    <input type="checkbox" name="asteroidBox" id="asteroidBox" checked>
+                    <label for="asteroidBox">Asteroids</label>&nbsp;&nbsp;
+                    <input type="checkbox" name="cometBox" id="cometBox" checked>
+                    <label for="cometBox">Comets</label>
+                </fieldset>
                 <div id="info">
                     <a id="infohead" href="" target="_blank"></a><br>
                     <a href="" target="_blank"><img src="" class="wikipic"></a><br>
-                    <span id="planetInfo" class="data"></span><br>
+                    <b><span id="planetInfo" class="data"></span></b><br>
                     Semimajor Axis:&nbsp;<span id="semiMajorAxis" class="data"></span><br>
                     Orbital Period:&nbsp;<span id="period" class="data"></span><br>
                     Eccentricity:&nbsp;<span id="eccentricity" class="data"></span><br>
@@ -118,10 +145,19 @@
                         Distance from Earth:&nbsp;<span id="toEarth" class="data"></span>&nbsp;AU<br>
                         Right Ascension:&nbsp;<span id="RA" class="data"></span>&rdquo;<br>
                         Declination:&nbsp;<span id="dec" class="data"></span>&deg;<br>
+                        <span id="riseSet" class="data"></span>
                         Altitude:&nbsp;<span id="alt" class="data"></span>&deg;<br>
                         Azimuth:&nbsp;<span id="az" class="data"></span>&rdquo;<br>
-                        Hour Angle:&nbsp;<span id="ha" class="data"></span>&rdquo;<br>
+                        <span class="extraData">Hour Angle:&nbsp;<span id="ha" class="data"></span>&rdquo;<br></span>
                         Elongation:&nbsp;<span id="elong" class="data"></span>&deg;
+                    </span>
+                    <span id="earth">
+                        <br>Distance from Sun:&nbsp;<span id="earthToSun" class="data"></span>&nbsp;AU<br>
+                        Sun Right Ascension:&nbsp;<span id="sunRA" class="data"></span>&rdquo;<br>
+                        Sun Declination:&nbsp;<span id="sunDec" class="data"></span>&deg;<br>
+                        Sun&nbsp;<span id="earthRiseSet" class="data"></span>
+                        Sun Altitude:&nbsp;<span id="sunAlt" class="data"></span>&deg;<br>
+                        Sun Azimuth:&nbsp;<span id="sunAz" class="data"></span>&rdquo;<br>
                     </span>
                 </div>
             </div>  
@@ -142,7 +178,12 @@
                             <input id="manualTime" title="Time of Day (HHMM in military time)">
                         </td>
                         <td style="vertical-align: bottom;">
-                            <button id="setTime" title="Set time"><img src="data/set.png"></button>
+                            <button id="setTime" title="Set time"><img src="data/set.svg"></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            Valid date range: 9999 BC to 9999 AD<br>Use negative year values for BC<br>Time in 4-digit military time
                         </td>
                     </tr>
                     <tr>
@@ -155,41 +196,54 @@
                             <input id="manualLon" title="Longitude (decimal degrees)">
                         </td>
                         <td colspan="2" style="vertical-align: bottom;">
-                            <button id="setCoords" title="Set coordinates"><img src="data/set.png"></button>
+                            <button id="setCoords" title="Set coordinates"><img src="data/set.svg"></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            Use decimal degrees for lat/long,<br>negative values for west or south
                         </td>
                     </tr>
                 </table>
             </div>
             <h3>Help</h3>
             <div>
-                <p><b>SPACE BAR:</b> Pause/resume time</p>
-                <p><b>LEFT/RIGHT ARROW KEYS:</b> Change speed</p>
-                <p><b>DOWN ARROW KEY:</b> Set to current time</p>
-                <p><b>CLICK ON LABELS:</b> Shift focus to object and display info</p>
-                <p><b>LEFT/MID/RIGHT MOUSE + DRAG:</b>Rotate/zoom/translate around focus</p>
-                <p><b>SCROLL WHEEL:</b> Zoom to focus</p>
-                <p><b>UP ARROW KEY:</b> Toggle chase mode on focused object</p>
-                <p><b>ESC:</b> Release focus on object</p>
-                <p><b>F2:</b> Hide/show UI panels</p>
-                <p><b>F4:</b> Hide/show celestial sphere</p>
+                <p><b>SPACE BAR:</b> Pause/resume time<br>
+                <b>LEFT/RIGHT ARROW KEYS:</b> Change speed<br>
+                <b>DOWN ARROW KEY:</b> Set to current time<br>
+                <b>UP ARROW KEY:</b> Toggle chase mode on focused object<br>
+                <b>ESC:</b> Release focus on object<br>
+                <b>F2:</b> Hide/show UI panels<br>
+                <b>F4:</b> Hide/show celestial sphere<br>
+                <b>F8:</b> Hide/show extra time info</p>
+                <p><b>CLICK ON LABELS:</b> Shift focus to object and display info<br>
+                <b>CLICK ON INFO HEADER OR IMAGE:</b> Learn more on Wikipedia<br>
+                <b>LEFT/MID/RIGHT MOUSE + DRAG:</b> Rotate/zoom/translate around focus<br>
+                <b>SCROLL WHEEL:</b> Zoom to focus</p>
+                <p><b>HTTP VARIABLES - SET ON LAUNCH:</b><br>
+                <b>x: (decimal degrees)</b> Longitude<br>
+                <b>y: (decimal degrees)</b> Latitude<br>
+                <b>t: (YYYYMMDDHHMM)</b> Date<br>
+                <b>n: (integer)</b> Small asteroid limit (max: <span id="smallRoids"></span>)</p>
                 <button id="openSplash">About</button>
             </div>
         </div>
 
         <div id="splashScreen">
             <img id="logo" src="data/logo.svg">
-            <p>CC BY 4.0 Chris Impink&nbsp;&nbsp;&bull;&nbsp;&nbsp;v1.0<br><br>
-            Data courtesy of NASA, JPL, Wikipedia, and Solar System Scope.<br>Built with three.js and jQuery.</p>
+            <p>CC BY 4.0 Chris Impink&nbsp;&nbsp;&bull;&nbsp;&nbsp;v1.04<br><br>
+            Data courtesy of <a href="http://nasa.gov" target="_blank">NASA</a>, <a href="http://jpl.nasa.gov" target="_blank">JPL</a>, <a href="http://en.wikipedia.org" target="_blank">Wikipedia</a>, and <a href="https://www.solarsystemscope.com" target="_blank">Solar System Scope</a>.<br>
+            Built with <a href="http://threejs.org" target="_blank">three.js</a> and <a href="http:jquery.com" target="_blank">jQuery</a>. Available on <a href="https://github.com/bitterstoat/orrery" target="_blank">GitHub</a>.</p>
             <button id="clearSplash">Close</button>
         </div>
     </body>
 
-    <!-- src
     <script src="js/orrery/src/orrery.js"></script>
     <script src="js/orrery/src/orrery.ui.js"></script>
-    -->
-
+    
+    <!-- needs recompile
     <script src="js/orrery/orrery.min.js"></script>
     <script src="js/orrery/orrery.ui.min.js"></script>
+    //-->
 </html>
  
