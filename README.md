@@ -11,32 +11,26 @@ It's definitely better as a desktop web experience than mobile in the current ve
 - [Tween.js](https://github.com/tweenjs/tween.js/)
 
 ## Features
-- Ephemerides for astronomical bodies in the Solar System, searachable for all above 1km in radius (currently moons of asteroids and dwarf planets are not included but coming soon)
+- Ephemerides for astronomical bodies in the Solar System, searachable for all above 1km in radius 
 - Exaggerated orrery view at the solar system scale, zoomable to true scale for planetary systems
-- Live data readout for the body's physical and orbital characteristics, and RA/Dec and Alt/Az coordintes relative to Earth
+- Live data readout for the body's physical and orbital characteristics, RA/Dec and Alt/Az coordintes relative to current location, rise and set times, and magnitude adjusted for atmospheric dispersion
 - Links to articles and images from Wikipedia
 - Background stars include all above 7th magnitude
 - Celestial sphere graticule
+- HTTPvars for LatLong and Time
 
 ## Usage
 - No node.js setup required. Just clone the repository, start a web server in the root folder and open the index.html in a browser.
 
 ## Potential Roadmap
-- HTTPvars for LatLong and Time
-- Hide MJD/LST by default
-- Show distance, RADec in hover state from clicked body
-- Asteroid moons
 - UI scaling for mobile
 - Object count throttling from FPS observation
-- Correct RA/Dec and Alt/Az for Earth's barycentric rotation
 - Non-periodic comets/hyperbolic orbits (`Omuamua, etc.)
 - Extended data/add ins for smaller objects
 - Planetarium view with sky shader
-- Magnitude correction for airmass
 - Asteroid categorization from orbital elements
 - Asteroid 3D shapes
 - Ring shadows
-- Rise/transit/set solver
 - Spacecraft/Two Line Element reader
 - NASA SPICE kernels
 - Better image compression (Basis)
@@ -47,5 +41,4 @@ It's definitely better as a desktop web experience than mobile in the current ve
 - XR
 - Hohmann transfer orbits, launch window solver, delta-v requirements
 - Gravitational simulations
-- Selectable stars/DSOs
 - Compute shaders
