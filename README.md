@@ -36,7 +36,7 @@ It's definitely better as a desktop web experience than mobile in the current ve
 - CLICK ON INFO HEADER OR IMAGE: Learn more on Wikipedia
 - LEFT/MID/RIGHT MOUSE + DRAG: Rotate/zoom/translate around focus
 - SCROLL WHEEL: Zoom to focus
-### HTTP VARIABLES
+### HTTP Variables
 - ?x=(decimal degrees): Longitude
 - ?y=(decimal degrees): Latitude
 - ?t=(YYYYMMDDHHMM): Date (Years can be -9999 to 9999, time in military time format, e.g. 0615)
