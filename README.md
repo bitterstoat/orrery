@@ -13,14 +13,34 @@ It's definitely better as a desktop web experience than mobile in the current ve
 ## Features
 - Ephemerides for astronomical bodies in the Solar System, searachable for all above 1km in radius 
 - Exaggerated orrery view at the solar system scale, zoomable to true scale for planetary systems
-- Live data readout for the body's physical and orbital characteristics, RA/Dec and Alt/Az coordintes relative to current location, rise and set times, and magnitude adjusted for atmospheric dispersion
+- Live data readout for the body's physical and orbital characteristics, right ascension/declination and altitude/azimuth coordintes relative to current location, rise and set times, and magnitude adjusted for atmospheric dispersion
 - Links to articles and images from Wikipedia
 - Background stars include all above 7th magnitude
 - Celestial sphere graticule
-- HTTPvars for LatLong and Time
+- HTTPvars for latitiude/longitude, start time, and reducing particle count
+
+## Setup
+- No node.js setup required. Just clone the repository, start a web server in the root folder and open the index.html in a browser.
 
 ## Usage
-- No node.js setup required. Just clone the repository, start a web server in the root folder and open the index.html in a browser.
+### Navigation
+- SPACE BAR: Pause/resume time
+- LEFT/RIGHT ARROW KEYS: Change speed
+- DOWN ARROW KEY: Set to current time
+- UP ARROW KEY: Toggle chase mode on focused object
+- ESC: Release focus on object
+- F2: Hide/show UI panels
+- F4: Hide/show celestial sphere
+- F8: Hide/show extra time info
+- CLICK ON LABELS: Shift focus to object and display info
+- CLICK ON INFO HEADER OR IMAGE: Learn more on Wikipedia
+- LEFT/MID/RIGHT MOUSE + DRAG: Rotate/zoom/translate around focus
+- SCROLL WHEEL: Zoom to focus
+### HTTP VARIABLES
+- ?x=(decimal degrees): Longitude
+- ?y=(decimal degrees): Latitude
+- ?t=(YYYYMMDDHHMM): Date (Years can be -9999 to 9999, time in military time format, e.g. 0615)
+- ?n=(integer) Small asteroid limit
 
 ## Potential Roadmap
 - UI scaling for mobile
