@@ -1,3 +1,6 @@
+import { eclInclination, reAxis, gratRadius, system, gratLabels, stateManager, cameraLocked, timeManager, scene, pointMaterial, pointGeometry, defaultMaterial } from "./orrery.init.js"
+import { clickTag } from "./orrery.ui.js";
+
 function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, axisDec, axisRA, phase, thetaDot) { // make bodies
     const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : defaultMaterial;
     const planetRadius = radius;
@@ -18,7 +21,7 @@ function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, a
 
     // apply initial rotation
     reAxis(sphere, axisRA, axisDec);
-    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), thetaDot * ephTime + Math.PI * phase );
+    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), thetaDot * timeManager.ephTime + Math.PI * phase );
     return sphere;
 }
 
@@ -33,20 +36,20 @@ function makeLabel(i) { // make body label
     $("body").append("<div id='" + i + "' class='label'>" + system[i].name + "</div>");
     $("#" + i).addClass( "tag" + system[i].type ).click( function() {
         $(".label").removeClass( "active" );
-        if ( clickedLabel != "" && $(this)[0].id == clickedLabel[0].id ) {
-            closeTag(clickedLabel);
+        if ( stateManager.clickedLabel != "" && $(this)[0].id == stateManager.clickedLabel[0].id ) {
+            closeTag(stateManager.clickedLabel);
         } else {
             clickTag($(this)[0].id);
         }
     }).hover( function() {
-        if (clickedLabel != "" && $(this)[0].id != clickedLabel[0].id) {
-            hoverLabel = $(this);
-            hoverContent = $(this).html();
-            hoverLabel.html(hoverContent + '<span id="distToActive"></span>');
+        if (stateManager.clickedLabel != "" && $(this)[0].id != stateManager.clickedLabel[0].id) {
+            stateManager.hoverLabel = $(this);
+            const hoverContent = $(this).html();
+            stateManager.hoverLabel.html(hoverContent + '<span id="distToActive"></span>');
         }
     }, function() {
         $("#distToActive").remove();
-        hoverLabel = false;
+        stateManager.hoverLabel = false;
     });
 }
 
@@ -88,9 +91,10 @@ function makeGraticules() {
     rings.push(ringGeometry);
     const longSphereGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(rings);
     const ringMaterial = new THREE.LineBasicMaterial({ color: 0x222211, linewidth: 1 });
-    graticule = new THREE.LineLoop( longSphereGeometry, ringMaterial);
+    const graticule = new THREE.LineLoop( longSphereGeometry, ringMaterial);
     graticule.name = "graticule";
     scene.add(graticule);
+    cameraLocked.graticule = graticule
 }
 
 function makeRefPoints() {
@@ -102,9 +106,9 @@ function makeRefPoints() {
     for (let i = 1; i < latDivisions; i++) {
         const latLabel = 90 - i * 15;
         for (let j = 0; j < longDivisions; j++) {
-            x = Math.sin(j * Math.PI * 2 / longDivisions) * Math.sin(i * Math.PI / latDivisions) * gratRadius;
-            y = Math.cos(i * Math.PI / latDivisions) * gratRadius;
-            z = Math.cos(j * Math.PI * 2 / longDivisions) * Math.sin(i * Math.PI / latDivisions) * gratRadius;
+            const x = Math.sin(j * Math.PI * 2 / longDivisions) * Math.sin(i * Math.PI / latDivisions) * gratRadius;
+            const y = Math.cos(i * Math.PI / latDivisions) * gratRadius;
+            const z = Math.cos(j * Math.PI * 2 / longDivisions) * Math.sin(i * Math.PI / latDivisions) * gratRadius;
             refPoints.push(x, y, z);
             labels.push(latLabel + "&deg;/" + ((j + 9) % 12) * 2 + "h")
         }
@@ -116,7 +120,9 @@ function makeRefPoints() {
         const x = refPoints[3 * i];
         const y = refPoints[3 * i + 1];
         const z = refPoints[3 * i + 2];
-        text = labels[i];
+        const text = labels[i];
         gratLabels.push({label: makeGratLabel(i, text), x: x, y: y, z: z});
     }
 }
+
+export { makeBody, makePoint, makeLabel, makeGratLabel, makeGraticules, makeRefPoints };

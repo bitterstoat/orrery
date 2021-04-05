@@ -1,6 +1,27 @@
+import { MJDToEphTime, unixToMJD, getLatLong, reAxis } from "./orrery.spacetime.js"
+
+// spatial constants
+const toRad = Math.PI/180
+const toDeg = 180/Math.PI;
+const celestialXAxis = new THREE.Vector3(1, 0, 0);
+const celestialZAxis = new THREE.Vector3(0, -1, 0);
+const eclInclination = 23.43928 * toRad + Math.PI; // inclination of the ecliptic relative to the celestial sphere
+const AU = 1.495978707e+11; // astronomical unit
+const gravConstant = 6.6743015e-11;
+const sunGravConstant = 1.32712440042e+20; // gravitational constant for heliocentric orbits
+const earthRadius = 6371000;
+const earthBary = 4670 / 388400; // Earth barycentric offset relative to Moon's semimajor axis
+const plutoBary = 2110 / 19600; // Pluto barycentric offset relative to Charon's semimajor axis
+
+// temporal constants
+const daysPerCent = 36525.6363;
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const UnixTimeZeroInMJD = 40587; // UNIX time zero as Modified Julian Date
+const J2KInMJD = 51544.0; // Modified Julian Date of January 1, 2000
+const DayInMillis = 86400000; // miliseconds per day
+
 // constants
 const fps = 60; // max FPS
-const precessFreq = 1 / daysPerCent; // update orbital element drift 
 const rates = [ -1/20/fps, -1/100/fps, -100/daysPerCent/fps, -20/daysPerCent/fps, -1/daysPerCent/fps, -1/24/daysPerCent/fps, -1/86400/daysPerCent/fps, 0, 1/86400/daysPerCent/fps, 1/24/daysPerCent/fps, 1/daysPerCent/fps, 20/daysPerCent/fps, 100/daysPerCent/fps, 1/100/fps, 1/20/fps]; // centuries per frame
 const rateDesc = [ "-5 years/sec", "-1 year/sec", "-100 days/sec", "-20 days/sec", "-1 day/sec", "-1 hour/sec", "Reversed Time", "Paused", "Realtime", "1 hour/sec", "1 day/sec", "20 days/sec", "100 days/sec", "1 year/sec", "5 years/sec"];
 const pointCount = 180;
@@ -24,39 +45,17 @@ const planetNames = [];
 const moonNames = [];
 const asteroidNames = [];
 const cometNames = [];
-
-// variables
-let earthID, moonID, plutoID, charonID, centerX, centerY
-let hoverLabel = false;
-let starfieldObj = new THREE.Object3D();
-let graticule = new THREE.Line();
-let lastLoop = Date.now();
-let fpsBuffer = [];
-let avgFPS = 0;
-let orbitPoints = pointCount;
-let speed = 8;
-let lastSpeed = speed;
-let rate = rates[speed];
-let datasets = 0;
-let flags = 0;
-let clickedLabel = "";
-let clickedPlanet = {};
-let lastClickedPlanet = {};
-let planetMoons = []; // moons of the the currently focused planet
-let contents = []; // combined search field list
-let ephTime = MJDToEphTime(unixToMJD(Date.now())); // get current time in fractional centuries since J2000
-let following = false;
-let lastFollow = new THREE.Vector3();
-let planetScale = {f: 1.0};
-let latitude = 51.48; // Default is Greenwich
-let longitude = 0;
-let mousePos = new THREE.Vector3(0, 0, 1);
-let showSplash = false;
-let extraData = false;
-let latLongDefault = true;
-let parsedDate = 0;
-let precessCount = 0;
-let smallAsteroids = 0;
+const planetScale = {f: 1.0};
+const fpsBuffer = [];
+const planetMoons = []; // moons of the the currently focused planet
+const specialID = { earth:0, moon:0, pluto:0, charon:0 };
+const center = { x:0, y:0 }; // screen center
+const stateManager = { clickedLabel: "", clickedPlanet: {}, lastClickedPlanet: {}, mousePos: new THREE.Vector3(0, 0, 1), following: false, lastFollow: new THREE.Vector3(), hoverLabel: false, extraData: false };
+const groundPosition = { latitude: 51.48, longitude: 0, default: true }; // default location is Greenwich
+const timeManager = { ephTime: MJDToEphTime(unixToMJD(Date.now())), speed: 8, lastSpeed: 8, rate: rates[8], avgFPS: 0, parsedDate: 0 };
+const searchLists = { combined: [] };
+const cameraLocked = { starfieldObj: new THREE.Object3D(), graticule: new THREE.Line() };
+const orbitPlot = { points: pointCount };
 
 function getUrlVars() {
     let vars = {};
@@ -74,9 +73,9 @@ if (typeof vars.y == "undefined" || typeof vars.x == "undefined") {
     const lat = parseFloat(vars.y);
     const lon = parseFloat(vars.x);
     if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
-        latitude = lat;
-        longitude = lon;
-        latLongDefault = false;
+        groundPosition.latitude = lat;
+        groundPosition.longitude = lon;
+        groundPosition.default = false;
     }
 }
 
@@ -87,7 +86,7 @@ if (typeof vars.t != "undefined" && (vars.t.length == 12 || vars.t.length == 13)
     const dayTime = vars.t.substr(split);
     const dateCode = (BC ? "-00" : "") + year + "-" + dayTime.substr(0, 2) + "-" + dayTime.substr(2,2) + "T" + 
     dayTime.substr(4,2) + ":" + dayTime.substr(6,2);
-    parsedDate = Date.parse(dateCode);
+    timeManager.parsedDate = Date.parse(dateCode);
 }
 
 // three.js setup
@@ -159,13 +158,13 @@ const sunlight = new THREE.PointLight( 0xffffff, 1 );
 scene.add(sunlight, ambient);
 
 // skysphere
-textureEquirec = loader.load( 'data/starmap_2020_8k.jpg' );
+const textureEquirec = loader.load( 'data/starmap_2020_8k.jpg' );
 textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
 textureEquirec.encoding = THREE.sRGBEncoding;
 scene.background = textureEquirec;
 const geometry = new THREE.IcosahedronGeometry( 1000, 2 );
-sphereMaterial = new THREE.MeshBasicMaterial( { envMap: textureEquirec } );
-sphereMesh = new THREE.Mesh( geometry, sphereMaterial );
+const sphereMaterial = new THREE.MeshBasicMaterial( { envMap: textureEquirec } );
+const sphereMesh = new THREE.Mesh( geometry, sphereMaterial );
 scene.add( sphereMesh );
 
 // make sun
@@ -188,7 +187,9 @@ controls.minDistance = initMinDistance;
 controls.maxDistance = initMaxDistance;
 controls.maxPolarAngle = Math.PI;
 
-camStart = new THREE.Vector3(0, -8, 0).applyAxisAngle(celestialXAxis, eclInclination);
+const camStart = new THREE.Vector3(0, -8, 0).applyAxisAngle(celestialXAxis, eclInclination);
 camera.position.y = camStart.y;
 camera.position.z = camStart.z;
 controls.update();
+
+export { fps, rates, daysPerCent, rateDesc, pointCount, materials, pauseRate, initialPoint, initialFOV, exagScale, initMinDistance, initMaxDistance, gratRadius, system, majorBodies, moons, paths, orderedNames, tempLabels, gratLabels, precessing, planetNames, moonNames, asteroidNames, cometNames, specialID, center, stateManager, cameraLocked, fpsBuffer, timeManager, orbitPlot, planetMoons, searchLists, planetScale, groundPosition, getUrlVars, vars, scene, clock, renderer, loader, pathMaterials, selectedPathMat, pointMaterial, darkMaterial, transparentMaterial, pointGeometry, ENTIRE_SCENE, BLOOM_SCENE, bloomLayer, renderScene, bloomPass, bloomComposer, finalPass, finalComposer, ambient, sunlight, geometry, sunGeometry, sunMaterial, sun, controls, camera, AU, DayInMillis, J2KInMJD, UnixTimeZeroInMJD, celestialXAxis, celestialZAxis, earthBary, earthRadius, eclInclination, gravConstant, toRad, toDeg, sunGravConstant, plutoBary, months, defaultMaterial };

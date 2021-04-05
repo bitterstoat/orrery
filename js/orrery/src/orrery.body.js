@@ -1,4 +1,5 @@
-class Body { // superclass for orbiting bodies - do not use directly
+import { toRad, AU, exagScale, estRadius } from "./orrery.init.js" 
+export class Body { // superclass for orbiting bodies - do not use directly
     constructor (params) {
         this.name = this.hasData(params.name) ? params.name : "Unnamed";
         this.type = this.hasData(params.type) ? parseFloat(params.type) : 4;

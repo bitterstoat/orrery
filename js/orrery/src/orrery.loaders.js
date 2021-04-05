@@ -1,23 +1,18 @@
+import { Planet, Asteroid, Moon, Comet } from './orrery.classes.js';
+import { makeGraticules, makeRefPoints, cameraLocked, RADecToVector, BVToRGB, vars, loader, scene, system, planetNames, asteroidNames, moonNames, cometNames, moons, precessing, timeManager, orderedNames, orbitPath, paths, majorBodies, makeBody, makeLabel, makePoint, specialID, searchLists } from './orrery.init.js'
+import { animate } from './orrery.js';
+let planetData, asteroidData, moonData, cometData, starData;
+let datasets = 0;
+let flags = 0;
+let smallAsteroids = 0;
+
 /* INITITALIZATION */
 $(document).ready( function() {
     fullLoad();
     makeGraticules();
     makeRefPoints();
-    graticule.visible = false;
+    cameraLocked.graticule.visible = false;
 });
-
-let JSONsystem = [];
-function JSONtest() {
-    $.ajax({ // load planet data
-        url: "data/system.json",
-        async: true,
-        success: function(list) { JSONsystem = jQuery.parseJSON(list); },
-        dataType: "text",
-        complete: function () {
-            console.log(JSONsystem);
-        }
-    });
-}
 
 function fullLoad() {
     $.ajax({ // load planet data
@@ -63,7 +58,7 @@ function fullLoad() {
         complete: function () {
             smallAsteroids = asteroidData.length;
             for (let i = 0; i < asteroidData.length; i++) {
-                if (i > vars.n) { break; } // these can be reduced to improve frame rate
+                if (i > vars.n) { break; } // these can be reduced to improve frame timeManager.rate
                 let newAsteroid = new Asteroid(asteroidData[i]);
                 system.push(newAsteroid);
                 asteroidNames.push(newAsteroid.name);
@@ -116,7 +111,7 @@ function fullLoad() {
             for (let i = 0; i < hyperData.length; i++) {
                 let newHyperbolic = new Hyperbolic(hyperData[i]);
                 system.push(newHyperbolic);
-                contents.push(newHyperbolic.name);
+                searchLists.combined.push(newHyperbolic.name);
             }
             finalize();
         }
@@ -147,7 +142,7 @@ function fullLoad() {
             const starfield = new THREE.Points( geometry, material );
             starfield.name = "starfield";
             scene.add( starfield );
-            starfieldObj = starfield;
+            cameraLocked.starfieldObj = starfield;
         }
     });
 }
@@ -155,8 +150,8 @@ function fullLoad() {
 function finalize() {
     flags++;
     if (flags == datasets) {
-        if (parsedDate != 0 && !isNaN(parsedDate)) {
-            ephTime = MJDToEphTime(unixToMJD(parsedDate));
+        if (timeManager.parsedDate != 0 && !isNaN(timeManager.parsedDate)) {
+            timeManager.ephTime = MJDToEphTime(unixToMJD(timeManager.parsedDate));
         }
         for (let i = 0; i < system.length; i++) {
             orderedNames.push(system[i].name);
@@ -168,7 +163,7 @@ function finalize() {
         }
 
         for (let i = 0; i < system.length; i++) {
-            system[i].set(ephTime);
+            system[i].set(timeManager.ephTime);
             const path = orbitPath(i);
             paths.push(path);
             system[i].sysId = i;
@@ -197,10 +192,10 @@ function finalize() {
         }
 
         // barycentric bodies
-        earthID = orderedNames.findIndex( function(e) { return e == "Earth" });
-        moonID = orderedNames.findIndex( function(e) { return e == "Moon" });
-        plutoID = orderedNames.findIndex( function(e) { return e == "Pluto" });
-        charonID = orderedNames.findIndex( function(e) { return e == "Charon" });
+        specialID.earth = orderedNames.findIndex( function(e) { return e == "Earth" });
+        specialID.moon = orderedNames.findIndex( function(e) { return e == "Moon" });
+        specialID.pluto = orderedNames.findIndex( function(e) { return e == "Pluto" });
+        specialID.charon = orderedNames.findIndex( function(e) { return e == "Charon" });
 
         for (let i = 0; i < precessing.length; i++) {
             precessing[i] = orderedNames.findIndex( function(e) { return e == precessing[i] });
@@ -208,7 +203,7 @@ function finalize() {
 
         $( "#smallRoids" ).html(smallAsteroids);
 
-        contents = planetNames.concat(moonNames, asteroidNames, cometNames);
+        searchLists.combined = planetNames.concat(moonNames, asteroidNames, cometNames);
 
         animate(); // start the main loop
     }

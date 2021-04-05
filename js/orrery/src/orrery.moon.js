@@ -1,4 +1,7 @@
-class Moon extends Body {
+import * as Orrery from './orrery.body.js';
+import { toRad, AU, daysPerCent, MJDToEphTime, orbitPlot, plotPoint, planetary, scene, system } from "./orrery.init.js" 
+
+export class Moon extends Orrery.Body {
     constructor(params) {
         super (params);
         this.argPeriapsis = this.w;
@@ -31,7 +34,7 @@ class Moon extends Body {
 
     updateOrbit() {
         // plot full orbit in local space
-        this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, orbitPoints);
+        this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, orbitPlot.points);
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
         for (let i=0; i<this.localOrbit.length; i++) {
             this.planetary = planetary(this.argPeriapsis, this.longAscNode, this.incStart, this.orbitRA, this.orbitDec, this.localOrbit[i].x, this.localOrbit[i].y, this.orbitRef, this.orbitId);
@@ -41,21 +44,21 @@ class Moon extends Body {
     }
 
     update(dt) {
-        this.meanAnomaly += (this.lDot * dt); // update longitude
+        this.meanAnomaly += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis);
         this.planetaryPos = planetary(this.argPeriapsis, this.longAscNode, this.incStart, this.orbitRA, this.orbitDec, this.localOrbit[0].x, this.localOrbit[0].y, this.orbitRef, this.orbitId);
         this.celestialPos = this.planetaryPos.add(scene.children[system[this.orbitId].childId].position);
     }
 
-    longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) { // generate longitude points
-        const orbitPoints = [];
+    longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) {
+        const orbitArray = [];
         const span = Math.PI * 2 / points;
         for (let i=0; i<points; i++) {
             meanAnomaly += span;
             const point = plotPoint(meanAnomaly, eccentricity, semiMajorAxis, i==0);
-            orbitPoints.push(point);
+            orbitArray.push(point);
         }
-        return orbitPoints;
+        return orbitArray;
     }
 }
 

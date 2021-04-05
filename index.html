@@ -46,20 +46,9 @@
         <script src="js/three/CopyShader.js"></script>
         <script src="js/three/UnrealBloomPass.js"></script>
 
-        <script src="js/orrery/src/orrery.body.js"></script>
-        <script src="js/orrery/src/orrery.planet.js"></script>
-        <script src="js/orrery/src/orrery.asteroid.js"></script>
-        <script src="js/orrery/src/orrery.moon.js"></script>
-        <script src="js/orrery/src/orrery.comet.js"></script>
-        <script src="js/orrery/src/orrery.spacetime.js"></script>
-        <script src="js/orrery/src/orrery.setup.js"></script>
-        <script src="js/orrery/src/orrery.maker.js"></script>  
-        <script src="js/orrery/src/orrery.loaders.js"></script>
-
-        <!--
-        <script src="js/orrery/orrery.classes.min.js"></script>
-        <script src="js/orrery/orrery.init.min.js"></script>
-        -->
+        <script type="module" src="js/orrery/src/orrery.classes.js"></script>
+        <script type="module" src="js/orrery/src/orrery.init.js"></script>
+        <script type="module" src="js/orrery/src/orrery.loaders.js"></script>
     
         <link rel="stylesheet" href="css/jquery-ui.min.css">
         <link rel="stylesheet" href="css/jquery-ui.structure.min.css">
@@ -231,19 +220,17 @@
 
         <div id="splashScreen">
             <img id="logo" src="data/logo.svg">
-            <p>CC BY 4.0 Chris Impink&nbsp;&nbsp;&bull;&nbsp;&nbsp;v1.1<br><br>
+            <p>CC BY 4.0 Chris Impink&nbsp;&nbsp;&bull;&nbsp;&nbsp;v1.1.1<br><br>
             Data courtesy of <a href="http://nasa.gov" target="_blank">NASA</a>, <a href="http://jpl.nasa.gov" target="_blank">JPL</a>, <a href="http://en.wikipedia.org" target="_blank">Wikipedia</a>, and <a href="https://www.solarsystemscope.com" target="_blank">Solar System Scope</a>.<br>
             Built with <a href="http://threejs.org" target="_blank">three.js</a> and <a href="http:jquery.com" target="_blank">jQuery</a>. Available on <a href="https://github.com/bitterstoat/orrery" target="_blank">GitHub</a>.</p>
             <button id="clearSplash">Close</button>
         </div>
     </body>
 
-    <script src="js/orrery/src/orrery.js"></script>
-    <script src="js/orrery/src/orrery.ui.js"></script>
-    
-    <!-- needs recompile
-    <script src="js/orrery/orrery.min.js"></script>
-    <script src="js/orrery/orrery.ui.min.js"></script>
-    //-->
+    <script type="module" src="js/orrery/src/orrery.js"></script>
+    <script type="module" src="js/orrery/src/orrery.ui.js"></script>
+
+    <script src="./index.js"></script>
+
 </html>
  

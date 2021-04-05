@@ -1,4 +1,7 @@
-class Planet extends Body {
+import * as Orrery from './orrery.body.js';
+import { toRad, MJDToEphTime, orbitPlot, plotPoint, timeManager, celestial } from "./orrery.init.js" 
+
+export class Planet extends Orrery.Body {
     constructor(params) {
         super (params);
         this.aDot = this.hasData(params.aDot) ? parseFloat(params.aDot) : 0;
@@ -44,7 +47,7 @@ class Planet extends Body {
 
     updateOrbit() {
         // plot full orbit in local space
-        this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, this.b, this.c, this.s, this.f, orbitPoints);
+        this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, this.b, this.c, this.s, this.f, orbitPlot.points);
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
         for (let i=0; i<this.localOrbit.length; i++) {
@@ -67,15 +70,15 @@ class Planet extends Body {
         this.longAscNode += (this.omegaDot * dt);
     }
 
-    longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, b, c, s, f, points = 1) { // generate longitude points
-        const orbitPoints = [];
+    longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, b, c, s, f, points = 1) {
+        const orbitArray = [];
         const span = Math.PI * 2 / points;
-        let meanAnomaly = meanLongitude - longPeriapsis + (b * ephTime * ephTime) + (c * Math.cos(f * ephTime)) + (s * Math.sin(f * ephTime));
+        let meanAnomaly = meanLongitude - longPeriapsis + (b * timeManager.ephTime * timeManager.ephTime) + (c * Math.cos(f * timeManager.ephTime)) + (s * Math.sin(f * timeManager.ephTime));
         for (let i=0; i<points; i++) {
             meanAnomaly += span;
             const point = plotPoint(meanAnomaly, eccentricity, semiMajorAxis, i==0);
-            orbitPoints.push(point);
+            orbitArray.push(point);
         }
-        return orbitPoints;
+        return orbitArray;
     }
 }

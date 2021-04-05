@@ -1,4 +1,7 @@
-class Asteroid extends Body {
+import * as Orrery from './orrery.body.js';
+import { toRad, MJDToEphTime, orbitPlot, plotPoint, timeManager, celestial } from "./orrery.init.js" 
+
+export class Asteroid extends Orrery.Body {
     constructor(params) {
         super (params);
         this.catalogNumber = this.hasData(params.num) ? parseFloat(params.num) : 0;
@@ -30,7 +33,7 @@ class Asteroid extends Body {
 
     updateOrbit() {
         // plot full orbit in local space
-        this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, orbitPoints);
+        this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, orbitPlot.points);
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
         for (let i=0; i<this.localOrbit.length; i++) {
@@ -40,20 +43,20 @@ class Asteroid extends Body {
     }
 
     update(dt) {
-        this.meanAnomaly += (this.lDot * dt); // update longitude
+        this.meanAnomaly += (this.lDot * dt); // update groundPosition.longitude
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis);
         this.celestialPos = celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
-    longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) { // generate longitude points
-        const orbitPoints = [];
+    longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) {
+        const orbitArray = [];
         const span = Math.PI * 2 / points;
         for (let i=0; i<points; i++) {
             meanAnomaly += span;
             const point = plotPoint(meanAnomaly, eccentricity, semiMajorAxis, i==0);
-            orbitPoints.push(point);
+            orbitArray.push(point);
         }
-        return orbitPoints;
+        return orbitArray;
     }
 
     phaseIntegral(alpha) {
