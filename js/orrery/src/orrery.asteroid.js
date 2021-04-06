@@ -1,5 +1,5 @@
 import * as Orrery from './orrery.body.js';
-import { toRad, MJDToEphTime, orbitPlot, plotPoint, timeManager, celestial } from "./orrery.init.js" 
+import { toRad, MJDToEphTime, orbitPlot, plotPoint, celestial } from "./orrery.init.js" 
 
 export class Asteroid extends Orrery.Body {
     constructor(params) {

@@ -1,8 +1,8 @@
 import { toDeg, AU, daysPerCent, displayLatLong, unixToMJD, slowTime, speedTime, setTime, rates, pauseRate, 
-    initialPoint, initialFOV, exagScale,initMinDistance, initMaxDistance, system, majorBodies, moons, paths, orderedNames, 
-    planetNames, moonNames, asteroidNames, cometNames, specialID, center, cameraLocked, timeManager, planetMoons, searchLists, 
-    stateManager, planetScale, groundPosition, scene, renderer, pathMaterials, selectedPathMat, pointMaterial, 
-    transparentMaterial, bloomComposer, finalComposer, sun, controls, makeLabel, camera } from "./orrery.init.js";
+    initialPoint, initialFOV, exagScale,initMinDistance, initMaxDistance, system, majorBodies, moons, paths, 
+    specialID, center, cameraLocked, timeManager, planetMoons, searchLists, stateManager, planetScale, groundPosition, 
+    scene, renderer, pathMaterials, selectedPathMat, pointMaterial, transparentMaterial, bloomComposer, finalComposer, 
+    sun, controls, makeLabel, camera } from "./orrery.init.js";
 
 function windowResize() { // window setup and resize handler
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -248,10 +248,10 @@ $("#now").click( function() {
 
 $("#moonBox, #asteroidBox, #cometBox").click( function() {
     $("#autocomplete")[0].value = "";
-    const addMoons = $("#moonBox")[0].checked;
-    const addAsteroids = $("#asteroidBox")[0].checked;
-    const addComets = $("#cometBox")[0].checked;
-    searchLists.combined = planetNames.concat( (addMoons) ? moonNames : null, (addAsteroids) ? asteroidNames : null, (addComets) ? cometNames : null );
+    searchLists.combined = searchLists.planetNames.concat( 
+        ($("#moonBox")[0].checked) ? searchLists.moonNames : null, 
+        ($("#asteroidBox")[0].checked) ? searchLists.asteroidNames : null, 
+        ($("#cometBox")[0].checked) ? searchLists.cometNames : null );
 });
 
 $("#setCoords").click( function() {

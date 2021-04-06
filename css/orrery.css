@@ -137,6 +137,11 @@ legend {
     padding: 0;
 }
 
+#VRButton {
+    padding: 0;
+    height: initial;
+}
+
 .wikipic {
     width: 226px;
     height: auto;

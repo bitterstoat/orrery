@@ -1,4 +1,4 @@
-import { MJDToEphTime, unixToMJD, getLatLong, reAxis } from "./orrery.spacetime.js"
+import { MJDToEphTime, unixToMJD, getLatLong, reAxis } from "./orrery.spacetime.js";
 
 // spatial constants
 const toRad = Math.PI/180
@@ -32,19 +32,12 @@ const initialFOV = 60;
 const exagScale = 500000;
 const initMinDistance = 1;
 const initMaxDistance = 100;
-const gratRadius = 1000;
 const system = []; // the solar system as an associative array
 const majorBodies = []; // bodies that scale on zoom
 const moons = []; // need late update with planet references
 const paths = []; // orbital paths
-const orderedNames = [];
-const tempLabels = [];
 const gratLabels = [];
 const precessing = []; // orbits with temporal drift
-const planetNames = [];
-const moonNames = [];
-const asteroidNames = [];
-const cometNames = [];
 const planetScale = {f: 1.0};
 const fpsBuffer = [];
 const planetMoons = []; // moons of the the currently focused planet
@@ -53,7 +46,7 @@ const center = { x:0, y:0 }; // screen center
 const stateManager = { clickedLabel: "", clickedPlanet: {}, lastClickedPlanet: {}, mousePos: new THREE.Vector3(0, 0, 1), following: false, lastFollow: new THREE.Vector3(), hoverLabel: false, extraData: false };
 const groundPosition = { latitude: 51.48, longitude: 0, default: true }; // default location is Greenwich
 const timeManager = { ephTime: MJDToEphTime(unixToMJD(Date.now())), speed: 8, lastSpeed: 8, rate: rates[8], avgFPS: 0, parsedDate: 0 };
-const searchLists = { combined: [] };
+const searchLists = { combined: [], planetNames: [], moonNames: [], asteroidNames: [], cometNames: [], orderedNames: [] };
 const cameraLocked = { starfieldObj: new THREE.Object3D(), graticule: new THREE.Line() };
 const orbitPlot = { points: pointCount };
 
@@ -192,4 +185,4 @@ camera.position.y = camStart.y;
 camera.position.z = camStart.z;
 controls.update();
 
-export { fps, rates, daysPerCent, rateDesc, pointCount, materials, pauseRate, initialPoint, initialFOV, exagScale, initMinDistance, initMaxDistance, gratRadius, system, majorBodies, moons, paths, orderedNames, tempLabels, gratLabels, precessing, planetNames, moonNames, asteroidNames, cometNames, specialID, center, stateManager, cameraLocked, fpsBuffer, timeManager, orbitPlot, planetMoons, searchLists, planetScale, groundPosition, getUrlVars, vars, scene, clock, renderer, loader, pathMaterials, selectedPathMat, pointMaterial, darkMaterial, transparentMaterial, pointGeometry, ENTIRE_SCENE, BLOOM_SCENE, bloomLayer, renderScene, bloomPass, bloomComposer, finalPass, finalComposer, ambient, sunlight, geometry, sunGeometry, sunMaterial, sun, controls, camera, AU, DayInMillis, J2KInMJD, UnixTimeZeroInMJD, celestialXAxis, celestialZAxis, earthBary, earthRadius, eclInclination, gravConstant, toRad, toDeg, sunGravConstant, plutoBary, months, defaultMaterial };
+export { fps, rates, daysPerCent, rateDesc, pointCount, materials, pauseRate, initialPoint, initialFOV, exagScale, initMinDistance, initMaxDistance, system, majorBodies, moons, paths, gratLabels, precessing, specialID, center, stateManager, cameraLocked, fpsBuffer, timeManager, orbitPlot, planetMoons, searchLists, planetScale, groundPosition, getUrlVars, vars, scene, clock, renderer, loader, pathMaterials, selectedPathMat, pointMaterial, darkMaterial, transparentMaterial, pointGeometry, ENTIRE_SCENE, BLOOM_SCENE, bloomLayer, renderScene, bloomPass, bloomComposer, finalPass, finalComposer, ambient, sunlight, geometry, sunGeometry, sunMaterial, sun, controls, camera, AU, DayInMillis, J2KInMJD, UnixTimeZeroInMJD, celestialXAxis, celestialZAxis, earthBary, earthRadius, eclInclination, gravConstant, toRad, toDeg, sunGravConstant, plutoBary, months, defaultMaterial };

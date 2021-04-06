@@ -1,5 +1,5 @@
-import { Planet, Asteroid, Moon, Comet } from './orrery.classes.js';
-import { makeGraticules, makeRefPoints, cameraLocked, RADecToVector, BVToRGB, vars, loader, scene, system, planetNames, asteroidNames, moonNames, cometNames, moons, precessing, timeManager, orderedNames, orbitPath, paths, majorBodies, makeBody, makeLabel, makePoint, specialID, searchLists } from './orrery.init.js'
+import * as Orrery from './orrery.classes.js';
+import { makeGraticules, makeRefPoints, cameraLocked, RADecToVector, BVToRGB, vars, loader, scene, system, moons, precessing, timeManager, orbitPath, paths, majorBodies, makeBody, makeLabel, makePoint, specialID, searchLists } from './orrery.init.js'
 import { animate } from './orrery.js';
 let planetData, asteroidData, moonData, cometData, starData;
 let datasets = 0;
@@ -23,9 +23,9 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < planetData.length; i++) {
-                let newPlanet = new Planet(planetData[i]);
+                let newPlanet = new Orrery.Planet(planetData[i]);
                 system.push(newPlanet);
-                planetNames.push(newPlanet.name);
+                searchLists.planetNames.push(newPlanet.name);
                 precessing.push(newPlanet.name);
             }
             finalize();
@@ -41,9 +41,9 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < asteroidData.length; i++) {
-                let newAsteroid = new Asteroid(asteroidData[i]);
+                let newAsteroid = new Orrery.Asteroid(asteroidData[i]);
                 system.push(newAsteroid);
-                asteroidNames.push(newAsteroid.name);
+                searchLists.asteroidNames.push(newAsteroid.name);
             }
             finalize();
         }
@@ -59,9 +59,9 @@ function fullLoad() {
             smallAsteroids = asteroidData.length;
             for (let i = 0; i < asteroidData.length; i++) {
                 if (i > vars.n) { break; } // these can be reduced to improve frame timeManager.rate
-                let newAsteroid = new Asteroid(asteroidData[i]);
+                let newAsteroid = new Orrery.Asteroid(asteroidData[i]);
                 system.push(newAsteroid);
-                asteroidNames.push(newAsteroid.name);
+                searchLists.asteroidNames.push(newAsteroid.name);
             }
             finalize();
         }
@@ -75,10 +75,10 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < moonData.length; i++) {
-                let newMoon = new Moon(moonData[i]);
+                let newMoon = new Orrery.Moon(moonData[i]);
                 system.push(newMoon);
                 moons.push(newMoon);
-                moonNames.push(newMoon.name);
+                searchLists.moonNames.push(newMoon.name);
             }
             finalize();
         }
@@ -92,9 +92,9 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < cometData.length; i++) {
-                let newComet = new Comet(cometData[i]);
+                let newComet = new Orrery.Comet(cometData[i]);
                 system.push(newComet);
-                cometNames.push(newComet.name);
+                searchLists.cometNames.push(newComet.name);
             }
             finalize();
         }
@@ -154,10 +154,10 @@ function finalize() {
             timeManager.ephTime = MJDToEphTime(unixToMJD(timeManager.parsedDate));
         }
         for (let i = 0; i < system.length; i++) {
-            orderedNames.push(system[i].name);
+            searchLists.orderedNames.push(system[i].name);
         }
         for (let i = 0; i < moons.length; i++) {
-            moons[i].orbitId = orderedNames.findIndex( function(e) {
+            moons[i].orbitId = searchLists.orderedNames.findIndex( function(e) {
                 return e == moons[i].orbiting;
             });
         }
@@ -168,7 +168,7 @@ function finalize() {
             paths.push(path);
             system[i].sysId = i;
             system[i].path = paths.length - 1;
-            if (system[i].type < 3 || system[i] instanceof Moon == true ) {
+            if (system[i].type < 3 || system[i] instanceof Orrery.Moon == true ) {
                 scene.add(path);
                 majorBodies.push(system[i]);
                 scene.add(makeBody(loader, system[i].texture, system[i].exagRadius, system[i].name, i, system[i].ringRadius, system[i].ringTexture, system[i].axisDec, system[i].axisRA, system[i].phase, system[i].thetaDot));
@@ -192,18 +192,18 @@ function finalize() {
         }
 
         // barycentric bodies
-        specialID.earth = orderedNames.findIndex( function(e) { return e == "Earth" });
-        specialID.moon = orderedNames.findIndex( function(e) { return e == "Moon" });
-        specialID.pluto = orderedNames.findIndex( function(e) { return e == "Pluto" });
-        specialID.charon = orderedNames.findIndex( function(e) { return e == "Charon" });
+        specialID.earth = searchLists.orderedNames.findIndex( function(e) { return e == "Earth" });
+        specialID.moon = searchLists.orderedNames.findIndex( function(e) { return e == "Moon" });
+        specialID.pluto = searchLists.orderedNames.findIndex( function(e) { return e == "Pluto" });
+        specialID.charon = searchLists.orderedNames.findIndex( function(e) { return e == "Charon" });
 
         for (let i = 0; i < precessing.length; i++) {
-            precessing[i] = orderedNames.findIndex( function(e) { return e == precessing[i] });
+            precessing[i] = searchLists.orderedNames.findIndex( function(e) { return e == precessing[i] });
         }
 
         $( "#smallRoids" ).html(smallAsteroids);
 
-        searchLists.combined = planetNames.concat(moonNames, asteroidNames, cometNames);
+        searchLists.combined = searchLists.planetNames.concat(searchLists.moonNames, searchLists.asteroidNames, searchLists.cometNames);
 
         animate(); // start the main loop
     }

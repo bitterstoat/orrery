@@ -1,5 +1,7 @@
-import { eclInclination, reAxis, gratRadius, system, gratLabels, stateManager, cameraLocked, timeManager, scene, pointMaterial, pointGeometry, defaultMaterial } from "./orrery.init.js"
+import { eclInclination, reAxis, system, gratLabels, stateManager, cameraLocked, timeManager, scene, pointMaterial, pointGeometry, defaultMaterial } from "./orrery.init.js"
 import { clickTag } from "./orrery.ui.js";
+
+const gratRadius = 1000;
 
 function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, axisDec, axisRA, phase, thetaDot) { // make bodies
     const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : defaultMaterial;

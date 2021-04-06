@@ -1,14 +1,24 @@
 import { toDeg, AU, gravConstant, sunGravConstant, earthBary, plutoBary, redraw, decToMinSec, visViva, displayLatLong, 
     EphTimeToMJD, EphTimeReadout, localSiderealTime, getRA, altAz, riseSet, apparentMag, extinction, fps, rates, rateDesc, 
-    materials, pauseRate, system, moons, paths, tempLabels, gratLabels, precessing, specialID, center, stateManager, 
+    materials, pauseRate, system, moons, paths, gratLabels, precessing, specialID, center, stateManager, 
     cameraLocked, fpsBuffer, timeManager, groundPosition, scene, clock, renderer, darkMaterial, bloomComposer, finalComposer, 
     sun, controls, makeLabel, camera } from "./orrery.init.js";
 
+import { VRButton } from "./../../three/VRButton.js";
+
 let liveData = false;
+const tempLabels = [];
+
 const renderEl = document.body.appendChild( renderer.domElement );
+document.body.appendChild( VRButton.createButton( renderer ) );
+renderer.xr.enabled = true;
+setTimeout( function() {
+    if ($("#VRButton")[0].innerHTML == "VR NOT SUPPORTED") { $("#VRButton").hide(500); } 
+}, 3000);
 
 $("#info").hide();
 $("#earth").hide();
+
 if (!groundPosition.default) {
     displayLatLong(groundPosition.latitude, groundPosition.longitude);
 }
@@ -196,15 +206,24 @@ function animate(time) {
     finalComposer.render();
 
     const animateID = requestAnimationFrame( animate );
+
+    /*
+    renderer.setAnimationLoop( function () {
+        renderer.render( scene, camera );
+    });
+    */
+
     if (!stateManager.showSplash) {
         $("#splashScreen").hide(300);
     }
 }
 
+/*
 renderEl.addEventListener("webglcontextlost", function(event) {
     event.preventDefault();
     cancelAnimationFrame(animationID);
 }, false);
+*/
 
 function darkenNonBloomed( obj ) {
     if ( typeof obj.glow == "undefined" || obj.glow == false ) {
