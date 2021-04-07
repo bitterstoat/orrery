@@ -5,6 +5,7 @@ let planetData, asteroidData, moonData, cometData, starData;
 let datasets = 0;
 let flags = 0;
 let smallAsteroids = 0;
+let tags = [];
 
 /* INITITALIZATION */
 $(document).ready( function() {
@@ -205,6 +206,10 @@ function finalize() {
 
         searchLists.combined = searchLists.planetNames.concat(searchLists.moonNames, searchLists.asteroidNames, searchLists.cometNames);
 
+        tags = $(".label");
+
         animate(); // start the main loop
     }
 }
+
+export { tags };

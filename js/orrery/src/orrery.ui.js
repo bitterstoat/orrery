@@ -46,6 +46,7 @@ $(document).keydown(function(event) { // keystroke handler
             setTime(unixToMJD(Date.now()));
         break;
         case 32 :
+            document.activeElement.blur();
             pauseResume();
         break;
         case 27 : // unclick clicked tag
@@ -207,7 +208,7 @@ $( "#autocomplete" ).autocomplete({
         if (stateManager.clickedLabel != "") {
             closeTag(stateManager.clickedLabel);
         }
-        clickTag(orderedNames.indexOf(ui.item.value));
+        clickTag(searchLists.orderedNames.indexOf(ui.item.value));
         this.value = "";
         return false;
     }
@@ -268,6 +269,7 @@ $("#setTime").click( function() {
     let time = $("#manualTime").val();
     time = (time.length > 0) ? time: "0000";
     let year = $("#manualYear").val();
+    year = (year == "") ? 2000 : year;
     const yearNum = Math.min(Math.max(parseFloat(year), -9999), 9999);
     year = (yearNum > 0) ? ("000" + year).slice(-4) : "-00" + ("000" + Math.abs(yearNum)).slice(-4) ;
     const date = year + "-" + day.substr(0, 2) + "-" + day.substr(2,2) + "T" + 

@@ -4,6 +4,8 @@ import { toDeg, AU, gravConstant, sunGravConstant, earthBary, plutoBary, redraw,
     cameraLocked, fpsBuffer, timeManager, groundPosition, scene, clock, renderer, darkMaterial, bloomComposer, finalComposer, 
     sun, controls, makeLabel, camera } from "./orrery.init.js";
 
+// import { tags } from "./orrery.loaders.js"
+
 import { VRButton } from "./../../three/VRButton.js";
 
 let liveData = false;
@@ -77,7 +79,7 @@ function animate(time) {
         tagPos.y = (tagPos.y * center.y * -1) + center.y;
         if (tag.length) {
             if (Math.abs(tagPos.x - center.x) < center.x && Math.abs(tagPos.y - center.y) < center.y && tagPos.z < 1) {
-                tag.css({ "left" : tagPos.x + 10, "top": tagPos.y - 5, "visibility" : "visible" });
+                tag.css({ "left" : Math.round(tagPos.x) + 10, "top": Math.round(tagPos.y) - 5, "visibility" : "visible" });
             } else {
                 tag.css({ "visibility" : "hidden" });
             }

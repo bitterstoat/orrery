@@ -91,6 +91,7 @@ const renderer = new THREE.WebGLRenderer( {
     antialias: true, 
     logarithmicDepthBuffer: true,
     toneMapping: THREE.ACESFilmicToneMapping,
+    powerPreference: "high-performance"
 });
 
 // standard materials

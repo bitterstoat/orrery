@@ -1,4 +1,6 @@
-import { months, pointCount, paths, pathMaterials, system, orbitPlot, toRad, groundPosition, AU, DayInMillis, J2KInMJD, UnixTimeZeroInMJD, celestialXAxis, celestialZAxis, daysPerCent, earthBary, earthRadius, eclInclination, timeManager, precessing, rates, specialID, toDeg } from "./orrery.setup.js"
+import { months, pointCount, paths, pathMaterials, system, orbitPlot, toRad, groundPosition, AU, DayInMillis, J2KInMJD, 
+    UnixTimeZeroInMJD, celestialXAxis, celestialZAxis, daysPerCent, earthBary, earthRadius, eclInclination, timeManager, 
+    precessing, rates, specialID, toDeg } from "./orrery.setup.js"
 
 // spatial functions
 function plotPoint(meanAnomaly, eccentricity, semiMajorAxis, runKepler) { // plot groundPosition.longitudes to orbital path
@@ -20,7 +22,7 @@ function kepler(e, m) { // numerical approximation of Kepler's equation
     return result;
 }
 
-function celestial(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // transform to Cartesian coordinates relative to the celestial sphere
+function celestial_THREE(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // transform to Cartesian coordinates relative to the celestial sphere
     const v = new THREE.Vector3(xLocal, 0, yLocal);
     v.applyAxisAngle( celestialZAxis, longPeriapsis ).applyAxisAngle( celestialXAxis, inclination ).applyAxisAngle( celestialZAxis, longAscNode );
     return v.applyAxisAngle( celestialXAxis, eclInclination );
@@ -42,7 +44,7 @@ function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLocal, yLo
     return v;
 }
 
-function celestial_textbook(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // legacy version as written in the textbook
+function celestial(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // legacy version as written in the textbook
     const cosW = Math.cos(longPeriapsis); const sinW = Math.sin(longPeriapsis);
     const cosO = Math.cos(longAscNode); const sinO = Math.sin(longAscNode);
     const cosI = Math.cos(inclination); const sinI = Math.sin(inclination);
