@@ -1,18 +1,14 @@
-import { toDeg, AU, daysPerCent, displayLatLong, unixToMJD, slowTime, speedTime, setTime, rates, pauseRate, 
-    initialPoint, initialFOV, exagScale,initMinDistance, initMaxDistance, system, majorBodies, moons, paths, 
-    specialID, center, cameraLocked, timeManager, planetMoons, searchLists, stateManager, planetScale, groundPosition, 
-    scene, renderer, pathMaterials, selectedPathMat, pointMaterial, transparentMaterial, bloomComposer, finalComposer, 
-    sun, controls, makeLabel, camera } from "./orrery.init.js";
+import * as Orrery from "./orrery.init.js";
 
 function windowResize() { // window setup and resize handler
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-    bloomComposer.setSize( window.innerWidth, window.innerHeight );
-    finalComposer.setSize( window.innerWidth, window.innerHeight );
-    center.x = window.innerWidth * 0.5;
-    center.y = window.innerHeight * 0.5;
+    Orrery.renderer.setSize( window.innerWidth, window.innerHeight );
+    Orrery.renderer.setPixelRatio( window.devicePixelRatio );
+    Orrery.camera.aspect = window.innerWidth/window.innerHeight;
+    Orrery.camera.updateProjectionMatrix();
+    Orrery.bloomComposer.setSize( window.innerWidth, window.innerHeight );
+    Orrery.finalComposer.setSize( window.innerWidth, window.innerHeight );
+    Orrery.center.x = window.innerWidth * 0.5;
+    Orrery.center.y = window.innerHeight * 0.5;
     placeWidgets();
 }
 window.addEventListener('resize', windowResize );
@@ -20,38 +16,38 @@ windowResize();
 
 window.addEventListener('mousemove', onMouseMove );
 function onMouseMove(e) { 
-    stateManager.mousePos.x = e.clientX; 
-    stateManager.mousePos.y = e.clientY;
+    Orrery.stateManager.mousePos.x = e.clientX; 
+    Orrery.stateManager.mousePos.y = e.clientY;
 }
 
 function pauseResume() {
-    if (timeManager.speed == pauseRate) { // resume
-        timeManager.speed = timeManager.lastSpeed;
+    if (Orrery.timeManager.speed == Orrery.pauseRate) { // resume
+        Orrery.timeManager.speed = Orrery.timeManager.lastSpeed;
     } else { // pause but remeber previous speed
-        timeManager.lastSpeed = timeManager.speed;
-        timeManager.speed = pauseRate;
+        Orrery.timeManager.lastSpeed = Orrery.timeManager.speed;
+        Orrery.timeManager.speed = Orrery.pauseRate;
     }
-    timeManager.rate = rates[timeManager.speed];
+    Orrery.timeManager.rate = Orrery.rates[Orrery.timeManager.speed];
 }
 
 $(document).keydown(function(event) { // keystroke handler
     switch(event.keyCode) {
         case 37 : 
-            slowTime();
+            Orrery.slowTime();
         break;
         case 39 : 
-            speedTime();
+            Orrery.speedTime();
         break;
         case 40 : 
-            setTime(unixToMJD(Date.now()));
+            Orrery.setTime(Orrery.unixToMJD(Date.now()));
         break;
         case 32 :
             document.activeElement.blur();
             pauseResume();
         break;
         case 27 : // unclick clicked tag
-            if (stateManager.clickedLabel != "") {
-                closeTag(stateManager.clickedLabel);
+            if (Orrery.stateManager.clickedLabel != "") {
+                closeTag(Orrery.stateManager.clickedLabel);
             }
         break;
         case 38 :
@@ -61,65 +57,65 @@ $(document).keydown(function(event) { // keystroke handler
             $("#inputBox").toggle(300);
         break;
         case 115:
-            cameraLocked.graticule.visible = !cameraLocked.graticule.visible;
+            Orrery.cameraLocked.graticule.visible = !Orrery.cameraLocked.graticule.visible;
         break;
         case 119:
-            stateManager.extraData = !stateManager.extraData;
+            Orrery.stateManager.extraData = !Orrery.stateManager.extraData;
         break;
     }
-    timeManager.rate = rates[timeManager.speed]; // apply speed changes
+    Orrery.timeManager.rate = Orrery.rates[Orrery.timeManager.speed]; // apply speed changes
 });
 
-function clickTag(t) {
+export function clickTag(t) {
     if ($('#' + t).length < 1) {
-        makeLabel(t);
+        Orrery.makeLabel(t);
     }
-    stateManager.clickedLabel = $('#' + t);
-    stateManager.clickedLabel.addClass( "active" ).show();
-    if (jQuery.isEmptyObject(stateManager.lastClickedPlanet) == false) {
-        paths[stateManager.clickedPlanet.path].material = pathMaterials[Math.min(stateManager.lastClickedPlanet.type, 3)];
+    Orrery.stateManager.clickedLabel = $('#' + t);
+    Orrery.stateManager.clickedLabel.addClass( "active" ).show();
+    if (jQuery.isEmptyObject(Orrery.stateManager.lastClickedPlanet) == false) {
+        Orrery.paths[Orrery.stateManager.clickedPlanet.path].material = Orrery.pathMaterials[Math.min(Orrery.stateManager.lastClickedPlanet.type, 3)];
     }
-    stateManager.clickedPlanet = system[t];
-    paths[stateManager.clickedPlanet.path].material = selectedPathMat;
-    if (system[t].type > 3) {
-        scene.add(paths[stateManager.clickedPlanet.path]);
+    Orrery.stateManager.clickedPlanet = Orrery.system[t];
+    Orrery.paths[Orrery.stateManager.clickedPlanet.path].material = Orrery.selectedPathMat;
+    if (Orrery.system[t].type > 3) {
+        Orrery.scene.add(Orrery.paths[Orrery.stateManager.clickedPlanet.path]);
     }
     $("#distToActive").remove();
-    stateManager.lastClickedPlanet = stateManager.clickedPlanet;
-    controls.minDistance = 0.1;
-    const tweenTo = new TWEEN.Tween(controls.target)
-        .to( { x:stateManager.clickedPlanet.celestialPos.x, y:stateManager.clickedPlanet.celestialPos.y, z:stateManager.clickedPlanet.celestialPos.z}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut)
-        .onUpdate( function() { this.to({ x:stateManager.clickedPlanet.celestialPos.x, y:stateManager.clickedPlanet.celestialPos.y, z:stateManager.clickedPlanet.celestialPos.z })} )
+    Orrery.stateManager.lastClickedPlanet = Orrery.stateManager.clickedPlanet;
+    Orrery.controls.minDistance = 0.1;
+    const tweenTo = new TWEEN.Tween(Orrery.controls.target)
+        .to( { x:Orrery.stateManager.clickedPlanet.celestialPos.x, y:Orrery.stateManager.clickedPlanet.celestialPos.y, z:Orrery.stateManager.clickedPlanet.celestialPos.z}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut)
+        .onUpdate( function() { this.to({ x:Orrery.stateManager.clickedPlanet.celestialPos.x, y:Orrery.stateManager.clickedPlanet.celestialPos.y, z:Orrery.stateManager.clickedPlanet.celestialPos.z })} )
         .start();
 
-    $("#info a").attr("href", stateManager.clickedPlanet.wiki);
-    $("#infohead").html(stateManager.clickedLabel[0].innerHTML);
-    if (stateManager.clickedPlanet.wikipic != "default") {
-        $("#info img").attr("src", stateManager.clickedPlanet.wikipic).show();
+    $("#info a").attr("href", Orrery.stateManager.clickedPlanet.wiki);
+    $("#infohead").html(Orrery.stateManager.clickedLabel[0].innerHTML);
+    if (Orrery.stateManager.clickedPlanet.wikipic != "default") {
+        $("#info img").attr("src", Orrery.stateManager.clickedPlanet.wikipic).show();
     } else {
         $("#info img").hide();
     }
-    const planetInfo = stateManager.clickedPlanet.info;
+    const planetInfo = Orrery.stateManager.clickedPlanet.info;
     let moonInfo = ""
-    if (stateManager.clickedPlanet.moons > 0) {
-        moonInfo = '<br><a id="moonZoom">Moons: ' + stateManager.clickedPlanet.moons + ' (' + stateManager.clickedPlanet.largestMoon;
-        moonInfo +=  (stateManager.clickedPlanet.moons > 1) ? ',&nbsp;&nbsp;' + stateManager.clickedPlanet.secondMoon : '';
-        moonInfo += (stateManager.clickedPlanet.moons > 2) ? ', et al.)</a>' : ')</a>';
+    if (Orrery.stateManager.clickedPlanet.moons > 0) {
+        moonInfo = '<br><a id="moonZoom">Moons: ' + Orrery.stateManager.clickedPlanet.moons + ' (' + Orrery.stateManager.clickedPlanet.largestMoon;
+        moonInfo +=  (Orrery.stateManager.clickedPlanet.moons > 1) ? ',&nbsp;&nbsp;' + Orrery.stateManager.clickedPlanet.secondMoon : '';
+        moonInfo += (Orrery.stateManager.clickedPlanet.moons > 2) ? ', et al.)</a>' : ')</a>';
     }
     $("#planetInfo").html( planetInfo + moonInfo );
         $("#moonZoom").click( function() {
         zoomToggle();
     })
-    const adjustedA = (stateManager.clickedPlanet.semiMajorAxis < 0.1 ) ? (stateManager.clickedPlanet.semiMajorAxis * AU).toFixed(1) + '&nbsp;km' : stateManager.clickedPlanet.semiMajorAxis.toFixed(4) + '&nbsp;AU';
+    const adjustedA = (Orrery.stateManager.clickedPlanet.semiMajorAxis < 0.1 ) ? (Orrery.stateManager.clickedPlanet.semiMajorAxis * Orrery.AU).toFixed(1) + '&nbsp;km' : Orrery.stateManager.clickedPlanet.semiMajorAxis.toFixed(4) + '&nbsp;AU';
     $("#semiMajorAxis").html(adjustedA);
-    const adjustedP = (stateManager.clickedPlanet.period < 0.01 ) ? (stateManager.clickedPlanet.period * daysPerCent).toFixed(3) + '&nbsp;days' : (stateManager.clickedPlanet.period * 100).toFixed(3) + '&nbsp;years'
+    const adjustedP = (Orrery.stateManager.clickedPlanet.period < 0.01 ) ? (Orrery.stateManager.clickedPlanet.period * Orrery.daysPerCent).toFixed(3) + '&nbsp;days' : (Orrery.stateManager.clickedPlanet.period * 100).toFixed(3) + '&nbsp;years'
     $("#period").html(adjustedP);
-    $("#eccentricity").html(stateManager.clickedPlanet.eccentricity.toFixed(3));
-    $("#inclination").html((stateManager.clickedPlanet.inclination * toDeg).toFixed(2));
-    $("#radius").html(parseFloat(stateManager.clickedPlanet.radius).toFixed(1));
-    $("#absMag").html(stateManager.clickedPlanet.absoluteMag.toFixed(2));
+    $("#eccentricity").html(Orrery.stateManager.clickedPlanet.eccentricity.toFixed(3));
+    $("#inclination").html((Orrery.stateManager.clickedPlanet.inclination * Orrery.toDeg).toFixed(2));
+    $("#radius").html(parseFloat(Orrery.stateManager.clickedPlanet.radius).toFixed(1));
+    $("#absMag").html(Orrery.stateManager.clickedPlanet.absoluteMag.toFixed(2));
     $("#info").show(300);
-    if (t == specialID.earth) { 
+    if (t == Orrery.specialID.earth) { 
         $("#earthRel").hide(); 
         $("#earth").show(); 
     } else { 
@@ -129,34 +125,34 @@ function clickTag(t) {
 }
 
 function updateScale() {
-    for (let i = 0; i < majorBodies.length; i++) {
-        const scaleBody = scene.children[majorBodies[i].childId];
-        scaleBody.scale.set(planetScale.f, planetScale.f, planetScale.f);
-        sun.scale.set(planetScale.f, planetScale.f, planetScale.f);
+    for (let i = 0; i < Orrery.majorBodies.length; i++) {
+        const scaleBody = Orrery.scene.children[Orrery.majorBodies[i].childId];
+        scaleBody.scale.set(Orrery.planetScale.f, Orrery.planetScale.f, Orrery.planetScale.f);
+        Orrery.sun.scale.set(Orrery.planetScale.f, Orrery.planetScale.f, Orrery.planetScale.f);
     }
 }
 
 function zoomIn() {
-    controls.minDistance = stateManager.clickedPlanet.radius / AU * 100000;
-    const currentCam = camera.position.clone().sub(stateManager.clickedPlanet.celestialPos).length();
-    const tweenPushIn = new TWEEN.Tween(controls).to( {maxDistance: initMaxDistance / stateManager.clickedPlanet.zoomRatio}, 1000 )
+    Orrery.controls.minDistance = Orrery.stateManager.clickedPlanet.radius / Orrery.AU * 100000;
+    const currentCam = Orrery.camera.position.clone().sub(Orrery.stateManager.clickedPlanet.celestialPos).length();
+    const tweenPushIn = new TWEEN.Tween(Orrery.controls).to( {maxDistance: Orrery.initMaxDistance / Orrery.stateManager.clickedPlanet.zoomRatio}, 1000 )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
-    const tweenZoomIn = new TWEEN.Tween(camera).to( {fov:.001}, 1000 )
-        .onUpdate( function() { camera.updateProjectionMatrix() } )
+    const tweenZoomIn = new TWEEN.Tween(Orrery.camera).to( {fov:.001}, 1000 )
+        .onUpdate( function() { Orrery.camera.updateProjectionMatrix() } )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
     
-    const tweenShrink = new TWEEN.Tween(planetScale).to( {f: 1/exagScale}, 1000 )
+    const tweenShrink = new TWEEN.Tween(Orrery.planetScale).to( {f: 1/Orrery.exagScale}, 1000 )
         .onUpdate( function() { updateScale(); } )
         .onComplete( function() { 
-            pointMaterial.size = 0.005;
-            if (stateManager.clickedPlanet.type < 2) {
-                paths[stateManager.clickedPlanet.path].material = transparentMaterial;
-                for (let i = 0; i < moons.length; i++) {
-                    if (moons[i].orbitId == stateManager.clickedPlanet.sysId) {
-                        planetMoons.push(moons[i]);
-                        $("#" + moons[i].sysId ).show();
-                        scene.children[moons[i].childId].material = pathMaterials[0];
+            Orrery.pointMaterial.size = 0.005;
+            if (Orrery.stateManager.clickedPlanet.type < 2) {
+                Orrery.paths[Orrery.stateManager.clickedPlanet.path].material = Orrery.transparentMaterial;
+                for (let i = 0; i < Orrery.moons.length; i++) {
+                    if (Orrery.moons[i].orbitId == Orrery.stateManager.clickedPlanet.sysId) {
+                        Orrery.planetMoons.push(Orrery.moons[i]);
+                        $("#" + Orrery.moons[i].sysId ).show();
+                        Orrery.scene.children[Orrery.moons[i].childId].material = Orrery.pathMaterials[0];
                     }
                 }
             }
@@ -165,50 +161,50 @@ function zoomIn() {
 }
 
 function zoomOut() {
-    controls.maxDistance = initMaxDistance;
-    const currentCam = camera.position.clone().sub(stateManager.lastClickedPlanet.celestialPos).length();
-    const tweenPushOut = new TWEEN.Tween(controls).to( {minDistance: initMinDistance}, 1000 )
+    Orrery.controls.maxDistance = Orrery.initMaxDistance;
+    const currentCam = Orrery.camera.position.clone().sub(Orrery.stateManager.lastClickedPlanet.celestialPos).length();
+    const tweenPushOut = new TWEEN.Tween(Orrery.controls).to( {minDistance: Orrery.initMinDistance}, 1000 )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
-    const tweenZoomOut = new TWEEN.Tween(camera).to( {fov:initialFOV}, 1000 )
-    .onUpdate( function() { camera.updateProjectionMatrix() } )
+    const tweenZoomOut = new TWEEN.Tween(Orrery.camera).to( {fov:Orrery.initialFOV}, 1000 )
+    .onUpdate( function() { Orrery.camera.updateProjectionMatrix() } )
     .easing(TWEEN.Easing.Quadratic.InOut).start();
 
-    const tweenGrow = new TWEEN.Tween(planetScale).to( {f: 1.0}, 1000 )
+    const tweenGrow = new TWEEN.Tween(Orrery.planetScale).to( {f: 1.0}, 1000 )
         .onStart( function() { 
-            pointMaterial.size = initialPoint;
-            for (let i = 0; i < paths.length; i++) {
-                paths[i].material = paths[i].initMaterial;
+            Orrery.pointMaterial.size = Orrery.initialPoint;
+            for (let i = 0; i < Orrery.paths.length; i++) {
+                Orrery.paths[i].material = Orrery.paths[i].initMaterial;
             } 
         })
         .onUpdate( function() { updateScale(); } )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
-    for (let i = 0; i < planetMoons.length; i++) {
-        $("#" + planetMoons[i].sysId ).hide();
+    for (let i = 0; i < Orrery.planetMoons.length; i++) {
+        $("#" + Orrery.planetMoons[i].sysId ).hide();
     }
-    planetMoons.splice(0, planetMoons.length);
+    Orrery.planetMoons.splice(0, Orrery.planetMoons.length);
 }
 
 function zoomToggle() {
-    const scaleRadius = stateManager.clickedPlanet.exagRadius / 2000;
-    stateManager.following = (stateManager.clickedLabel != "") ? !stateManager.following : false;
-    (stateManager.following) ? zoomIn(scaleRadius) : zoomOut(scaleRadius);
+    const scaleRadius = Orrery.stateManager.clickedPlanet.exagRadius / 2000;
+    Orrery.stateManager.following = (Orrery.stateManager.clickedLabel != "") ? !Orrery.stateManager.following : false;
+    (Orrery.stateManager.following) ? zoomIn(scaleRadius) : zoomOut(scaleRadius);
 }
 
 $( "#autocomplete" ).autocomplete({
     minLength: 2,
     source: function( request, response ) {
           var matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" );
-          response( $.grep( searchLists.combined, function( item ){
+          response( $.grep( Orrery.searchLists.combined, function( item ){
               return matcher.test( item );
           }));
       },
       select: function( e, ui ) {
-        if (stateManager.clickedLabel != "") {
-            closeTag(stateManager.clickedLabel);
+        if (Orrery.stateManager.clickedLabel != "") {
+            closeTag(Orrery.stateManager.clickedLabel);
         }
-        clickTag(searchLists.orderedNames.indexOf(ui.item.value));
+        clickTag(Orrery.searchLists.orderedNames.indexOf(ui.item.value));
         this.value = "";
         return false;
     }
@@ -231,39 +227,39 @@ function placeWidgets() {
 }
 
 $("#reverse").click( function() {
-    slowTime();
+    Orrery.slowTime();
 });
 
 $("#forward").click( function() {
-    speedTime();
+    Orrery.speedTime();
 });
 
 $("#play").click( function() {
     pauseResume();
-    $("#playpause").attr('src', (timeManager.speed==7) ? 'data/play.png' : 'data/pause.png');
+    $("#playpause").attr('src', (Orrery.timeManager.speed==7) ? 'data/play.png' : 'data/pause.png');
 });
 
 $("#now").click( function() {
-    setTime(unixToMJD(Date.now()));
+    Orrery.setTime(Orrery.unixToMJD(Date.now()));
 });
 
 $("#moonBox, #asteroidBox, #cometBox").click( function() {
     $("#autocomplete")[0].value = "";
-    searchLists.combined = searchLists.planetNames.concat( 
-        ($("#moonBox")[0].checked) ? searchLists.moonNames : null, 
-        ($("#asteroidBox")[0].checked) ? searchLists.asteroidNames : null, 
-        ($("#cometBox")[0].checked) ? searchLists.cometNames : null );
+    Orrery.searchLists.combined = Orrery.searchLists.planetNames.concat( 
+        ($("#moonBox")[0].checked) ? Orrery.searchLists.moonNames : null, 
+        ($("#asteroidBox")[0].checked) ? Orrery.searchLists.asteroidNames : null, 
+        ($("#cometBox")[0].checked) ? Orrery.searchLists.cometNames : null );
 });
 
 $("#setCoords").click( function() {
     const lat = parseFloat($("#manualLat").val());
     const lon = parseFloat($("#manualLon").val());
-    groundPosition.latitude = (Math.abs(lat) <=90) ? lat : 0;
-    groundPosition.longitude = (Math.abs(lon) <=180) ? lon : 0;
-    displayLatLong(groundPosition.latitude, groundPosition.longitude);
+    Orrery.groundPosition.latitude = (Math.abs(lat) <=90) ? lat : 0;
+    Orrery.groundPosition.longitude = (Math.abs(lon) <=180) ? lon : 0;
+    Orrery.displayLatLong(Orrery.groundPosition.latitude, Orrery.groundPosition.longitude);
 });
 
-$("#setTime").click( function() {
+$("#Orrery.setTime").click( function() {
     let day = $("#manualDay").val();
     day = (day.length > 0) ? day: "0101";
     let time = $("#manualTime").val();
@@ -274,16 +270,16 @@ $("#setTime").click( function() {
     year = (yearNum > 0) ? ("000" + year).slice(-4) : "-00" + ("000" + Math.abs(yearNum)).slice(-4) ;
     const date = year + "-" + day.substr(0, 2) + "-" + day.substr(2,2) + "T" + 
     time.substr(0,2) + ":" + time.substr(2,2);
-    setTime(unixToMJD(Date.parse(date)));
+    Orrery.setTime(Orrery.unixToMJD(Date.parse(date)));
 });
 
 $("#clearSplash").click( function() {
     $("#splashScreen").hide(300);
-    stateManager.showSplash = false;
+    Orrery.stateManager.showSplash = false;
 });
 
 $("#openSplash").click( function() {
-    stateManager.showSplash = true;
+    Orrery.stateManager.showSplash = true;
     $("#splashScreen").show(300);
     $("#clearSplash").css({"visibility": "visible"});
 });
@@ -295,16 +291,14 @@ function closeTag(t) {
         t.removeClass( "tag3" );
         t.addClass( "tag2" );
     }
-    stateManager.clickedLabel = "";
-    paths[stateManager.clickedPlanet.path].material = pathMaterials[Math.min(stateManager.clickedPlanet.type, 3)];
-    if (stateManager.following) {
-        zoomOut(stateManager.lastClickedPlanet.exagRadius / 2000);
+    Orrery.stateManager.clickedLabel = "";
+    Orrery.paths[Orrery.stateManager.clickedPlanet.path].material = Orrery.pathMaterials[Math.min(Orrery.stateManager.clickedPlanet.type, 3)];
+    if (Orrery.stateManager.following) {
+        zoomOut(Orrery.stateManager.lastClickedPlanet.exagRadius / 2000);
     }
-    stateManager.following = false;
-    controls.maxDistance = 100;
-    const tweenMin = new TWEEN.Tween(controls).to( {minDistance: 1}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
-    const tweenHome = new TWEEN.Tween(controls.target).to( {x:0, y:0, z:0}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
+    Orrery.stateManager.following = false;
+    Orrery.controls.maxDistance = 100;
+    const tweenMin = new TWEEN.Tween(Orrery.controls).to( {minDistance: 1}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
+    const tweenHome = new TWEEN.Tween(Orrery.controls.target).to( {x:0, y:0, z:0}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
     $("#info").hide(300);
 }
-
-export { clickTag };

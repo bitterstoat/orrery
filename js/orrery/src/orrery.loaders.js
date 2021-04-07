@@ -1,5 +1,5 @@
-import * as Orrery from './orrery.classes.js';
-import { makeGraticules, makeRefPoints, cameraLocked, RADecToVector, BVToRGB, vars, loader, scene, system, moons, precessing, timeManager, orbitPath, paths, majorBodies, makeBody, makeLabel, makePoint, specialID, searchLists } from './orrery.init.js'
+import * as Body from './orrery.classes.js';
+import * as Orrery from "./orrery.init.js";
 import { animate } from './orrery.js';
 let planetData, asteroidData, moonData, cometData, starData;
 let datasets = 0;
@@ -10,9 +10,9 @@ let tags = [];
 /* INITITALIZATION */
 $(document).ready( function() {
     fullLoad();
-    makeGraticules();
-    makeRefPoints();
-    cameraLocked.graticule.visible = false;
+    Orrery.makeGraticules();
+    Orrery.makeRefPoints();
+    Orrery.cameraLocked.graticule.visible = false;
 });
 
 function fullLoad() {
@@ -24,10 +24,10 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < planetData.length; i++) {
-                let newPlanet = new Orrery.Planet(planetData[i]);
-                system.push(newPlanet);
-                searchLists.planetNames.push(newPlanet.name);
-                precessing.push(newPlanet.name);
+                let newPlanet = new Body.Planet(planetData[i]);
+                Orrery.system.push(newPlanet);
+                Orrery.searchLists.planetNames.push(newPlanet.name);
+                Orrery.precessing.push(newPlanet.name);
             }
             finalize();
         }
@@ -42,9 +42,9 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < asteroidData.length; i++) {
-                let newAsteroid = new Orrery.Asteroid(asteroidData[i]);
-                system.push(newAsteroid);
-                searchLists.asteroidNames.push(newAsteroid.name);
+                let newAsteroid = new Body.Asteroid(asteroidData[i]);
+                Orrery.system.push(newAsteroid);
+                Orrery.searchLists.asteroidNames.push(newAsteroid.name);
             }
             finalize();
         }
@@ -59,10 +59,10 @@ function fullLoad() {
         complete: function () {
             smallAsteroids = asteroidData.length;
             for (let i = 0; i < asteroidData.length; i++) {
-                if (i > vars.n) { break; } // these can be reduced to improve frame timeManager.rate
-                let newAsteroid = new Orrery.Asteroid(asteroidData[i]);
-                system.push(newAsteroid);
-                searchLists.asteroidNames.push(newAsteroid.name);
+                if (i > Orrery.vars.n) { break; } // these can be reduced to improve frame rate
+                let newAsteroid = new Body.Asteroid(asteroidData[i]);
+                Orrery.system.push(newAsteroid);
+                Orrery.searchLists.asteroidNames.push(newAsteroid.name);
             }
             finalize();
         }
@@ -76,10 +76,10 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < moonData.length; i++) {
-                let newMoon = new Orrery.Moon(moonData[i]);
-                system.push(newMoon);
-                moons.push(newMoon);
-                searchLists.moonNames.push(newMoon.name);
+                let newMoon = new Body.Moon(moonData[i]);
+                Orrery.system.push(newMoon);
+                Orrery.moons.push(newMoon);
+                Orrery.searchLists.moonNames.push(newMoon.name);
             }
             finalize();
         }
@@ -93,9 +93,9 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < cometData.length; i++) {
-                let newComet = new Orrery.Comet(cometData[i]);
-                system.push(newComet);
-                searchLists.cometNames.push(newComet.name);
+                let newComet = new Body.Comet(cometData[i]);
+                Orrery.system.push(newComet);
+                Orrery.searchLists.cometNames.push(newComet.name);
             }
             finalize();
         }
@@ -111,8 +111,8 @@ function fullLoad() {
         complete: function () {
             for (let i = 0; i < hyperData.length; i++) {
                 let newHyperbolic = new Hyperbolic(hyperData[i]);
-                system.push(newHyperbolic);
-                searchLists.combined.push(newHyperbolic.name);
+                Orrery.system.push(newHyperbolic);
+                Orrery.searchLists.combined.push(newHyperbolic.name);
             }
             finalize();
         }
@@ -129,21 +129,21 @@ function fullLoad() {
             const positions = [];
             const colors = [];
             for (let i = 0; i < starData.length; i++) {
-                const vector = RADecToVector(parseFloat(starData[i].ra), parseFloat(starData[i].dec)).multiplyScalar(900);
+                const vector = Orrery.RADecToVector(parseFloat(starData[i].ra), parseFloat(starData[i].dec)).multiplyScalar(900);
                 positions.push( vector.x, vector.y, vector.z );
                 const luma = Math.pow(10 / (parseFloat(starData[i].mag) + 10), 4);
                 const cindex = (typeof starData[i].ci != "undefined" && starData[i].ci.length > 0) ? parseFloat(starData[i].ci) : 0;
-                const chroma = BVToRGB(cindex);
+                const chroma = Orrery.BVToRGB(cindex);
                 colors.push( luma * chroma.r, luma * chroma.g, luma * chroma.b );
             }
             geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
             geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
             geometry.computeBoundingSphere();
-            const material = new THREE.PointsMaterial( { size: 4, vertexColors: true, alphaMap: loader.load('data/disc.png'), transparent: true } );
+            const material = new THREE.PointsMaterial( { size: 4, vertexColors: true, alphaMap: Orrery.loader.load('data/disc.png'), transparent: true } );
             const starfield = new THREE.Points( geometry, material );
             starfield.name = "starfield";
-            scene.add( starfield );
-            cameraLocked.starfieldObj = starfield;
+            Orrery.scene.add( starfield );
+            Orrery.cameraLocked.starfieldObj = starfield;
         }
     });
 }
@@ -151,60 +151,60 @@ function fullLoad() {
 function finalize() {
     flags++;
     if (flags == datasets) {
-        if (timeManager.parsedDate != 0 && !isNaN(timeManager.parsedDate)) {
-            timeManager.ephTime = MJDToEphTime(unixToMJD(timeManager.parsedDate));
+        if (Orrery.timeManager.parsedDate != 0 && !isNaN(Orrery.timeManager.parsedDate)) {
+            Orrery.timeManager.ephTime = MJDToEphTime(unixToMJD(Orrery.timeManager.parsedDate));
         }
-        for (let i = 0; i < system.length; i++) {
-            searchLists.orderedNames.push(system[i].name);
+        for (let i = 0; i < Orrery.system.length; i++) {
+            Orrery.searchLists.orderedNames.push(Orrery.system[i].name);
         }
-        for (let i = 0; i < moons.length; i++) {
-            moons[i].orbitId = searchLists.orderedNames.findIndex( function(e) {
-                return e == moons[i].orbiting;
+        for (let i = 0; i < Orrery.moons.length; i++) {
+            Orrery.moons[i].orbitId = Orrery.searchLists.orderedNames.findIndex( function(e) {
+                return e == Orrery.moons[i].orbiting;
             });
         }
 
-        for (let i = 0; i < system.length; i++) {
-            system[i].set(timeManager.ephTime);
-            const path = orbitPath(i);
-            paths.push(path);
-            system[i].sysId = i;
-            system[i].path = paths.length - 1;
-            if (system[i].type < 3 || system[i] instanceof Orrery.Moon == true ) {
-                scene.add(path);
-                majorBodies.push(system[i]);
-                scene.add(makeBody(loader, system[i].texture, system[i].exagRadius, system[i].name, i, system[i].ringRadius, system[i].ringTexture, system[i].axisDec, system[i].axisRA, system[i].phase, system[i].thetaDot));
-                makeLabel(i);
+        for (let i = 0; i < Orrery.system.length; i++) {
+            Orrery.system[i].set(Orrery.timeManager.ephTime);
+            const path = Orrery.orbitPath(i);
+            Orrery.paths.push(path);
+            Orrery.system[i].sysId = i;
+            Orrery.system[i].path = Orrery.paths.length - 1;
+            if (Orrery.system[i].type < 3 || Orrery.system[i] instanceof Body.Moon == true ) {
+                Orrery.scene.add(path);
+                Orrery.majorBodies.push(Orrery.system[i]);
+                Orrery.scene.add(Orrery.makeBody(Orrery.loader, Orrery.system[i].texture, Orrery.system[i].exagRadius, Orrery.system[i].name, i, Orrery.system[i].ringRadius, Orrery.system[i].ringTexture, Orrery.system[i].axisDec, Orrery.system[i].axisRA, Orrery.system[i].phase, Orrery.system[i].thetaDot));
+                Orrery.makeLabel(i);
             } else {
-                scene.add(makePoint(system[i].name, i));
+                Orrery.scene.add(Orrery.makePoint(Orrery.system[i].name, i));
             }
-            system[i].childId = scene.children.length-1;
+            Orrery.system[i].childId = Orrery.scene.children.length-1;
         }
         
-        for (let i = 0; i < moons.length; i++) {
-            paths[moons[i].path].orbitId = moons[i].orbitId;
-            system[moons[i].orbitId].moons++;
-            const rad = parseFloat(moons[i].radius);
-            if (rad > system[moons[i].orbitId].largestMoonRadius) {
-                system[moons[i].orbitId].secondMoon = system[moons[i].orbitId].largestMoon;
-                system[moons[i].orbitId].largestMoon = moons[i].name;
-                system[moons[i].orbitId].largestMoonRadius = rad;
+        for (let i = 0; i < Orrery.moons.length; i++) {
+            Orrery.paths[Orrery.moons[i].path].orbitId = Orrery.moons[i].orbitId;
+            Orrery.system[Orrery.moons[i].orbitId].moons++;
+            const rad = parseFloat(Orrery.moons[i].radius);
+            if (rad > Orrery.system[Orrery.moons[i].orbitId].largestMoonRadius) {
+                Orrery.system[Orrery.moons[i].orbitId].secondMoon = Orrery.system[Orrery.moons[i].orbitId].largestMoon;
+                Orrery.system[Orrery.moons[i].orbitId].largestMoon = Orrery.moons[i].name;
+                Orrery.system[Orrery.moons[i].orbitId].largestMoonRadius = rad;
             }
-            $("#" + moons[i].sysId ).hide();
+            $("#" + Orrery.moons[i].sysId ).hide();
         }
 
         // barycentric bodies
-        specialID.earth = searchLists.orderedNames.findIndex( function(e) { return e == "Earth" });
-        specialID.moon = searchLists.orderedNames.findIndex( function(e) { return e == "Moon" });
-        specialID.pluto = searchLists.orderedNames.findIndex( function(e) { return e == "Pluto" });
-        specialID.charon = searchLists.orderedNames.findIndex( function(e) { return e == "Charon" });
+        Orrery.specialID.earth = Orrery.searchLists.orderedNames.findIndex( function(e) { return e == "Earth" });
+        Orrery.specialID.moon = Orrery.searchLists.orderedNames.findIndex( function(e) { return e == "Moon" });
+        Orrery.specialID.pluto = Orrery.searchLists.orderedNames.findIndex( function(e) { return e == "Pluto" });
+        Orrery.specialID.charon = Orrery.searchLists.orderedNames.findIndex( function(e) { return e == "Charon" });
 
-        for (let i = 0; i < precessing.length; i++) {
-            precessing[i] = searchLists.orderedNames.findIndex( function(e) { return e == precessing[i] });
+        for (let i = 0; i < Orrery.precessing.length; i++) {
+            Orrery.precessing[i] = Orrery.searchLists.orderedNames.findIndex( function(e) { return e == Orrery.precessing[i] });
         }
 
         $( "#smallRoids" ).html(smallAsteroids);
 
-        searchLists.combined = searchLists.planetNames.concat(searchLists.moonNames, searchLists.asteroidNames, searchLists.cometNames);
+        Orrery.searchLists.combined = Orrery.searchLists.planetNames.concat(Orrery.searchLists.moonNames, Orrery.searchLists.asteroidNames, Orrery.searchLists.cometNames);
 
         tags = $(".label");
 

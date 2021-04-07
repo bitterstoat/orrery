@@ -1,10 +1,10 @@
-import { eclInclination, reAxis, system, gratLabels, stateManager, cameraLocked, timeManager, scene, pointMaterial, pointGeometry, defaultMaterial } from "./orrery.init.js"
+import * as Orrery from "./orrery.init.js"
 import { clickTag } from "./orrery.ui.js";
 
 const gratRadius = 1000;
 
-function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, axisDec, axisRA, phase, thetaDot) { // make bodies
-    const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : defaultMaterial;
+export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, axisDec, axisRA, phase, thetaDot) { // make bodies
+    const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : Orrery.defaultMaterial;
     const planetRadius = radius;
     const geometry = new THREE.IcosahedronGeometry( planetRadius, 5 );
     const sphere = new THREE.Mesh( geometry, material );
@@ -22,45 +22,45 @@ function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, a
     }
 
     // apply initial rotation
-    reAxis(sphere, axisRA, axisDec);
-    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), thetaDot * timeManager.ephTime + Math.PI * phase );
+    Orrery.reAxis(sphere, axisRA, axisDec);
+    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), thetaDot * Orrery.timeManager.ephTime + Math.PI * phase );
     return sphere;
 }
 
-function makePoint (name, sysId) {
-    const point = new THREE.Points( pointGeometry, pointMaterial );
+export function makePoint (name, sysId) {
+    const point = new THREE.Points( Orrery.pointGeometry, Orrery.pointMaterial );
     point.name = name;
     point.sysId = sysId;
     return point;
 }
 
-function makeLabel(i) { // make body label
-    $("body").append("<div id='" + i + "' class='label'>" + system[i].name + "</div>");
-    $("#" + i).addClass( "tag" + system[i].type ).click( function() {
+export function makeLabel(i) { // make body label
+    $("body").append("<div id='" + i + "' class='label'>" + Orrery.system[i].name + "</div>");
+    $("#" + i).addClass( "tag" + Orrery.system[i].type ).click( function() {
         $(".label").removeClass( "active" );
-        if ( stateManager.clickedLabel != "" && $(this)[0].id == stateManager.clickedLabel[0].id ) {
-            closeTag(stateManager.clickedLabel);
+        if ( Orrery.stateManager.clickedLabel != "" && $(this)[0].id == Orrery.stateManager.clickedLabel[0].id ) {
+            closeTag(Orrery.stateManager.clickedLabel);
         } else {
             clickTag($(this)[0].id);
         }
     }).hover( function() {
-        if (stateManager.clickedLabel != "" && $(this)[0].id != stateManager.clickedLabel[0].id) {
-            stateManager.hoverLabel = $(this);
+        if (Orrery.stateManager.clickedLabel != "" && $(this)[0].id != Orrery.stateManager.clickedLabel[0].id) {
+            Orrery.stateManager.hoverLabel = $(this);
             const hoverContent = $(this).html();
-            stateManager.hoverLabel.html(hoverContent + '<span id="distToActive"></span>');
+            Orrery.stateManager.hoverLabel.html(hoverContent + '<span id="distToActive"></span>');
         }
     }, function() {
         $("#distToActive").remove();
-        stateManager.hoverLabel = false;
+        Orrery.stateManager.hoverLabel = false;
     });
 }
 
-function makeGratLabel(i, text) { // make graticule label
+export function makeGratLabel(i, text) { // make graticule label
     $("body").append("<div id='grat" + i + "' class='gratLabel'>" + text + "</div>");
     return $("#grat" + i);
 }
 
-function makeGraticules() {
+export function makeGraticules() {
     const points = 360;
     const longDivisions = 12;
     const latDivisions = 12;
@@ -89,17 +89,17 @@ function makeGraticules() {
         rings.push(tempRing);
     }
 
-    ringGeometry.rotateX(eclInclination);
+    ringGeometry.rotateX(Orrery.eclInclination);
     rings.push(ringGeometry);
     const longSphereGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(rings);
     const ringMaterial = new THREE.LineBasicMaterial({ color: 0x222211, linewidth: 1 });
     const graticule = new THREE.LineLoop( longSphereGeometry, ringMaterial);
     graticule.name = "graticule";
-    scene.add(graticule);
-    cameraLocked.graticule = graticule
+    Orrery.scene.add(graticule);
+    Orrery.cameraLocked.graticule = graticule
 }
 
-function makeRefPoints() {
+export function makeRefPoints() {
     const longDivisions = 12;
     const latDivisions = 12;
     const refPoints = [0, gratRadius, 0];
@@ -123,8 +123,6 @@ function makeRefPoints() {
         const y = refPoints[3 * i + 1];
         const z = refPoints[3 * i + 2];
         const text = labels[i];
-        gratLabels.push({label: makeGratLabel(i, text), x: x, y: y, z: z});
+        Orrery.gratLabels.push({label: makeGratLabel(i, text), x: x, y: y, z: z});
     }
 }
-
-export { makeBody, makePoint, makeLabel, makeGratLabel, makeGraticules, makeRefPoints };
