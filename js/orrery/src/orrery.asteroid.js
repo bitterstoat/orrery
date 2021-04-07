@@ -1,7 +1,7 @@
-import * as Orrery from './orrery.body.js';
+import * as ORR from './orrery.body.js';
 import { toRad, MJDToEphTime, orbitPlot, plotPoint, celestial } from "./orrery.init.js" 
 
-export class Asteroid extends Orrery.Body {
+export class Asteroid extends ORR.Body {
     constructor(params) {
         super (params);
         this.catalogNumber = this.hasData(params.num) ? parseFloat(params.num) : 0;

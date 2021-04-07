@@ -1,4 +1,4 @@
-import * as Orrery from "./orrery.init.js";
+import * as ORR from "./orrery.init.js";
 
 // spatial constants
 export const toRad = Math.PI/180
@@ -43,9 +43,9 @@ export const fpsBuffer = [];
 export const planetMoons = []; // moons of the the currently focused planet
 export const specialID = { earth:0, moon:0, pluto:0, charon:0 };
 export const center = { x:0, y:0 }; // screen center
-export const stateManager = { clickedLabel: "", clickedPlanet: {}, lastClickedPlanet: {}, mousePos: new THREE.Vector3(0, 0, 1), following: false, lastFollow: new THREE.Vector3(), hoverLabel: false, extraData: false };
+export const state = { clickedLabel: "", clickedPlanet: {}, lastClickedPlanet: {}, mousePos: new THREE.Vector3(0, 0, 1), following: false, lastFollow: new THREE.Vector3(), hoverLabel: false, extraData: false };
 export const groundPosition = { latitude: 51.48, longitude: 0, default: true }; // default location is Greenwich
-export const timeManager = { ephTime: Orrery.MJDToEphTime(Orrery.unixToMJD(Date.now())), speed: 8, lastSpeed: 8, rate: rates[8], avgFPS: 0, parsedDate: 0 };
+export const times = { ephTime: ORR.MJDToEphTime(ORR.unixToMJD(Date.now())), speed: 8, lastSpeed: 8, rate: rates[8], avgFPS: 0, parsedDate: 0 };
 export const searchLists = { combined: [], planetNames: [], moonNames: [], asteroidNames: [], cometNames: [], orderedNames: [] };
 export const cameraLocked = { starfieldObj: new THREE.Object3D(), graticule: new THREE.Line() };
 export const orbitPlot = { points: pointCount };
@@ -61,7 +61,7 @@ export function getUrlVars() {
 export const vars = getUrlVars();
 
 if (typeof vars.y == "undefined" || typeof vars.x == "undefined") {
-    navigator.geolocation.getCurrentPosition(Orrery.getLatLong); // request user's coordinates, if unavailable keep Greenwich
+    navigator.geolocation.getCurrentPosition(ORR.getLatLong); // request user's coordinates, if unavailable keep Greenwich
 } else {
     const lat = parseFloat(vars.y);
     const lon = parseFloat(vars.x);
@@ -79,7 +79,7 @@ if (typeof vars.t != "undefined" && (vars.t.length == 12 || vars.t.length == 13)
     const dayTime = vars.t.substr(split);
     const dateCode = (BC ? "-00" : "") + year + "-" + dayTime.substr(0, 2) + "-" + dayTime.substr(2,2) + "T" + 
     dayTime.substr(4,2) + ":" + dayTime.substr(6,2);
-    timeManager.parsedDate = Date.parse(dateCode);
+    times.parsedDate = Date.parse(dateCode);
 }
 
 // three.js setup
@@ -167,7 +167,7 @@ const sunMaterial = new THREE.MeshBasicMaterial({ map: loader.load('data/1k_sun.
 export const sun = new THREE.Mesh( sunGeometry, sunMaterial );
 sun.name = "Sol";
 sun.glow = true;
-Orrery.reAxis(sun, 63.87 * toRad, 286.13 * toRad);
+ORR.reAxis(sun, 63.87 * toRad, 286.13 * toRad);
 sun.thetaDot = 360 * daysPerCent / -25.05 * toRad; // sun rotation rotate
 scene.add( sun );
 

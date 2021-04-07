@@ -1,6 +1,6 @@
-import * as Orrery from './orrery.body.js';
+import * as ORR from './orrery.body.js';
 
-export class Hyperbolic extends Orrery.Comet {
+export class Hyperbolic extends ORR.Comet {
     constructor(params) {
         super (params);
         this.semiMajorAxis = Infinity;

@@ -1,7 +1,7 @@
-import * as Orrery from './orrery.body.js';
+import * as ORR from './orrery.body.js';
 import { toRad, AU, daysPerCent, MJDToEphTime, orbitPlot, plotPoint, planetary, scene, system } from "./orrery.init.js" 
 
-export class Moon extends Orrery.Body {
+export class Moon extends ORR.Body {
     constructor(params) {
         super (params);
         this.argPeriapsis = this.w;

@@ -1,7 +1,7 @@
-import * as Orrery from './orrery.asteroid.js';
+import * as ORR from './orrery.asteroid.js';
 import { toRad, decToMinSec, unixToMJD, MJDToEphTime, orbitPlot, plotPoint, celestial } from "./orrery.init.js" 
 
-export class Comet extends Orrery.Asteroid {
+export class Comet extends ORR.Asteroid {
     constructor(params) {
         super (params);
         this.info = (this.info == "default") ? "Periodic comet" : this.info;

@@ -1,4 +1,4 @@
-import * as Orrery from "./orrery.init.js";
+import * as ORR from "./orrery.init.js";
 // import { tags } from "./orrery.loaders.js"
 
 import { VRButton } from "./../../three/VRButton.js";
@@ -6,10 +6,10 @@ import { VRButton } from "./../../three/VRButton.js";
 export let liveData = false;
 const tempLabels = [];
 
-export const renderEl = document.body.appendChild( Orrery.renderer.domElement );
+export const renderEl = document.body.appendChild( ORR.renderer.domElement );
 /*
-document.body.appendChild( VRButton.createButton( Orrery.renderer ) );
-Orrery.renderer.xr.enabled = true;
+document.body.appendChild( VRButton.createButton( ORR.renderer ) );
+ORR.renderer.xr.enabled = true;
 setTimeout( function() {
     if ($("#VRButton")[0].innerHTML == "VR NOT SUPPORTED") { $("#VRButton").hide(500); } 
 }, 3000);
@@ -18,72 +18,72 @@ setTimeout( function() {
 $("#info").hide();
 $("#earth").hide();
 
-if (!Orrery.groundPosition.default) {
-    Orrery.displayLatLong(Orrery.groundPosition.latitude, Orrery.groundPosition.longitude);
+if (!ORR.groundPosition.default) {
+    ORR.displayLatLong(ORR.groundPosition.latitude, ORR.groundPosition.longitude);
 }
 
 /* MAIN LOOP */
 export function animate(time) {
-    let clockElapsed = 1/Orrery.clock.getDelta();
-    Orrery.fpsBuffer.push(clockElapsed);
-    if (Orrery.fpsBuffer.length > 7) {
+    let clockElapsed = 1/ORR.clock.getDelta();
+    ORR.fpsBuffer.push(clockElapsed);
+    if (ORR.fpsBuffer.length > 7) {
         let sum = 0;
-        for (let i = 0; i < Orrery.fpsBuffer.length; i++) { sum += Orrery.fpsBuffer[i]; }
-        Orrery.timeManager.avgFPS = sum / Orrery.fpsBuffer.length;
-        Orrery.fpsBuffer.splice(0, Orrery.fpsBuffer.length);
+        for (let i = 0; i < ORR.fpsBuffer.length; i++) { sum += ORR.fpsBuffer[i]; }
+        ORR.times.avgFPS = sum / ORR.fpsBuffer.length;
+        ORR.fpsBuffer.splice(0, ORR.fpsBuffer.length);
         liveData = true;
     }
 
     // update clock
-    Orrery.timeManager.rate = Orrery.rates[Orrery.timeManager.speed] * (Orrery.fps / clockElapsed);
-    Orrery.timeManager.ephTime += Orrery.timeManager.rate;
-    Orrery.sun.rotateOnAxis( new THREE.Vector3(0, 1, 0), Orrery.sun.thetaDot * Orrery.timeManager.rate );
-    let readout = Orrery.EphTimeReadout(Orrery.timeManager.ephTime).a;
-    readout += (Orrery.timeManager.speed > (Orrery.pauseRate-4) && Orrery.timeManager.speed < (Orrery.pauseRate+4)) ? Orrery.EphTimeReadout(Orrery.timeManager.ephTime).b : "";
-    readout += (Orrery.timeManager.speed > (Orrery.pauseRate-2) && Orrery.timeManager.speed < (Orrery.pauseRate+2)) ? Orrery.EphTimeReadout(Orrery.timeManager.ephTime).c : "";
-    readout += (Orrery.timeManager.speed > (Orrery.pauseRate-4) && Orrery.timeManager.speed < (Orrery.pauseRate+4)) ? Orrery.EphTimeReadout(Orrery.timeManager.ephTime).d : "";
+    ORR.times.rate = ORR.rates[ORR.times.speed] * (ORR.fps / clockElapsed);
+    ORR.times.ephTime += ORR.times.rate;
+    ORR.sun.rotateOnAxis( new THREE.Vector3(0, 1, 0), ORR.sun.thetaDot * ORR.times.rate );
+    let readout = ORR.EphTimeReadout(ORR.times.ephTime).a;
+    readout += (ORR.times.speed > (ORR.pauseRate-4) && ORR.times.speed < (ORR.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).b : "";
+    readout += (ORR.times.speed > (ORR.pauseRate-2) && ORR.times.speed < (ORR.pauseRate+2)) ? ORR.EphTimeReadout(ORR.times.ephTime).c : "";
+    readout += (ORR.times.speed > (ORR.pauseRate-4) && ORR.times.speed < (ORR.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).d : "";
     $("#date").html( readout );
-    $("#speed").html( Orrery.rateDesc[Orrery.timeManager.speed] );
-    $("#fps").html(Orrery.timeManager.avgFPS.toFixed(2));
-    if (Orrery.stateManager.extraData) {
+    $("#speed").html( ORR.rateDesc[ORR.times.speed] );
+    $("#fps").html(ORR.times.avgFPS.toFixed(2));
+    if (ORR.state.extraData) {
         $(".extraData").show();
-        $("#mjd").html(Orrery.EphTimeToMJD(Orrery.timeManager.ephTime).toFixed(3));
-        $("#lst").html(Orrery.localSiderealTime(Orrery.timeManager.ephTime).toFixed(3));
+        $("#mjd").html(ORR.EphTimeToMJD(ORR.times.ephTime).toFixed(3));
+        $("#lst").html(ORR.localSiderealTime(ORR.times.ephTime).toFixed(3));
     } else {
         $(".extraData").hide();
     }
 
-    for (let i = 0; i< Orrery.precessing.length; i++) {
-        Orrery.system[Orrery.precessing[i]].precess(Orrery.timeManager.rate);
-        Orrery.redraw(i);
+    for (let i = 0; i< ORR.precessing.length; i++) {
+        ORR.system[ORR.precessing[i]].precess(ORR.times.rate);
+        ORR.redraw(i);
     }
 
-    for (let i = 0; i < Orrery.system.length; i++) {
+    for (let i = 0; i < ORR.system.length; i++) {
         // update position and rotation
-        Orrery.system[i].update(Orrery.timeManager.rate);
-        const body = Orrery.scene.children[Orrery.system[i].childId];
-        body.position.x = Orrery.system[i].celestialPos.x;
-        body.position.y = Orrery.system[i].celestialPos.y;
-        body.position.z = Orrery.system[i].celestialPos.z;
-        body.rotateOnAxis( new THREE.Vector3(0, 1, 0), Orrery.system[i].thetaDot * Orrery.timeManager.rate );
-        Orrery.system[i].toSun = Orrery.system[i].celestialPos.length();
-        Orrery.system[i].toEarth = Orrery.system[i].celestialPos.clone().sub(Orrery.system[Orrery.specialID.earth].celestialPos);
+        ORR.system[i].update(ORR.times.rate);
+        const body = ORR.scene.children[ORR.system[i].childId];
+        body.position.x = ORR.system[i].celestialPos.x;
+        body.position.y = ORR.system[i].celestialPos.y;
+        body.position.z = ORR.system[i].celestialPos.z;
+        body.rotateOnAxis( new THREE.Vector3(0, 1, 0), ORR.system[i].thetaDot * ORR.times.rate );
+        ORR.system[i].toSun = ORR.system[i].celestialPos.length();
+        ORR.system[i].toEarth = ORR.system[i].celestialPos.clone().sub(ORR.system[ORR.specialID.earth].celestialPos);
 
         // compute body's tagspace coordinates and place label
         const tag = $('#' + i);
-        const tagPos = new THREE.Vector3().setFromMatrixPosition(body.matrixWorld).project(Orrery.camera);
-        tagPos.x = (tagPos.x * Orrery.center.x) + Orrery.center.x;
-        tagPos.y = (tagPos.y * Orrery.center.y * -1) + Orrery.center.y;
+        const tagPos = new THREE.Vector3().setFromMatrixPosition(body.matrixWorld).project(ORR.camera);
+        tagPos.x = (tagPos.x * ORR.center.x) + ORR.center.x;
+        tagPos.y = (tagPos.y * ORR.center.y * -1) + ORR.center.y;
         if (tag.length) {
-            if (Math.abs(tagPos.x - Orrery.center.x) < Orrery.center.x && Math.abs(tagPos.y - Orrery.center.y) < Orrery.center.y && tagPos.z < 1) {
+            if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
                 tag.css({ "left" : Math.round(tagPos.x) + 10, "top": Math.round(tagPos.y) - 5, "visibility" : "visible" });
             } else {
                 tag.css({ "visibility" : "hidden" });
             }
         } else {
-            const d = tagPos.distanceTo(Orrery.stateManager.mousePos);
+            const d = tagPos.distanceTo(ORR.state.mousePos);
             if (d < 15) {
-                Orrery.makeLabel(i);
+                ORR.makeLabel(i);
                 tempLabels.push(i);
             }
         }
@@ -96,15 +96,15 @@ export function animate(time) {
     }
 
     // update graticule labels
-    if (Orrery.cameraLocked.graticule.visible) {
+    if (ORR.cameraLocked.graticule.visible) {
         $(".gratLabel").show();
-        for (let i = 0; i < Orrery.gratLabels.length; i++) {
-            const tag = Orrery.gratLabels[i].label;
-            const tagPos = new THREE.Vector3(Orrery.gratLabels[i].x, Orrery.gratLabels[i].y, Orrery.gratLabels[i].z).add(Orrery.camera.position);
-            tagPos.project(Orrery.camera);
-            tagPos.x = (tagPos.x * Orrery.center.x) + Orrery.center.x;
-            tagPos.y = (tagPos.y * Orrery.center.y * -1) + Orrery.center.y;
-            if (Math.abs(tagPos.x - Orrery.center.x) < Orrery.center.x && Math.abs(tagPos.y - Orrery.center.y) < Orrery.center.y && tagPos.z < 1) {
+        for (let i = 0; i < ORR.gratLabels.length; i++) {
+            const tag = ORR.gratLabels[i].label;
+            const tagPos = new THREE.Vector3(ORR.gratLabels[i].x, ORR.gratLabels[i].y, ORR.gratLabels[i].z).add(ORR.camera.position);
+            tagPos.project(ORR.camera);
+            tagPos.x = (tagPos.x * ORR.center.x) + ORR.center.x;
+            tagPos.y = (tagPos.y * ORR.center.y * -1) + ORR.center.y;
+            if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
                 tag.css({ "left" : tagPos.x-20, "top": tagPos.y-5, "visibility" : "visible" });
             } else {
                 tag.css({ "visibility" : "hidden" });
@@ -114,60 +114,60 @@ export function animate(time) {
         $(".gratLabel").hide();
     }
 
-    for (let i = 0; i < Orrery.moons.length; i++) {
-        Orrery.paths[Orrery.moons[i].path].position.x = Orrery.system[Orrery.paths[Orrery.moons[i].path].orbitId].celestialPos.x;
-        Orrery.paths[Orrery.moons[i].path].position.y = Orrery.system[Orrery.paths[Orrery.moons[i].path].orbitId].celestialPos.y;
-        Orrery.paths[Orrery.moons[i].path].position.z = Orrery.system[Orrery.paths[Orrery.moons[i].path].orbitId].celestialPos.z;
+    for (let i = 0; i < ORR.moons.length; i++) {
+        ORR.paths[ORR.moons[i].path].position.x = ORR.system[ORR.paths[ORR.moons[i].path].orbitId].celestialPos.x;
+        ORR.paths[ORR.moons[i].path].position.y = ORR.system[ORR.paths[ORR.moons[i].path].orbitId].celestialPos.y;
+        ORR.paths[ORR.moons[i].path].position.z = ORR.system[ORR.paths[ORR.moons[i].path].orbitId].celestialPos.z;
     }
-    Orrery.system[Orrery.specialID.earth].baryPos = Orrery.system[Orrery.specialID.earth].celestialPos.clone().sub(Orrery.system[Orrery.specialID.moon].celestialPos).multiplyScalar(Orrery.earthBary);
-    const earthBody = Orrery.scene.children[Orrery.system[Orrery.specialID.earth].childId];
-    earthBody.position.x += Orrery.system[Orrery.specialID.earth].baryPos.x;
-    earthBody.position.y += Orrery.system[Orrery.specialID.earth].baryPos.y;
-    earthBody.position.z += Orrery.system[Orrery.specialID.earth].baryPos.z;
-    const plutoBaryOffset = Orrery.system[Orrery.specialID.pluto].celestialPos.clone().sub(Orrery.system[Orrery.specialID.charon].celestialPos).multiplyScalar(Orrery.plutoBary, );
-    const plutoBody = Orrery.scene.children[Orrery.system[Orrery.specialID.pluto].childId];
+    ORR.system[ORR.specialID.earth].baryPos = ORR.system[ORR.specialID.earth].celestialPos.clone().sub(ORR.system[ORR.specialID.moon].celestialPos).multiplyScalar(ORR.earthBary);
+    const earthBody = ORR.scene.children[ORR.system[ORR.specialID.earth].childId];
+    earthBody.position.x += ORR.system[ORR.specialID.earth].baryPos.x;
+    earthBody.position.y += ORR.system[ORR.specialID.earth].baryPos.y;
+    earthBody.position.z += ORR.system[ORR.specialID.earth].baryPos.z;
+    const plutoBaryOffset = ORR.system[ORR.specialID.pluto].celestialPos.clone().sub(ORR.system[ORR.specialID.charon].celestialPos).multiplyScalar(ORR.plutoBary, );
+    const plutoBody = ORR.scene.children[ORR.system[ORR.specialID.pluto].childId];
     plutoBody.position.x += plutoBaryOffset.x;
     plutoBody.position.y += plutoBaryOffset.y;
     plutoBody.position.z += plutoBaryOffset.z;
 
     // update live info
-    if (Orrery.stateManager.clickedLabel != "") {
-        const RADec = Orrery.getRA(Orrery.stateManager.clickedPlanet);
-        const AltAz = Orrery.altAz(RADec.ra, RADec.dec, Orrery.timeManager.ephTime);
-        const elongation = 180 - Orrery.stateManager.clickedPlanet.toEarth.angleTo(Orrery.system[Orrery.specialID.earth].celestialPos) * Orrery.toDeg;
+    if (ORR.state.clickedLabel != "") {
+        const RADec = ORR.getRA(ORR.state.clickedPlanet);
+        const AltAz = ORR.altAz(RADec.ra, RADec.dec, ORR.times.ephTime);
+        const elongation = 180 - ORR.state.clickedPlanet.toEarth.angleTo(ORR.system[ORR.specialID.earth].celestialPos) * ORR.toDeg;
         if (liveData) {
-            if (typeof Orrery.stateManager.clickedPlanet.orbitId == "undefined") {
-                $("#orbitVel").html(Orrery.visViva(Orrery.sunGravConstant, Orrery.stateManager.clickedPlanet.toSun, Orrery.stateManager.clickedPlanet.semiMajorAxis).toFixed(3));
+            if (typeof ORR.state.clickedPlanet.orbitId == "undefined") {
+                $("#orbitVel").html(ORR.visViva(ORR.sunGravConstant, ORR.state.clickedPlanet.toSun, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
             } else {
-                const toOrbiting = Orrery.stateManager.clickedPlanet.celestialPos.clone().sub(Orrery.system[Orrery.stateManager.clickedPlanet.orbitId].celestialPos).length();
-                $("#orbitVel").html(Orrery.visViva(Orrery.system[Orrery.stateManager.clickedPlanet.orbitId].mass * Orrery.gravConstant, toOrbiting, Orrery.stateManager.clickedPlanet.semiMajorAxis).toFixed(3));
+                const toOrbiting = ORR.state.clickedPlanet.celestialPos.clone().sub(ORR.system[ORR.state.clickedPlanet.orbitId].celestialPos).length();
+                $("#orbitVel").html(ORR.visViva(ORR.system[ORR.state.clickedPlanet.orbitId].mass * ORR.gravConstant, toOrbiting, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
             }
-            const appMag = Orrery.apparentMag(Orrery.stateManager.clickedPlanet);
+            const appMag = ORR.apparentMag(ORR.state.clickedPlanet);
             let magNote = ""
             if (AltAz.alt > 0) {
-                const adjMag = Orrery.extinction(appMag, AltAz.alt);
+                const adjMag = ORR.extinction(appMag, AltAz.alt);
                 magNote = "<br>(" + adjMag.mag.toFixed(2) + " under " + adjMag.airmass.toFixed(2) + " airmasses)";
             }
             $("#appMag").html(appMag.toFixed(2) + magNote);
-            $("#toSun, #earthToSun").html(Orrery.stateManager.clickedPlanet.toSun.toFixed(4));
-            $("#toEarth").html(Orrery.stateManager.clickedPlanet.toEarth.length().toFixed(4));
-            const raDMS = Orrery.decToMinSec(RADec.ra);
-            const decDMS = Orrery.decToMinSec(RADec.dec);
-            const altDMS = Orrery.decToMinSec(AltAz.alt);
-            const azDMS = Orrery.decToMinSec(AltAz.az);
+            $("#toSun, #earthToSun").html(ORR.state.clickedPlanet.toSun.toFixed(4));
+            $("#toEarth").html(ORR.state.clickedPlanet.toEarth.length().toFixed(4));
+            const raDMS = ORR.decToMinSec(RADec.ra);
+            const decDMS = ORR.decToMinSec(RADec.dec);
+            const altDMS = ORR.decToMinSec(AltAz.alt);
+            const azDMS = ORR.decToMinSec(AltAz.az);
             $("#RA, #sunRA").html(raDMS.sign + raDMS.deg + 'h ' + raDMS.min + '&rsquo; ' + raDMS.sec.toFixed(1));
             $("#dec, #sunDec").html(decDMS.sign + decDMS.deg + '&deg; ' + decDMS.min + '&rsquo; ' + decDMS.sec.toFixed(1));
             $("#alt, #sunAlt").html(altDMS.sign + altDMS.deg + '&deg; ' + altDMS.min + '&rsquo; ' + altDMS.sec.toFixed(1));
             $("#az, #sunAz").html(azDMS.sign + azDMS.deg + '&deg; ' + azDMS.min + '&rsquo; ' + azDMS.sec.toFixed(1));
-            Orrery.riseSet(Orrery.stateManager.clickedPlanet);
-            if (Orrery.stateManager.extraData) {
-                const haDMS = Orrery.decToMinSec(AltAz.ha);
+            ORR.riseSet(ORR.state.clickedPlanet);
+            if (ORR.state.extraData) {
+                const haDMS = ORR.decToMinSec(AltAz.ha);
                 $("#ha").html(haDMS.deg + 'h ' + haDMS.min + '&rsquo; ' + haDMS.sec.toFixed(1));
             }
             $("#elong").html(elongation.toFixed(3));
-            if (Orrery.stateManager.hoverLabel) {
-                const toActive = Orrery.stateManager.clickedPlanet.celestialPos.clone().sub(Orrery.system[Orrery.stateManager.hoverLabel[0].id].celestialPos).length();
-                const activeOut = (toActive < 0.001) ? (toActive * Orrery.AU).toFixed(1) + ' km' : (toActive).toFixed(3) + ' AU';
+            if (ORR.state.hoverLabel) {
+                const toActive = ORR.state.clickedPlanet.celestialPos.clone().sub(ORR.system[ORR.state.hoverLabel[0].id].celestialPos).length();
+                const activeOut = (toActive < 0.001) ? (toActive * ORR.AU).toFixed(1) + ' km' : (toActive).toFixed(3) + ' AU';
                 $("#distToActive").html('<br>' + activeOut);
             }
         }
@@ -176,43 +176,43 @@ export function animate(time) {
 
     TWEEN.update(time); // update tweens
     if (TWEEN.getAll().length == 0) { // lock on target after the tween
-        Orrery.controls.target = (Orrery.stateManager.clickedLabel == "") ? new THREE.Vector3() : Orrery.stateManager.clickedPlanet.celestialPos;
+        ORR.controls.target = (ORR.state.clickedLabel == "") ? new THREE.Vector3() : ORR.state.clickedPlanet.celestialPos;
 
-        if ( Orrery.stateManager.following ) {
-            const followPosition = Orrery.controls.target;
-            const followDelta = Orrery.stateManager.lastFollow.sub(followPosition);
-            Orrery.camera.translateX(followDelta.x);
-            Orrery.camera.translateY(followDelta.y);
-            Orrery.camera.translateZ(followDelta.z);
-            Orrery.stateManager.lastFollow = followPosition;
+        if ( ORR.state.following ) {
+            const followPosition = ORR.controls.target;
+            const followDelta = ORR.state.lastFollow.sub(followPosition);
+            ORR.camera.translateX(followDelta.x);
+            ORR.camera.translateY(followDelta.y);
+            ORR.camera.translateZ(followDelta.z);
+            ORR.state.lastFollow = followPosition;
         } else {
-            Orrery.stateManager.lastFollow = Orrery.controls.target;
+            ORR.state.lastFollow = ORR.controls.target;
         }
     }
 
-    Orrery.cameraLocked.starfieldObj.position.x = Orrery.camera.position.x;
-    Orrery.cameraLocked.starfieldObj.position.y = Orrery.camera.position.y;
-    Orrery.cameraLocked.starfieldObj.position.z = Orrery.camera.position.z;
-    Orrery.cameraLocked.graticule.position.x = Orrery.camera.position.x;
-    Orrery.cameraLocked.graticule.position.y = Orrery.camera.position.y;
-    Orrery.cameraLocked.graticule.position.z = Orrery.camera.position.z;
+    ORR.cameraLocked.starfieldObj.position.x = ORR.camera.position.x;
+    ORR.cameraLocked.starfieldObj.position.y = ORR.camera.position.y;
+    ORR.cameraLocked.starfieldObj.position.z = ORR.camera.position.z;
+    ORR.cameraLocked.graticule.position.x = ORR.camera.position.x;
+    ORR.cameraLocked.graticule.position.y = ORR.camera.position.y;
+    ORR.cameraLocked.graticule.position.z = ORR.camera.position.z;
 
     // render the entire scene, then render bloom scene on top
-    Orrery.controls.update(); // update the camera controls
-    Orrery.scene.traverse(darkenNonBloomed);
-    Orrery.bloomComposer.render();
-    Orrery.scene.traverse(restoreMaterial);
-    Orrery.finalComposer.render();
+    ORR.controls.update(); // update the camera controls
+    ORR.scene.traverse(darkenNonBloomed);
+    ORR.bloomComposer.render();
+    ORR.scene.traverse(restoreMaterial);
+    ORR.finalComposer.render();
 
     const animateID = requestAnimationFrame( animate );
 
     /*
-    Orrery.renderer.setAnimationLoop( function () {
-        Orrery.renderer.render( scene, Orrery.camera );
+    ORR.renderer.setAnimationLoop( function () {
+        ORR.renderer.render( scene, ORR.camera );
     });
     */
 
-    if (!Orrery.stateManager.showSplash) {
+    if (!ORR.state.showSplash) {
         $("#splashScreen").hide(300);
     }
 }
@@ -226,14 +226,14 @@ renderEl.addEventListener("webglcontextlost", function(event) {
 
 export function darkenNonBloomed( obj ) {
     if ( typeof obj.glow == "undefined" || obj.glow == false ) {
-        Orrery.materials[ obj.uuid ] = obj.material;
-        obj.material = Orrery.darkMaterial;
+        ORR.materials[ obj.uuid ] = obj.material;
+        obj.material = ORR.darkMaterial;
     }
 }
 
 export function restoreMaterial( obj ) {
-    if ( Orrery.materials[ obj.uuid ] ) {
-        obj.material = Orrery.materials[ obj.uuid ];
-        delete Orrery.materials[ obj.uuid ];
+    if ( ORR.materials[ obj.uuid ] ) {
+        obj.material = ORR.materials[ obj.uuid ];
+        delete ORR.materials[ obj.uuid ];
     }
 }

@@ -1,8 +1,8 @@
-import * as Orrery from "./orrery.init.js"
+import * as ORR from "./orrery.init.js"
 
 // spatial functions
-export function plotPoint(meanAnomaly, eccentricity, semiMajorAxis, runKepler) { // plot Orrery.groundPosition.longitudes to orbital path
-    const eccAnomaly = (runKepler && Orrery.orbitPlot.points == 1) ? kepler(eccentricity, meanAnomaly) : meanAnomaly;
+export function plotPoint(meanAnomaly, eccentricity, semiMajorAxis, runKepler) { // plot ORR.groundPosition.longitudes to orbital path
+    const eccAnomaly = (runKepler && ORR.orbitPlot.points == 1) ? kepler(eccentricity, meanAnomaly) : meanAnomaly;
     const localPoint = new THREE.Vector2( semiMajorAxis * (Math.cos(eccAnomaly) - eccentricity), semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity) * Math.sin(eccAnomaly));
     return localPoint;
 }
@@ -22,19 +22,19 @@ export function kepler(e, m) { // numerical approximation of Kepler's equation
 
 export function celestial_THREE(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // transform to Cartesian coordinates relative to the celestial sphere
     const v = new THREE.Vector3(xLocal, 0, yLocal);
-    v.applyAxisAngle( Orrery.celestialZAxis, longPeriapsis ).applyAxisAngle( Orrery.celestialXAxis, inclination ).applyAxisAngle( Orrery.celestialZAxis, longAscNode );
-    return v.applyAxisAngle( Orrery.celestialXAxis, Orrery.eclInclination );
+    v.applyAxisAngle( ORR.celestialZAxis, longPeriapsis ).applyAxisAngle( ORR.celestialXAxis, inclination ).applyAxisAngle( ORR.celestialZAxis, longAscNode );
+    return v.applyAxisAngle( ORR.celestialXAxis, ORR.eclInclination );
 }
 
 export function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLocal, yLocal, orbitRef, orbitId) { // transform to Cartesian coordinates relative to an arbitrary axis
-    let v = new THREE.Vector3(xLocal, 0, yLocal).applyAxisAngle( Orrery.celestialZAxis, longPeriapsis + longAscNode );
+    let v = new THREE.Vector3(xLocal, 0, yLocal).applyAxisAngle( ORR.celestialZAxis, longPeriapsis + longAscNode );
     const y = new THREE.Vector3(0, 0, 1);
     switch (orbitRef) {
         case "L" : // relative to local Lagrangian
-            v.applyAxisAngle(y, Math.PI/2 - dec).applyAxisAngle(Orrery.celestialZAxis, ra);
+            v.applyAxisAngle(y, Math.PI/2 - dec).applyAxisAngle(ORR.celestialZAxis, ra);
         break;
         case "Q" : // relative to the planet's equator
-            v.applyAxisAngle(y, Math.PI/2 - Orrery.system[orbitId].axisDec + inclination).applyAxisAngle(Orrery.celestialZAxis, Orrery.system[orbitId].axisRA);
+            v.applyAxisAngle(y, Math.PI/2 - ORR.system[orbitId].axisDec + inclination).applyAxisAngle(ORR.celestialZAxis, ORR.system[orbitId].axisRA);
         break;
         default: // aka "E", relative to the ecliptic
             v = celestial(longPeriapsis, longAscNode, inclination, xLocal, yLocal);
@@ -49,39 +49,39 @@ export function celestial(longPeriapsis, longAscNode, inclination, xLocal, yLoca
     const x = (cosW * cosO - sinW * sinO * cosI) * xLocal + (-1 * sinW * cosO - cosW * sinO * cosI) * yLocal;
     const y = (cosW * sinO + sinW * cosO * cosI) * xLocal + (-1 * sinW * sinO + cosW * cosO * cosI) * yLocal;
     const z = (sinW * sinI) * xLocal + (cosW * sinI) * yLocal;
-    return new THREE.Vector3(x, z, y).applyAxisAngle( new THREE.Vector3(1, 0, 0), Orrery.eclInclination);
+    return new THREE.Vector3(x, z, y).applyAxisAngle( new THREE.Vector3(1, 0, 0), ORR.eclInclination);
 }
 
 export function reAxis(obj, ra, dec) {
     obj.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), Math.PI/2 - dec);
-    obj.rotateOnWorldAxis(Orrery.celestialZAxis, ra);
+    obj.rotateOnWorldAxis(ORR.celestialZAxis, ra);
 }
 
 export function orbitPath(i) { // plot orbital paths
-    Orrery.system[i].updateOrbit();
-    const orbitPath = Orrery.system[i].celestial;
+    ORR.system[i].updateOrbit();
+    const orbitPath = ORR.system[i].celestial;
     const orbitGeometry = new THREE.BufferGeometry().setFromPoints( orbitPath );
-    const path = new THREE.LineLoop( orbitGeometry, Orrery.pathMaterials[Orrery.system[i].type]);
-    path.initMaterial = Orrery.pathMaterials[Orrery.system[i].type];
+    const path = new THREE.LineLoop( orbitGeometry, ORR.pathMaterials[ORR.system[i].type]);
+    path.initMaterial = ORR.pathMaterials[ORR.system[i].type];
     path.name = "path" + i;
     return path;
 }
 
 export function redraw(i) { // plot orbital paths
-    Orrery.orbitPlot.points = Orrery.pointCount;
-    Orrery.system[i].updateOrbit();
-    Orrery.paths[i].geometry = new THREE.BufferGeometry().setFromPoints( Orrery.system[i].celestial );
-    Orrery.orbitPlot.points = 1;
+    ORR.orbitPlot.points = ORR.pointCount;
+    ORR.system[i].updateOrbit();
+    ORR.paths[i].geometry = new THREE.BufferGeometry().setFromPoints( ORR.system[i].celestial );
+    ORR.orbitPlot.points = 1;
 }
 
 export function RADecToVector(ra, dec) { // right ascension and declination to vector
-    const v = new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), (90-dec)*Orrery.toRad);
-    return v.applyAxisAngle(new THREE.Vector3(0, 1, 0), ((ra + 6) % 24) * 15 * Orrery.toRad );
+    const v = new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), (90-dec)*ORR.toRad);
+    return v.applyAxisAngle(new THREE.Vector3(0, 1, 0), ((ra + 6) % 24) * 15 * ORR.toRad );
 }
 
 export function vectortoRadec(v) { // vector to right ascension and declination
-    return { ra: (Math.atan2(v.x, v.z) * Orrery.toDeg / 15 + 42 ) % 24, 
-        dec:v.angleTo(new THREE.Vector3(v.x, 0, v.z)) * Math.sign(v.y) * Orrery.toDeg 
+    return { ra: (Math.atan2(v.x, v.z) * ORR.toDeg / 15 + 42 ) % 24, 
+        dec:v.angleTo(new THREE.Vector3(v.x, 0, v.z)) * Math.sign(v.y) * ORR.toDeg 
     };
 }
 
@@ -107,7 +107,7 @@ export function estRadius(h, p = 0.15) { // estimate asteroid radius from absolu
 }
 
 export function visViva(mu, r, a) { // compute instantaneous orbital speed
-    return Math.sqrt(mu * (2/r/Orrery.AU - 1/a/Orrery.AU )) / 1000;
+    return Math.sqrt(mu * (2/r/ORR.AU - 1/a/ORR.AU )) / 1000;
 }
 
 export function displayLatLong(a, b) {
@@ -118,34 +118,34 @@ export function displayLatLong(a, b) {
 }
 
 export function getLatLong(response) {
-    Orrery.groundPosition.latitude = response.coords.latitude;
-    Orrery.groundPosition.longitude = response.coords.longitude;
-    Orrery.groundPosition.default = false;
-    displayLatLong(Orrery.groundPosition.latitude, Orrery.groundPosition.longitude);
+    ORR.groundPosition.latitude = response.coords.latitude;
+    ORR.groundPosition.longitude = response.coords.longitude;
+    ORR.groundPosition.default = false;
+    displayLatLong(ORR.groundPosition.latitude, ORR.groundPosition.longitude);
 }
 
 // temporal functions 
 export function unixToMJD(d) { // Unix time to modified Julian Date
-    return d / Orrery.DayInMillis + Orrery.UnixTimeZeroInMJD; 
+    return d / ORR.DayInMillis + ORR.UnixTimeZeroInMJD; 
 } 
 
 export function MJDToEphTime(d) { // MJD to fractional centuries since J2000
-    return (d - Orrery.J2KInMJD) / Orrery.daysPerCent; 
+    return (d - ORR.J2KInMJD) / ORR.daysPerCent; 
 }
 
 export function EphTimeToMJD(d) { // inverse MJDToEphTime
-    return d * Orrery.daysPerCent + Orrery.J2KInMJD;
+    return d * ORR.daysPerCent + ORR.J2KInMJD;
 }
 
 export function MJDtoUnix(d) { // inverse unixToMJD
-    return new Date((d - Orrery.UnixTimeZeroInMJD) * Orrery.DayInMillis);
+    return new Date((d - ORR.UnixTimeZeroInMJD) * ORR.DayInMillis);
 }
 
 export function EphTimeReadout(d) { // display time
-    const t = new Date((d * Orrery.daysPerCent + Orrery.J2KInMJD - Orrery.UnixTimeZeroInMJD) * Orrery.DayInMillis);
+    const t = new Date((d * ORR.daysPerCent + ORR.J2KInMJD - ORR.UnixTimeZeroInMJD) * ORR.DayInMillis);
     const era = (t.getFullYear() >= 0) ? "" : " BC";
     const b = (t.getHours() % 12 == 0) ? 12 : t.getHours() % 12;
-    return { a:Orrery.months[t.getMonth()] + " " + (" " + t.getDate()).slice(-2) +", " + Math.abs(parseInt(t.getFullYear())).toString() + era, 
+    return { a:ORR.months[t.getMonth()] + " " + (" " + t.getDate()).slice(-2) +", " + Math.abs(parseInt(t.getFullYear())).toString() + era, 
              b: "&nbsp;&nbsp;&bull;&nbsp;&nbsp;" + (" " +  b).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2), 
              c: ":" + ("0" + t.getSeconds()).slice(-2),
              d: (t.getHours() < 12) ? " AM" : " PM"
@@ -153,66 +153,66 @@ export function EphTimeReadout(d) { // display time
 }
 
 export function slowTime() { // slow/reverse time
-    Orrery.timeManager.speed = Math.max(Orrery.timeManager.speed-1, 0);
-    Orrery.timeManager.rate = Orrery.rates[Orrery.timeManager.speed];
+    ORR.times.speed = Math.max(ORR.times.speed-1, 0);
+    ORR.times.rate = ORR.rates[ORR.times.speed];
 }
 
 export function speedTime() { // speeed up time
-    Orrery.timeManager.speed = Math.min(Orrery.timeManager.speed+1, Orrery.rates.length-1);
-    Orrery.timeManager.rate = Orrery.rates[Orrery.timeManager.speed];
+    ORR.times.speed = Math.min(ORR.times.speed+1, ORR.rates.length-1);
+    ORR.times.rate = ORR.rates[ORR.times.speed];
 }
 
 export function setTime(time) { // reset to arbitrary time
-    const oldTime = Orrery.timeManager.ephTime;
-    Orrery.timeManager.ephTime = MJDToEphTime(time);
-    const delta = Orrery.timeManager.ephTime - oldTime;
-    for (let i = 0; i < Orrery.system.length; i++) {
-        Orrery.system[i].set(Orrery.timeManager.ephTime);
+    const oldTime = ORR.times.ephTime;
+    ORR.times.ephTime = MJDToEphTime(time);
+    const delta = ORR.times.ephTime - oldTime;
+    for (let i = 0; i < ORR.system.length; i++) {
+        ORR.system[i].set(ORR.times.ephTime);
     }
-    Orrery.orbitPlot.points = Orrery.pointCount;
-    for (let i = 0; i < Orrery.precessing.length; i++) {
+    ORR.orbitPlot.points = ORR.pointCount;
+    for (let i = 0; i < ORR.precessing.length; i++) {
         redraw(i);
     }
-    Orrery.orbitPlot.points = 1;
-    Orrery.timeManager.speed = 8;
-    Orrery.timeManager.rate = Orrery.rates[Orrery.timeManager.speed];
+    ORR.orbitPlot.points = 1;
+    ORR.times.speed = 8;
+    ORR.times.rate = ORR.rates[ORR.times.speed];
 }
 
 export function localSiderealTime(ephTime) {
     const t = MJDtoUnix(EphTimeToMJD(ephTime));
     const timeUTC = t.getUTCHours() + t.getUTCMinutes()/60 + t.getUTCSeconds()/3600 + t.getUTCMilliseconds()/3600000;
-    return (100.46 + (0.985647 * ephTime * Orrery.daysPerCent) + Orrery.groundPosition.longitude + (15 * timeUTC) + 360) % 360;
+    return (100.46 + (0.985647 * ephTime * ORR.daysPerCent) + ORR.groundPosition.longitude + (15 * timeUTC) + 360) % 360;
 }
 
 export function getRA(obj) {
-    const earthRad = Orrery.system[Orrery.specialID.earth].radius / Orrery.AU;
-        const earthSurfPos = new THREE.Vector3( earthRad * Math.cos(Orrery.groundPosition.longitude * Orrery.toRad + Orrery.system[Orrery.specialID.earth].phase), earthRad * Math.sin(Orrery.groundPosition.latitude * Orrery.toRad), earthRad * Math.sin(Orrery.groundPosition.longitude * Orrery.toRad + Orrery.system[Orrery.specialID.earth].phase));
-        const parallaxPos = Orrery.system[Orrery.specialID.earth].celestialPos.clone().add(earthSurfPos).add(Orrery.system[Orrery.specialID.earth].baryPos);
-        return vectortoRadec( (obj.sysId == Orrery.specialID.earth) ? parallaxPos.multiplyScalar(-1) : obj.celestialPos.clone().sub(parallaxPos) );
+    const earthRad = ORR.system[ORR.specialID.earth].radius / ORR.AU;
+        const earthSurfPos = new THREE.Vector3( earthRad * Math.cos(ORR.groundPosition.longitude * ORR.toRad + ORR.system[ORR.specialID.earth].phase), earthRad * Math.sin(ORR.groundPosition.latitude * ORR.toRad), earthRad * Math.sin(ORR.groundPosition.longitude * ORR.toRad + ORR.system[ORR.specialID.earth].phase));
+        const parallaxPos = ORR.system[ORR.specialID.earth].celestialPos.clone().add(earthSurfPos).add(ORR.system[ORR.specialID.earth].baryPos);
+        return vectortoRadec( (obj.sysId == ORR.specialID.earth) ? parallaxPos.multiplyScalar(-1) : obj.celestialPos.clone().sub(parallaxPos) );
 }
 
 export function altAz(ra, dec, t) {
-    const hourAngle = ((localSiderealTime(t) - (ra * 15) + 360) % 360) * Orrery.toRad;
-    dec *= Orrery.toRad;
+    const hourAngle = ((localSiderealTime(t) - (ra * 15) + 360) % 360) * ORR.toRad;
+    dec *= ORR.toRad;
     const cD = Math.cos(dec);
-    const lat = (90 - Orrery.groundPosition.latitude) * Orrery.toRad;
+    const lat = (90 - ORR.groundPosition.latitude) * ORR.toRad;
     const cL = Math.cos(lat);
     const sL = Math.sin(lat);
     const x = Math.cos(hourAngle) * cD;
     const y = Math.sin(hourAngle) * cD;
     const z = Math.sin(dec);
 
-    const az = Math.atan2(y, x * cL - z * sL) * Orrery.toDeg + 180;
-    const alt = Math.asin(x * sL + z * cL) * Orrery.toDeg;
+    const az = Math.atan2(y, x * cL - z * sL) * ORR.toDeg + 180;
+    const alt = Math.asin(x * sL + z * cL) * ORR.toDeg;
 
-    return { alt: alt, az: az, ha: hourAngle * Orrery.toDeg / 15 };
+    return { alt: alt, az: az, ha: hourAngle * ORR.toDeg / 15 };
 }
 
 export function riseSet(obj) { // brute force rise/set time solver
     const RADec = getRA(obj);
-    const day = (1 / Orrery.daysPerCent);
+    const day = (1 / ORR.daysPerCent);
     const min = day / 1440; 
-    const startTime = Orrery.timeManager.ephTime - 0.5 * day;
+    const startTime = ORR.times.ephTime - 0.5 * day;
     const crossings = [];
     let readout = "";
     for (let i = 0; i < 1441; i++) {
@@ -283,7 +283,7 @@ export function BVToRGB(bv) { // BV color index to RGB
 
 export function extinction(magnitude, alt) {
     const angle = 90-alt;
-    const airmass = Math.min(1/Math.cos(angle * Orrery.toRad), Math.max(20, 6.2 * (angle) - 520));
+    const airmass = Math.min(1/Math.cos(angle * ORR.toRad), Math.max(20, 6.2 * (angle) - 520));
     const extMag = 0.129 * airmass + magnitude;
     return { mag: extMag, airmass: airmass }
 }

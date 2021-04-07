@@ -1,10 +1,10 @@
-import * as Orrery from "./orrery.init.js"
+import * as ORR from "./orrery.init.js"
 import { clickTag } from "./orrery.ui.js";
 
 const gratRadius = 1000;
 
 export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, axisDec, axisRA, phase, thetaDot) { // make bodies
-    const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : Orrery.defaultMaterial;
+    const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : ORR.defaultMaterial;
     const planetRadius = radius;
     const geometry = new THREE.IcosahedronGeometry( planetRadius, 5 );
     const sphere = new THREE.Mesh( geometry, material );
@@ -22,36 +22,36 @@ export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTex
     }
 
     // apply initial rotation
-    Orrery.reAxis(sphere, axisRA, axisDec);
-    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), thetaDot * Orrery.timeManager.ephTime + Math.PI * phase );
+    ORR.reAxis(sphere, axisRA, axisDec);
+    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), thetaDot * ORR.times.ephTime + Math.PI * phase );
     return sphere;
 }
 
 export function makePoint (name, sysId) {
-    const point = new THREE.Points( Orrery.pointGeometry, Orrery.pointMaterial );
+    const point = new THREE.Points( ORR.pointGeometry, ORR.pointMaterial );
     point.name = name;
     point.sysId = sysId;
     return point;
 }
 
 export function makeLabel(i) { // make body label
-    $("body").append("<div id='" + i + "' class='label'>" + Orrery.system[i].name + "</div>");
-    $("#" + i).addClass( "tag" + Orrery.system[i].type ).click( function() {
+    $("body").append("<div id='" + i + "' class='label'>" + ORR.system[i].name + "</div>");
+    $("#" + i).addClass( "tag" + ORR.system[i].type ).click( function() {
         $(".label").removeClass( "active" );
-        if ( Orrery.stateManager.clickedLabel != "" && $(this)[0].id == Orrery.stateManager.clickedLabel[0].id ) {
-            closeTag(Orrery.stateManager.clickedLabel);
+        if ( ORR.state.clickedLabel != "" && $(this)[0].id == ORR.state.clickedLabel[0].id ) {
+            closeTag(ORR.state.clickedLabel);
         } else {
             clickTag($(this)[0].id);
         }
     }).hover( function() {
-        if (Orrery.stateManager.clickedLabel != "" && $(this)[0].id != Orrery.stateManager.clickedLabel[0].id) {
-            Orrery.stateManager.hoverLabel = $(this);
+        if (ORR.state.clickedLabel != "" && $(this)[0].id != ORR.state.clickedLabel[0].id) {
+            ORR.state.hoverLabel = $(this);
             const hoverContent = $(this).html();
-            Orrery.stateManager.hoverLabel.html(hoverContent + '<span id="distToActive"></span>');
+            ORR.state.hoverLabel.html(hoverContent + '<span id="distToActive"></span>');
         }
     }, function() {
         $("#distToActive").remove();
-        Orrery.stateManager.hoverLabel = false;
+        ORR.state.hoverLabel = false;
     });
 }
 
@@ -89,14 +89,14 @@ export function makeGraticules() {
         rings.push(tempRing);
     }
 
-    ringGeometry.rotateX(Orrery.eclInclination);
+    ringGeometry.rotateX(ORR.eclInclination);
     rings.push(ringGeometry);
     const longSphereGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(rings);
     const ringMaterial = new THREE.LineBasicMaterial({ color: 0x222211, linewidth: 1 });
     const graticule = new THREE.LineLoop( longSphereGeometry, ringMaterial);
     graticule.name = "graticule";
-    Orrery.scene.add(graticule);
-    Orrery.cameraLocked.graticule = graticule
+    ORR.scene.add(graticule);
+    ORR.cameraLocked.graticule = graticule
 }
 
 export function makeRefPoints() {
@@ -123,6 +123,6 @@ export function makeRefPoints() {
         const y = refPoints[3 * i + 1];
         const z = refPoints[3 * i + 2];
         const text = labels[i];
-        Orrery.gratLabels.push({label: makeGratLabel(i, text), x: x, y: y, z: z});
+        ORR.gratLabels.push({label: makeGratLabel(i, text), x: x, y: y, z: z});
     }
 }

@@ -1,7 +1,7 @@
-import * as Orrery from './orrery.body.js';
-import { toRad, MJDToEphTime, orbitPlot, plotPoint, timeManager, celestial } from "./orrery.init.js" 
+import * as ORR from './orrery.body.js';
+import { toRad, MJDToEphTime, orbitPlot, plotPoint, times, celestial } from "./orrery.init.js" 
 
-export class Planet extends Orrery.Body {
+export class Planet extends ORR.Body {
     constructor(params) {
         super (params);
         this.aDot = this.hasData(params.aDot) ? parseFloat(params.aDot) : 0;
@@ -73,7 +73,7 @@ export class Planet extends Orrery.Body {
     longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, b, c, s, f, points = 1) {
         const orbitArray = [];
         const span = Math.PI * 2 / points;
-        let meanAnomaly = meanLongitude - longPeriapsis + (b * timeManager.ephTime * timeManager.ephTime) + (c * Math.cos(f * timeManager.ephTime)) + (s * Math.sin(f * timeManager.ephTime));
+        let meanAnomaly = meanLongitude - longPeriapsis + (b * times.ephTime * times.ephTime) + (c * Math.cos(f * times.ephTime)) + (s * Math.sin(f * times.ephTime));
         for (let i=0; i<points; i++) {
             meanAnomaly += span;
             const point = plotPoint(meanAnomaly, eccentricity, semiMajorAxis, i==0);
