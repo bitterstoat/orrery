@@ -1,14 +1,13 @@
-import * as ORR from './orrery.body.js';
-import { toRad, MJDToEphTime, orbitPlot, plotPoint, celestial } from "./orrery.init.js" 
+import * as ORR from './orrery.init.js';
 
 export class Asteroid extends ORR.Body {
     constructor(params) {
         super (params);
         this.catalogNumber = this.hasData(params.num) ? parseFloat(params.num) : 0;
         this.name = (this.catalogNumber != 0) ? this.catalogNumber + " " + this.name : this.name;
-        this.lDot = 360 / this.period * toRad; // get lDot from period
+        this.lDot = 360 / this.period * ORR.toRad; // get lDot from period
         this.argPeriapsis = this.w;
-        this.meanAnomaly = this.hasData(params.m) ? parseFloat(params.m) * toRad : 0;
+        this.meanAnomaly = this.hasData(params.m) ? parseFloat(params.m) * ORR.toRad : 0;
         this.phase = 0;
         this.slope = this.hasData(params.G) ? parseFloat(params.G) : 0.15;
         this.classifications = this.sieve(this);
@@ -26,18 +25,18 @@ export class Asteroid extends ORR.Body {
     } 
 
     set(t) { // update Keplerian orbital elements from the given epoch
-        const offset = t - MJDToEphTime(this.epoch);
+        const offset = t - ORR.MJDToEphTime(this.epoch);
         this.meanAnomaly = offset * this.lDot + this.mStart;
         this.phase = this.phaseStart;
     }
 
     updateOrbit() {
         // plot full orbit in local space
-        this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, orbitPlot.points);
+        this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, ORR.orbitPlot.points);
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
         for (let i=0; i<this.localOrbit.length; i++) {
-            this.celestial.push(celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
+            this.celestial.push(ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
         }
         this.celestialPos = this.celestial[0];
     }
@@ -45,7 +44,7 @@ export class Asteroid extends ORR.Body {
     update(dt) {
         this.meanAnomaly += (this.lDot * dt); // update groundPosition.longitude
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis);
-        this.celestialPos = celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
+        this.celestialPos = ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
     longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) {
@@ -53,7 +52,7 @@ export class Asteroid extends ORR.Body {
         const span = Math.PI * 2 / points;
         for (let i=0; i<points; i++) {
             meanAnomaly += span;
-            const point = plotPoint(meanAnomaly, eccentricity, semiMajorAxis, i==0);
+            const point = ORR.plotPoint(meanAnomaly, eccentricity, semiMajorAxis, i==0);
             orbitArray.push(point);
         }
         return orbitArray;

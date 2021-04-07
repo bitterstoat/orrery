@@ -1,3 +1,4 @@
 WorkingFiles*
 workspace.code*
 dist*
+.cache*

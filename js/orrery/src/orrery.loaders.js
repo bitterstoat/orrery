@@ -1,11 +1,10 @@
-import * as Body from './orrery.classes.js';
 import * as ORR from "./orrery.init.js";
 import { animate } from './orrery.js';
 let planetData, asteroidData, moonData, cometData, starData;
 let datasets = 0;
 let flags = 0;
 let smallAsteroids = 0;
-let tags = [];
+export let tags = [];
 
 /* INITITALIZATION */
 $(document).ready( function() {
@@ -24,7 +23,7 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < planetData.length; i++) {
-                let newPlanet = new Body.Planet(planetData[i]);
+                let newPlanet = new ORR.Planet(planetData[i]);
                 ORR.system.push(newPlanet);
                 ORR.searchLists.planetNames.push(newPlanet.name);
                 ORR.precessing.push(newPlanet.name);
@@ -42,7 +41,7 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < asteroidData.length; i++) {
-                let newAsteroid = new Body.Asteroid(asteroidData[i]);
+                let newAsteroid = new ORR.Asteroid(asteroidData[i]);
                 ORR.system.push(newAsteroid);
                 ORR.searchLists.asteroidNames.push(newAsteroid.name);
             }
@@ -60,7 +59,7 @@ function fullLoad() {
             smallAsteroids = asteroidData.length;
             for (let i = 0; i < asteroidData.length; i++) {
                 if (i > ORR.vars.n) { break; } // these can be reduced to improve frame rate
-                let newAsteroid = new Body.Asteroid(asteroidData[i]);
+                let newAsteroid = new ORR.Asteroid(asteroidData[i]);
                 ORR.system.push(newAsteroid);
                 ORR.searchLists.asteroidNames.push(newAsteroid.name);
             }
@@ -76,7 +75,7 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < moonData.length; i++) {
-                let newMoon = new Body.Moon(moonData[i]);
+                let newMoon = new ORR.Moon(moonData[i]);
                 ORR.system.push(newMoon);
                 ORR.moons.push(newMoon);
                 ORR.searchLists.moonNames.push(newMoon.name);
@@ -93,7 +92,7 @@ function fullLoad() {
         dataType: "text",
         complete: function () {
             for (let i = 0; i < cometData.length; i++) {
-                let newComet = new Body.Comet(cometData[i]);
+                let newComet = new ORR.Comet(cometData[i]);
                 ORR.system.push(newComet);
                 ORR.searchLists.cometNames.push(newComet.name);
             }
@@ -169,7 +168,7 @@ function finalize() {
             ORR.paths.push(path);
             ORR.system[i].sysId = i;
             ORR.system[i].path = ORR.paths.length - 1;
-            if (ORR.system[i].type < 3 || ORR.system[i] instanceof Body.Moon == true ) {
+            if (ORR.system[i].type < 3 || ORR.system[i] instanceof ORR.Moon == true ) {
                 ORR.scene.add(path);
                 ORR.majorBodies.push(ORR.system[i]);
                 ORR.scene.add(ORR.makeBody(ORR.loader, ORR.system[i].texture, ORR.system[i].exagRadius, ORR.system[i].name, i, ORR.system[i].ringRadius, ORR.system[i].ringTexture, ORR.system[i].axisDec, ORR.system[i].axisRA, ORR.system[i].phase, ORR.system[i].thetaDot));
@@ -211,5 +210,3 @@ function finalize() {
         animate(); // start the main loop
     }
 }
-
-export { tags };

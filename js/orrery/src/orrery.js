@@ -1,6 +1,4 @@
 import * as ORR from "./orrery.init.js";
-// import { tags } from "./orrery.loaders.js"
-
 import { VRButton } from "./../../three/VRButton.js";
 
 export let liveData = false;

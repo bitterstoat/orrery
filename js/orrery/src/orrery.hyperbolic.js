@@ -1,4 +1,4 @@
-import * as ORR from './orrery.body.js';
+import * as ORR from './orrery.init.js';
 
 export class Hyperbolic extends ORR.Comet {
     constructor(params) {

@@ -1,6 +1,6 @@
 {
   "name": "orrery",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "An interactive map of the Solar System created with Three.js and jQuery.",
   "main": "index.js",
   "scripts": {
