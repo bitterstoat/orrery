@@ -6,3 +6,6 @@ export * from "./orrery.comet.js";
 export * from "./orrery.spacetime.js";
 export * from "./orrery.setup.js";
 export * from "./orrery.maker.js";
+export * from "./orrery.launch.js";
+export * from "./orrery.js";
+export * from "./orrery.ui.js";

@@ -1,5 +1,6 @@
 import * as ORR from "./orrery.init.js";
 import { VRButton } from "./../../three/VRButton.js";
+import * as THREE from "../../../node_modules/three/build/three.module.js"
 
 export let liveData = false;
 const tempLabels = [];

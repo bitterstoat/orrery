@@ -1,4 +1,10 @@
 import * as ORR from "./orrery.init.js";
+import * as THREE from "../../../node_modules/three/build/three.module.js"
+import { OrbitControls } from "../../../node_modules/three/examples/jsm/controls/OrbitControls.js"
+import { RenderPass } from "../../../node_modules/three/examples/jsm/postprocessing/RenderPass.js"
+import { UnrealBloomPass } from "../../../node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js"
+import { EffectComposer } from "../../../node_modules/three/examples/jsm/postprocessing/EffectComposer.js"
+import { ShaderPass } from "../../../node_modules/three/examples/jsm/postprocessing/ShaderPass.js"
 
 // spatial constants
 export const toRad = Math.PI/180
@@ -117,18 +123,18 @@ export const ENTIRE_SCENE = 0, BLOOM_SCENE = 1;
 export const bloomLayer = new THREE.Layers();
 bloomLayer.set( BLOOM_SCENE );
 
-export const renderScene = new THREE.RenderPass( scene, camera );
-export const bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+export const renderScene = new RenderPass( scene, camera );
+export const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
 bloomPass.threshold = 0.15;
 bloomPass.strength = 7;
 bloomPass.radius = 0;
 
-export const bloomComposer = new THREE.EffectComposer( renderer );
+export const bloomComposer = new EffectComposer( renderer );
 bloomComposer.renderToScreen = false;
 bloomComposer.addPass( renderScene );
 bloomComposer.addPass( bloomPass );
 
-export const finalPass = new THREE.ShaderPass(
+export const finalPass = new ShaderPass(
     new THREE.ShaderMaterial( {
         uniforms: {
             baseTexture: { value: null },
@@ -141,7 +147,7 @@ export const finalPass = new THREE.ShaderPass(
 );
 finalPass.needsSwap = true;
 
-export const finalComposer = new THREE.EffectComposer( renderer );
+export const finalComposer = new EffectComposer( renderer );
 finalComposer.addPass( renderScene );
 finalComposer.addPass( finalPass );
 
@@ -172,7 +178,7 @@ sun.thetaDot = 360 * daysPerCent / -25.05 * toRad; // sun rotation rotate
 scene.add( sun );
 
 // camera controls
-export const controls = new THREE.OrbitControls( camera, renderer.domElement );
+export const controls = new OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
 controls.dampingFactor = 0.02;
 controls.target = new THREE.Vector3();
