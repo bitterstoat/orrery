@@ -2,3 +2,4 @@ WorkingFiles*
 workspace.code*
 dist*
 .cache*
+node_modules*

@@ -1,19 +1,33 @@
-import * as ORR from "./orrery.init.js";
-import { animate } from './orrery.js';
+import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js"
+// import { VRButton } from "../../../node_modules/three/examples/jsm/webxr/VRButton.js";
 
 let planetData, asteroidData, moonData, cometData, starData;
 let datasets = 0;
 let flags = 0;
 let smallAsteroids = 0;
 export let tags = [];
+export const renderEl = document.body.appendChild( ORR.renderer.domElement );
 
 /* INITITALIZATION */
-$(document).ready( function() {
+$( function() {
     fullLoad();
     ORR.makeGraticules();
     ORR.makeRefPoints();
     ORR.cameraLocked.graticule.visible = false;
+    $("#info").hide();
+    $("#earth").hide();
+    if (!ORR.groundPosition.default) {
+        ORR.displayLatLong(ORR.groundPosition.latitude, ORR.groundPosition.longitude);
+    }
+
+    /*
+    document.body.appendChild( VRButton.createButton( ORR.renderer ) );
+    ORR.renderer.xr.enabled = true;
+    setTimeout( function() {
+        if ($("#VRButton")[0].innerHTML == "VR NOT SUPPORTED") { $("#VRButton").hide(500); } 
+    }, 3000);
+    */
 });
 
 function fullLoad() {
@@ -30,7 +44,7 @@ function fullLoad() {
                 ORR.searchLists.planetNames.push(newPlanet.name);
                 ORR.precessing.push(newPlanet.name);
             }
-            finalize();
+            launch();
         }
     });
 
@@ -47,7 +61,7 @@ function fullLoad() {
                 ORR.system.push(newAsteroid);
                 ORR.searchLists.asteroidNames.push(newAsteroid.name);
             }
-            finalize();
+            launch();
         }
     });
 
@@ -65,7 +79,7 @@ function fullLoad() {
                 ORR.system.push(newAsteroid);
                 ORR.searchLists.asteroidNames.push(newAsteroid.name);
             }
-            finalize();
+            launch();
         }
     });
 
@@ -82,7 +96,7 @@ function fullLoad() {
                 ORR.moons.push(newMoon);
                 ORR.searchLists.moonNames.push(newMoon.name);
             }
-            finalize();
+            launch();
         }
     });
 
@@ -98,7 +112,7 @@ function fullLoad() {
                 ORR.system.push(newComet);
                 ORR.searchLists.cometNames.push(newComet.name);
             }
-            finalize();
+            launch();
         }
     });
 
@@ -115,7 +129,7 @@ function fullLoad() {
                 ORR.system.push(newHyperbolic);
                 ORR.searchLists.combined.push(newHyperbolic.name);
             }
-            finalize();
+            launch();
         }
     });
     */
@@ -149,7 +163,7 @@ function fullLoad() {
     });
 }
 
-function finalize() {
+function launch() {
     flags++;
     if (flags == datasets) {
         if (ORR.times.parsedDate != 0 && !isNaN(ORR.times.parsedDate)) {
@@ -209,6 +223,6 @@ function finalize() {
 
         tags = $(".label");
 
-        animate(); // start the main loop
+        ORR.animate(); // start the main loop
     }
 }
