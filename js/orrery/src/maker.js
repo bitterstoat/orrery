@@ -1,6 +1,7 @@
 import * as ORR from "./init.js"
 import * as THREE from "../../../node_modules/three/build/three.module.js"
 import { BufferGeometryUtils } from "../../../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js"
+import $ from "../../jquery/jquery.module.js" 
 
 const gratRadius = 1000;
 
@@ -37,7 +38,7 @@ export function makePoint (name, sysId) {
 
 export function makeLabel(i) { // make body label
     $("body").append("<div id='" + i + "' class='label'>" + ORR.system[i].name + "</div>");
-    $("#" + i).addClass( "tag" + ORR.system[i].type ).click( function() {
+    $("#" + i).addClass( "tag" + ORR.system[i].type ).on("click", function() {
         $(".label").removeClass( "active" );
         if ( ORR.state.clickedLabel != "" && $(this)[0].id == ORR.state.clickedLabel[0].id ) {
             closeTag(ORR.state.clickedLabel);

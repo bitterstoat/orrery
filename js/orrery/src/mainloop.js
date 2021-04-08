@@ -1,6 +1,7 @@
 import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js"
-// import * as TWEEN from "../../../node_modules/tween.js/src/Tween.js"
+import * as TWEEN from "../../tween/tween.esm.js"
+import $ from "../../jquery/jquery.module.js" 
 
 export let liveData = false;
 const tempLabels = [];
@@ -182,9 +183,9 @@ export function animate(time) {
 
     // render the entire scene, then render bloom scene on top
     ORR.controls.update(); // update the camera controls
-    ORR.scene.traverse(darkenNonBloomed);
+    ORR.scene.traverse(ORR.darkenNonBloomed);
     ORR.bloomComposer.render();
-    ORR.scene.traverse(restoreMaterial);
+    ORR.scene.traverse(ORR.restoreMaterial);
     ORR.finalComposer.render();
 
     const animateID = requestAnimationFrame( animate );
@@ -206,17 +207,3 @@ renderEl.addEventListener("webglcontextlost", function(event) {
     cancelAnimationFrame(animationID);
 }, false);
 */
-
-export function darkenNonBloomed( obj ) {
-    if ( typeof obj.glow == "undefined" || obj.glow == false ) {
-        ORR.materials[ obj.uuid ] = obj.material;
-        obj.material = ORR.darkMaterial;
-    }
-}
-
-export function restoreMaterial( obj ) {
-    if ( ORR.materials[ obj.uuid ] ) {
-        obj.material = ORR.materials[ obj.uuid ];
-        delete ORR.materials[ obj.uuid ];
-    }
-}

@@ -1,6 +1,7 @@
 import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js"
 // import { VRButton } from "../../../node_modules/three/examples/jsm/webxr/VRButton.js";
+import $ from "../../jquery/jquery.module.js"
 
 let planetData, asteroidData, moonData, cometData, starData;
 let datasets = 0;
@@ -218,10 +219,9 @@ function launch() {
         }
 
         $( "#smallRoids" ).html(smallAsteroids);
+        tags = $(".label");
 
         ORR.searchLists.combined = ORR.searchLists.planetNames.concat(ORR.searchLists.moonNames, ORR.searchLists.asteroidNames, ORR.searchLists.cometNames);
-
-        tags = $(".label");
 
         ORR.animate(); // start the main loop
     }

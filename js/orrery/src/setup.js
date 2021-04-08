@@ -118,6 +118,20 @@ export const transparentMaterial = new THREE.LineBasicMaterial( { transparent: t
 export const pointGeometry = new THREE.InstancedBufferGeometry();
 pointGeometry.setAttribute( 'position', new THREE.InstancedBufferAttribute( new Float32Array([0,0,0]), 3 ) );
 
+export function darkenNonBloomed( obj ) {
+    if ( typeof obj.glow == "undefined" || obj.glow == false ) {
+        ORR.materials[ obj.uuid ] = obj.material;
+        obj.material = ORR.darkMaterial;
+    }
+}
+
+export function restoreMaterial( obj ) {
+    if ( ORR.materials[ obj.uuid ] ) {
+        obj.material = ORR.materials[ obj.uuid ];
+        delete ORR.materials[ obj.uuid ];
+    }
+}
+
 // set up bloom pass
 export const ENTIRE_SCENE = 0, BLOOM_SCENE = 1;
 export const bloomLayer = new THREE.Layers();

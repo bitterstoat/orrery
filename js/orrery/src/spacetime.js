@@ -1,5 +1,6 @@
 import * as ORR from "./init.js"
 import * as THREE from "../../../node_modules/three/build/three.module.js"
+import $ from "../../jquery/jquery.module.js"
 
 // spatial functions
 export function plotPoint(meanAnomaly, eccentricity, semiMajorAxis, runKepler) { // plot ORR.groundPosition.longitudes to orbital path

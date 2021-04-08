@@ -1,5 +1,6 @@
 import * as ORR from "./init.js";
-// import * as TWEEN from "../../../node_modules/tween.js/src/Tween.js"
+import * as TWEEN from "../../tween/tween.esm.js"
+import $ from "../../jquery/jquery.module.js"
 
 function windowResize() { // window setup and resize handler
     ORR.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -73,7 +74,7 @@ export function clickTag(t) {
     }
     ORR.state.clickedLabel = $('#' + t);
     ORR.state.clickedLabel.addClass( "active" ).show();
-    if (jQuery.isEmptyObject(ORR.state.lastClickedPlanet) == false) {
+    if ($.isEmptyObject(ORR.state.lastClickedPlanet) == false) {
         ORR.paths[ORR.state.clickedPlanet.path].material = ORR.pathMaterials[Math.min(ORR.state.lastClickedPlanet.type, 3)];
     }
     ORR.state.clickedPlanet = ORR.system[t];
@@ -123,6 +124,25 @@ export function clickTag(t) {
         $("#earthRel").show(); 
         $("#earth").hide(); 
     }
+}
+
+export function closeTag(t) {
+    t.removeClass( "active" );
+
+    if (t.hasClass( "tag3" )) {
+        t.removeClass( "tag3" );
+        t.addClass( "tag2" );
+    }
+    ORR.state.clickedLabel = "";
+    ORR.paths[ORR.state.clickedPlanet.path].material = ORR.pathMaterials[Math.min(ORR.state.clickedPlanet.type, 3)];
+    if (ORR.state.following) {
+        zoomOut(ORR.state.lastClickedPlanet.exagRadius / 2000);
+    }
+    ORR.state.following = false;
+    ORR.controls.maxDistance = 100;
+    const tweenMin = new TWEEN.Tween(ORR.controls).to( {minDistance: 1}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
+    const tweenHome = new TWEEN.Tween(ORR.controls.target).to( {x:0, y:0, z:0}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
+    $("#info").hide(300);
 }
 
 function updateScale() {
@@ -284,22 +304,3 @@ $("#openSplash").on("click", function() {
     $("#splashScreen").show(300);
     $("#clearSplash").css({"visibility": "visible"});
 });
-
-function closeTag(t) {
-    t.removeClass( "active" );
-
-    if (t.hasClass( "tag3" )) {
-        t.removeClass( "tag3" );
-        t.addClass( "tag2" );
-    }
-    ORR.state.clickedLabel = "";
-    ORR.paths[ORR.state.clickedPlanet.path].material = ORR.pathMaterials[Math.min(ORR.state.clickedPlanet.type, 3)];
-    if (ORR.state.following) {
-        zoomOut(ORR.state.lastClickedPlanet.exagRadius / 2000);
-    }
-    ORR.state.following = false;
-    ORR.controls.maxDistance = 100;
-    const tweenMin = new TWEEN.Tween(ORR.controls).to( {minDistance: 1}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
-    const tweenHome = new TWEEN.Tween(ORR.controls.target).to( {x:0, y:0, z:0}, 1000 ).easing(TWEEN.Easing.Quadratic.InOut).start();
-    $("#info").hide(300);
-}
