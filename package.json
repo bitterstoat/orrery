@@ -1,8 +1,8 @@
 {
   "name": "orrery",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "An interactive map of the Solar System created with Three.js and jQuery.",
-  "main": "js/orrery/src/orrery.launch.js",
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

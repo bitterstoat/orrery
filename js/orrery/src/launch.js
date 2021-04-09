@@ -222,6 +222,7 @@ function launch() {
         tags = $(".label");
 
         ORR.searchLists.combined = ORR.searchLists.planetNames.concat(ORR.searchLists.moonNames, ORR.searchLists.asteroidNames, ORR.searchLists.cometNames);
+        console.log(ORR.system, ORR.scene);
 
         ORR.animate(); // start the main loop
     }
