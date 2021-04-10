@@ -23,8 +23,8 @@ export class Body { // superclass for orbiting bodies - do not use directly
         this.ringTexture = this.hasData(params.ringTexture) ? params.ringTexture : "";
         this.absoluteMag = this.hasData(params.H) ? parseFloat(params.H) : 10;
         this.zoomRatio = this.hasData(params.zoomRatio) ? parseFloat(params.zoomRatio) : 1000;
-        this.radius = this.hasData(params.radius) ? parseFloat(params.radius).toFixed(3) : ORR.estRadius(this.absoluteMag).toFixed(3);
-        this.mass = this.hasData(params.mass) ? (parseFloat(params.mass) * 10e+17).toFixed(3) : (8.7523e+9 * Math.pow(this.radius, 3)).toFixed(3); // mass estimation for 2.5g/cm^-3
+        this.radius = this.hasData(params.radius) ? parseFloat(params.radius) : ORR.estRadius(this.absoluteMag);
+        this.mass = this.hasData(params.mass) ? (parseFloat(params.mass) * 10e+17) : (8.7523e+9 * Math.pow(this.radius, 3)); // mass estimation for 2.5g/cm^-3
         this.exagRadius = this.radius / ORR.AU * ORR.exagScale;
         this.meanOrbit = this.semiMajorAxis * (1 + this.eccentricity * this.eccentricity / 2);
         this.periapsis = (1 - this.eccentricity) * this.semiMajorAxis;

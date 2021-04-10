@@ -185,9 +185,11 @@ function launch() {
             ORR.paths.push(path);
             ORR.system[i].sysId = i;
             ORR.system[i].path = ORR.paths.length - 1;
+            if (ORR.system[i] instanceof ORR.Planet == true) {
+                ORR.majorBodies.push(ORR.system[i]);
+            }
             if (ORR.system[i].type < 3 || ORR.system[i] instanceof ORR.Moon == true ) {
                 ORR.scene.add(path);
-                ORR.majorBodies.push(ORR.system[i]);
                 ORR.scene.add(ORR.makeBody(ORR.loader, ORR.system[i].texture, ORR.system[i].exagRadius, ORR.system[i].name, i, ORR.system[i].ringRadius, ORR.system[i].ringTexture, ORR.system[i].axisDec, ORR.system[i].axisRA, ORR.system[i].phase, ORR.system[i].thetaDot));
                 ORR.makeLabel(i);
             } else {

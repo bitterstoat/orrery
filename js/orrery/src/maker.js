@@ -41,7 +41,7 @@ export function makeLabel(i) { // make body label
     $("#" + i).addClass( "tag" + ORR.system[i].type ).on("click", function() {
         $(".label").removeClass( "active" );
         if ( ORR.state.clickedLabel != "" && $(this)[0].id == ORR.state.clickedLabel[0].id ) {
-            closeTag(ORR.state.clickedLabel);
+            ORR.closeTag(ORR.state.clickedLabel);
         } else {
             ORR.clickTag($(this)[0].id);
         }
