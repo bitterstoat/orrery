@@ -1,5 +1,22 @@
+import { Vector3 } from '../../../node_modules/three/build/three.module.js';
 import * as ORR from './init.js';
 
+/**
+ * Create a planet.
+ * @constructor
+ * @param {float} aDot - rate of semimajor axis precession in AU per century
+ * @param {float} eDot - rate of eccentricity precession per century
+ * @param {float} iDot - rate in inclination precession in degrees per century
+ * @param {float} meanLongitude - in degrees
+ * @param {float} lDot - rate of longitude in degrees per century
+ * @param {float} wDot - rate of argument of periapsis precession in degrees per century
+ * @param {float} omegaDot - rate of longitude of ascending node precession in drgees per century
+ * @param {float} b - extended ephemeris parameter b
+ * @param {float} c - extended ephemeris parameter c
+ * @param {float} s - extended ephemeris parameter s
+ * @param {float} f - extended ephemeris parameter f in degrees
+ * @param {float} phase - rotation angle at epoch in degrees
+ */
 export class Planet extends ORR.Body {
     constructor(params) {
         super (params);
@@ -33,6 +50,10 @@ export class Planet extends ORR.Body {
         this.phaseStart = this.phase;
     } 
 
+    /**
+     * Update Keplerian orbital elements from the given epoch.
+     * @param {float} t - Ephemeris time 
+     */
     set(t) { // update Keplerian orbital elements from the given epoch
         const offset = t - ORR.MJDToEphTime(this.epoch);
         this.semiMajorAxis = offset * this.aDot + this.aStart;
@@ -44,8 +65,10 @@ export class Planet extends ORR.Body {
         this.phase = offset * this.thetaDot + this.phaseStart;
     }
 
+    /**
+     * Plot full orbit in local space.
+     */
     updateOrbit() {
-        // plot full orbit in local space
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, this.b, this.c, this.s, this.f, ORR.orbitPlot.points);
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
@@ -55,13 +78,21 @@ export class Planet extends ORR.Body {
         this.celestialPos = this.celestial[0];
     }
 
+    /**
+     * Update longitude.
+     * @param {float} dt - Delta time
+     */
     update(dt) {  
         this.meanLongitude += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, this.b, this.c, this.s, this.f)
         this.celestialPos = ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
-    precess(dt) { // periodic updates to the orbital elements
+    /**
+     * Periodic updates to the orbital elements.
+     * @param {float} dt - Delta time
+     */
+    precess(dt) {
         this.semiMajorAxis += (this.aDot * dt);
         this.eccentricity += (this.eDot * dt);
         this.inclination += (this.iDot * dt);
@@ -69,6 +100,14 @@ export class Planet extends ORR.Body {
         this.longAscNode += (this.omegaDot * dt);
     }
 
+    /**
+     * Plot longitude points in the orbital plane.
+     * @param {float} meanAnomaly 
+     * @param {float} eccentricity 
+     * @param {float} semiMajorAxis 
+     * @param {int} points - Number of points, default 1 
+     * @returns {array} [THREE.Vector3]
+     */
     longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, b, c, s, f, points = 1) {
         const orbitArray = [];
         const span = Math.PI * 2 / points;

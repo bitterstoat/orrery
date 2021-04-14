@@ -35,8 +35,8 @@ function fullLoad() {
     $.ajax({ // load planet data
         url: "data/planets_3000bc_to_3000ad.csv",
         async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { planetData = $.csv.toObjects(list); },
+        beforeSend: () => datasets++,
+        success: (list) => planetData = $.csv.toObjects(list),
         dataType: "text",
         complete: function () {
             for (let i = 0; i < planetData.length; i++) {
@@ -53,8 +53,8 @@ function fullLoad() {
     $.ajax({ // load asteroid data
         url: "data/asteroids.csv",
         async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { asteroidData = $.csv.toObjects(list); },
+        beforeSend: () => datasets++,
+        success: (list) => asteroidData = $.csv.toObjects(list),
         dataType: "text",
         complete: function () {
             for (let i = 0; i < asteroidData.length; i++) {
@@ -69,8 +69,8 @@ function fullLoad() {
     $.ajax({ // load extended asteroid data
         url: "data/asteroids2.csv",
         async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { asteroidData = $.csv.toObjects(list); },
+        beforeSend: () => datasets++,
+        success: (list) => asteroidData = $.csv.toObjects(list),
         dataType: "text",
         complete: function () {
             smallAsteroids = asteroidData.length;
@@ -87,8 +87,8 @@ function fullLoad() {
     $.ajax({ // load moon data
         url: "data/moons.csv",
         async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { moonData = $.csv.toObjects(list); },
+        beforeSend: () => datasets++,
+        success: (list) => moonData = $.csv.toObjects(list),
         dataType: "text",
         complete: function () {
             for (let i = 0; i < moonData.length; i++) {
@@ -104,8 +104,8 @@ function fullLoad() {
     $.ajax({ // load comet data
         url: "data/comets.csv",
         async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { cometData = $.csv.toObjects(list); },
+        beforeSend: () => datasets++,
+        success: (list) => cometData = $.csv.toObjects(list),
         dataType: "text",
         complete: function () {
             for (let i = 0; i < cometData.length; i++) {
@@ -121,8 +121,8 @@ function fullLoad() {
     $.ajax({ // load non-periodic object data
         url: "data/hyperbolic.csv",
         async: true,
-        beforeSend: function() { datasets++; },
-        success: function(list) { hyperData = $.csv.toObjects(list); },
+       beforeSend: () => datasets++,
+        success: (list) => hyperData = $.csv.toObjects(list),
         dataType: "text",
         complete: function () {
             for (let i = 0; i < hyperData.length; i++) {
@@ -138,7 +138,7 @@ function fullLoad() {
     $.ajax({ // load background star data
         url: "data/stars_7mag.csv",
         async: true,
-        success: function(list) { starData = $.csv.toObjects(list); },
+        success: (list) => starData = $.csv.toObjects(list),
         dataType: "text",
         complete: function () {
             const geometry = new THREE.BufferGeometry();
@@ -224,7 +224,6 @@ function launch() {
         tags = $(".label");
 
         ORR.searchLists.combined = ORR.searchLists.planetNames.concat(ORR.searchLists.moonNames, ORR.searchLists.asteroidNames, ORR.searchLists.cometNames);
-        console.log(ORR.system, ORR.scene);
 
         ORR.animate(); // start the main loop
     }

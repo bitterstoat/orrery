@@ -1,6 +1,6 @@
 import * as ORR from "./init.js";
-import * as TWEEN from "../../tween/tween.esm.js"
-import $ from "../../jquery/jquery.module.js"
+import * as TWEEN from "../../tween/tween.esm.js";
+import $ from "../../jquery/jquery.module.js";
 
 function windowResize() { // window setup and resize handler
     ORR.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -68,6 +68,10 @@ $(document).on("keydown", function(event) { // keystroke handler
     ORR.times.rate = ORR.rates[ORR.times.speed]; // apply speed changes
 });
 
+/**
+ * Handle tag clicks.
+ * @param {int} t - System ID 
+ */
 export function clickTag(t) {
     if ($('#' + t).length < 1) {
         ORR.makeLabel(t);
@@ -126,6 +130,10 @@ export function clickTag(t) {
     }
 }
 
+/**
+ * Unclick a tag.
+ * @param {int} t - System ID
+ */
 export function closeTag(t) {
     t.removeClass( "active" );
 
@@ -160,11 +168,11 @@ function zoomIn() {
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
     const tweenZoomIn = new TWEEN.Tween(ORR.camera).to( {fov:.001}, 1000 )
-        .onUpdate( function() { ORR.camera.updateProjectionMatrix() } )
+        .onUpdate( () => ORR.camera.updateProjectionMatrix() )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
     
     const tweenShrink = new TWEEN.Tween(ORR.planetScale).to( {f: 1/ORR.exagScale}, 1000 )
-        .onUpdate( function() { updateScale(); } )
+        .onUpdate( () => updateScale() )
         .onComplete( function() { 
             ORR.pointMaterial.size = 0.005;
             if (ORR.state.clickedPlanet.type < 2) {
@@ -188,7 +196,7 @@ function zoomOut() {
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
     const tweenZoomOut = new TWEEN.Tween(ORR.camera).to( {fov:ORR.initialFOV}, 1000 )
-    .onUpdate( function() { ORR.camera.updateProjectionMatrix() } )
+    .onUpdate( () => ORR.camera.updateProjectionMatrix() )
     .easing(TWEEN.Easing.Quadratic.InOut).start();
 
     const tweenGrow = new TWEEN.Tween(ORR.planetScale).to( {f: 1.0}, 1000 )
@@ -198,7 +206,7 @@ function zoomOut() {
                 ORR.paths[i].material = ORR.paths[i].initMaterial;
             } 
         })
-        .onUpdate( function() { updateScale(); } )
+        .onUpdate( () => updateScale() )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
     for (let i = 0; i < ORR.planetMoons.length; i++) {
@@ -257,7 +265,7 @@ $("#forward").on("click", function() {
 
 $("#play").on("click", function() {
     pauseResume();
-    $("#playpause").attr('src', (ORR.times.speed==7) ? 'data/play.png' : 'data/pause.png');
+    $("#playpause").attr('src', (ORR.times.speed == 7) ? 'data/play.png' : 'data/pause.png');
 });
 
 $("#now").on("click", function() {
@@ -280,7 +288,7 @@ $("#setCoords").on("click", function() {
     ORR.displayLatLong(ORR.groundPosition.latitude, ORR.groundPosition.longitude);
 });
 
-$("#ORR.setTime").on("click", function() {
+$("#setTime").on("click", function() {
     let day = $("#manualDay").val();
     day = (day.length > 0) ? day: "0101";
     let time = $("#manualTime").val();

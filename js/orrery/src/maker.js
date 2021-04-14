@@ -1,10 +1,25 @@
-import * as ORR from "./init.js"
-import * as THREE from "../../../node_modules/three/build/three.module.js"
-import { BufferGeometryUtils } from "../../../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js"
-import $ from "../../jquery/jquery.module.js" 
+import * as ORR from "./init.js";
+import * as THREE from "../../../node_modules/three/build/three.module.js";
+import { BufferGeometryUtils } from "../../../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js";
+import $ from "../../jquery/jquery.module.js";
 
 const gratRadius = 1000;
 
+/**
+ * Make 3D object for a celestial body.
+ * @param {THREE.Loader} loader 
+ * @param {url} texture 
+ * @param {float} radius 
+ * @param {string} name 
+ * @param {int} sysId - System ID
+ * @param {float} ringRad - Ring radius
+ * @param {url} ringTexture 
+ * @param {float} axisDec - Declination of axis
+ * @param {float} axisRA - Right ascension of axis
+ * @param {float} phase - Initial rottion angle
+ * @param {float} thetaDot - Rate of rotation
+ * @returns {THREE.Object3D}
+ */
 export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, axisDec, axisRA, phase, thetaDot) { // make bodies
     const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : ORR.defaultMaterial;
     const planetRadius = radius;
@@ -29,6 +44,12 @@ export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTex
     return sphere;
 }
 
+/**
+ * Make point geometry.
+ * @param {string} name 
+ * @param {int} sysId - System ID
+ * @returns {THREE.Points}
+ */
 export function makePoint (name, sysId) {
     const point = new THREE.Points( ORR.pointGeometry, ORR.pointMaterial );
     point.name = name;
@@ -36,7 +57,11 @@ export function makePoint (name, sysId) {
     return point;
 }
 
-export function makeLabel(i) { // make body label
+/**
+ * Make body label.
+ * @param {int} i - System ID 
+ */
+export function makeLabel(i) {
     $("body").append("<div id='" + i + "' class='label'>" + ORR.system[i].name + "</div>");
     $("#" + i).addClass( "tag" + ORR.system[i].type ).on("click", function() {
         $(".label").removeClass( "active" );
@@ -57,11 +82,20 @@ export function makeLabel(i) { // make body label
     });
 }
 
-export function makeGratLabel(i, text) { // make graticule label
+/**
+ * Make graticule label.
+ * @param {int} i
+ * @param {string} text 
+ * @returns {*}
+ */
+export function makeGratLabel(i, text) { 
     $("body").append("<div id='grat" + i + "' class='gratLabel'>" + text + "</div>");
     return $("#grat" + i);
 }
 
+/**
+ * Make graticule object.
+ */
 export function makeGraticules() {
     const points = 360;
     const longDivisions = 12;
@@ -101,6 +135,9 @@ export function makeGraticules() {
     ORR.cameraLocked.graticule = graticule
 }
 
+/**
+ * Make reference points.
+ */
 export function makeRefPoints() {
     const longDivisions = 12;
     const latDivisions = 12;

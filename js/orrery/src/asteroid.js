@@ -1,5 +1,12 @@
 import * as ORR from './init.js';
 
+/**
+ * Create an asteroid.
+ * @constructor
+ * @param {int} catalogNumber - Minor Planet Catalog number
+ * @param {float} meanAnomaly - Mean anomaly
+ * @param {float} slope - Magnitude slope
+ */
 export class Asteroid extends ORR.Body {
     constructor(params) {
         super (params);
@@ -24,14 +31,20 @@ export class Asteroid extends ORR.Body {
         this.phaseStart = this.phase;
     } 
 
-    set(t) { // update Keplerian orbital elements from the given epoch
+    /**
+     * Update Keplerian orbital elements from the given epoch.
+     * @param {float} t - Ephemeris time 
+     */
+    set(t) { 
         const offset = t - ORR.MJDToEphTime(this.epoch);
         this.meanAnomaly = offset * this.lDot + this.mStart;
         this.phase = this.phaseStart;
     }
 
+    /**
+     * Plot full orbit in local space.
+     */
     updateOrbit() {
-        // plot full orbit in local space
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis, ORR.orbitPlot.points);
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
@@ -41,12 +54,24 @@ export class Asteroid extends ORR.Body {
         this.celestialPos = this.celestial[0];
     }
 
+    /**
+     * Update longitude.
+     * @param {float} dt - Delta time
+     */
     update(dt) {
-        this.meanAnomaly += (this.lDot * dt); // update groundPosition.longitude
+        this.meanAnomaly += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis);
         this.celestialPos = ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
+    /**
+     * Plot longitude points in the orbital plane.
+     * @param {float} meanAnomaly 
+     * @param {float} eccentricity 
+     * @param {float} semiMajorAxis 
+     * @param {int} points - Number of points, default 1 
+     * @returns {array} [THREE.Vector3]
+     */
     longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) {
         const orbitArray = [];
         const span = Math.PI * 2 / points;

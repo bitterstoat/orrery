@@ -1,5 +1,11 @@
-import * as ORR from "./init.js" 
+import * as ORR from "./init.js"
 
+/**
+ * Create a comet.
+ * @constructor
+ * @param {float} periapsis - Periapsis distance in AU
+ * @param {float} periapsisTime - Time of periapsis in simple timecode
+ */
 export class Comet extends ORR.Asteroid {
     constructor(params) {
         super (params);
@@ -19,7 +25,7 @@ export class Comet extends ORR.Asteroid {
         this.wStart = this.longPeriapsis;
     }
 
-    set(t) { // update Keplerian orbital elements from the given epoch
+    set(t) {
         const offset = t - ORR.MJDToEphTime(this.periapsisTime);
         this.meanLongitude = offset * this.lDot + this.wStart;
         this.phase = this.phaseStart;
@@ -54,6 +60,11 @@ export class Comet extends ORR.Asteroid {
         return orbitArray;
     }
 
+    /**
+     * Convert datecode to Modified Julian Date
+     * @param {float} d - datecode to parse 
+     * @returns {float} MJD
+     */
     cometDate(d) {
         const dayPart = ORR.decToMinSec(parseFloat(d.substr(8))*24);
         const date = d.substr(0, 4) + "-" + d.substr(4, 2) + "-" + d.substr(6, 2) + "T" + ("0" + dayPart.deg.toString().slice(-1)) + 

@@ -23,7 +23,7 @@ export const plutoBary = 2110 / 19600; // Pluto barycentric offset relative to C
 export const daysPerCent = 36525.6363;
 export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 export const UnixTimeZeroInMJD = 40587; // UNIX time zero as Modified Julian Date
-export const J2KInMJD = 51544.0; // Modified Julian Date of January 1, 2000
+export const J2KInMJD = 51544.5; // Modified Julian Date of January 1, 2000
 export const DayInMillis = 86400000; // miliseconds per day
 
 // constants

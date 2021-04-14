@@ -1,12 +1,15 @@
 import * as ORR from "./init.js";
-import * as THREE from "../../../node_modules/three/build/three.module.js"
-import * as TWEEN from "../../tween/tween.esm.js"
-import $ from "../../jquery/jquery.module.js" 
+import * as THREE from "../../../node_modules/three/build/three.module.js";
+import * as TWEEN from "../../tween/tween.esm.js";
+import $ from "../../jquery/jquery.module.js";
 
 export let liveData = false;
 const tempLabels = [];
 
-/* MAIN LOOP */
+/**
+ * MAIN LOOP
+ * @param {float} time
+ */
 export function animate(time) {
     let clockElapsed = 1 / ORR.clock.getDelta();
     ORR.fpsBuffer.push(clockElapsed);

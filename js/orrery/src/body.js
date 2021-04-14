@@ -1,15 +1,31 @@
-import * as ORR from "./init.js" 
-export class Body { // superclass for orbiting bodies - do not use directly
+import * as ORR from "./init.js"
+/**
+ * Superclass for celestial bodies. Not intended for direct use.
+ * @constructor
+ * @param {string} name
+ * @param {int} type - Body type (0: planet, 1: dwarf planets, 2: large asteroids or moons, 3: small moons (3 and up not labeled at launch), 4: small asteroids or comets (default type)
+ * @param {float} epoch - in MJD
+ * @param {float} semiMajorAxis - in AU
+ * @param {float} eccentricity
+ * @param {float} inclination - in degrees
+ * @param {float} w - Argument of periapsis in degrees
+ * @param {float} longAscNode - Longitude of ascending node in degrees
+ * @param {float} thetaDot - Rotation rate in degrees per century
+ * @param {float} ringRadius - Radius of ring system as a multiple of radius
+ * @param {url} texture - Texture map for surface
+ * @param {url} ringTexture - Texture map for rings
+ * @param {float} asbsoluteMag - Absolute magnitude
+ * @param {float} zoomRatio - Initial scale of orrery view
+ * @param {float} radius - in km
+ * @param {float} mass - in 10^17 kg
+ * @param {string} info - Display info
+ * @param {url} wiki - Wikipedia entry
+ * @param {url} wikipic - Wikipedia image
+ */
+export class Body {
     constructor (params) {
         this.name = this.hasData(params.name) ? params.name : "Unnamed";
         this.type = this.hasData(params.type) ? parseFloat(params.type) : 4;
-        /* BODY TYPES
-            0: planet
-            1: dwarf planets
-            2: large asteroids or moons
-            3: small moons (3 and up not labeled at launch)
-            4: small asteroids or comets (default type)
-        */
         this.epoch = this.hasData(params.epoch) ? parseFloat(params.epoch) : 51544.5;
         this.semiMajorAxis = this.hasData(params.a) ? parseFloat(params.a) : 1;
         this.eccentricity = this.hasData(params.e) ? parseFloat(params.e) : 0;
@@ -48,10 +64,20 @@ export class Body { // superclass for orbiting bodies - do not use directly
         this.omegaStart = this.longAscNode;
     }
 
+    /**
+     * Test if parameter has data.
+     * @param {parameter} ref - Parameter
+     * @returns {boolean} Field has data
+     */
     hasData(ref) {
         return (typeof ref != "undefined" && ref.length > 0);
     }
 
+    /**
+     * Return phase integral of the incident angle.
+     * @param {float} alpha - Incidence angle
+     * @returns {float} Illumination parameter
+     */
     phaseIntegral(alpha) { // metric for reflected light
         return (2 / 3) * ((1 - alpha / Math.PI) * Math.cos(alpha) + 1 / Math.PI * Math.sin(alpha));
     }

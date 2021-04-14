@@ -1,14 +1,29 @@
-import * as ORR from "./init.js"
-import * as THREE from "../../../node_modules/three/build/three.module.js"
-import $ from "../../jquery/jquery.module.js"
+import * as ORR from "./init.js";
+import * as THREE from "../../../node_modules/three/build/three.module.js";
+import $ from "../../jquery/jquery.module.js";
 
-// spatial functions
-export function plotPoint(meanAnomaly, eccentricity, semiMajorAxis, runKepler) { // plot ORR.groundPosition.longitudes to orbital path
+// SPATIAL FUNCTIONS
+
+/**
+ * Plot longitude point on an orbit.
+ * @param {float} meanAnomaly 
+ * @param {float} eccentricity 
+ * @param {float} semiMajorAxis 
+ * @param {boolean} runKepler - Apply Kepler's equation
+ * @returns {THREE.Vector3} - Coordinate
+ */
+export function plotPoint(meanAnomaly, eccentricity, semiMajorAxis, runKepler) {
     const eccAnomaly = (runKepler && ORR.orbitPlot.points == 1) ? kepler(eccentricity, meanAnomaly) : meanAnomaly;
     const localPoint = new THREE.Vector2( semiMajorAxis * (Math.cos(eccAnomaly) - eccentricity), semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity) * Math.sin(eccAnomaly));
     return localPoint;
 }
 
+/**
+ * Compute eccentric anolmaly numerically through Kepler's equation.
+ * @param {float} e - Eccentricity
+ * @param {float} m - Mean anomaly
+ * @returns {float} - Eccentric anomaly
+ */
 export function kepler(e, m) { // numerical approximation of Kepler's equation
     let result = 0;
     let lastResult, delta;
@@ -22,13 +37,36 @@ export function kepler(e, m) { // numerical approximation of Kepler's equation
     return result;
 }
 
-export function celestial_THREE(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // transform to Cartesian coordinates relative to the celestial sphere
+
+/**
+ * Orient local orbital point in celestial space. Uses THREE functions.
+ * @param {float} longPeriapsis - Longitude of periapsis
+ * @param {float} longAscNode - Longitude of ascending node
+ * @param {float} inclination 
+ * @param {float} xLocal - x-coordinate in local orbital plane
+ * @param {float} yLocal - y-coordinate in local orbital plane
+ * @returns {THREE.Vector3} Celestial coordinates 
+ */
+export function celestial_THREE(longPeriapsis, longAscNode, inclination, xLocal, yLocal) {
     const v = new THREE.Vector3(xLocal, 0, yLocal);
     v.applyAxisAngle( ORR.celestialZAxis, longPeriapsis ).applyAxisAngle( ORR.celestialXAxis, inclination ).applyAxisAngle( ORR.celestialZAxis, longAscNode );
     return v.applyAxisAngle( ORR.celestialXAxis, ORR.eclInclination );
 }
 
-export function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLocal, yLocal, orbitRef, orbitId) { // transform to Cartesian coordinates relative to an arbitrary axis
+/**
+ * Orient local orbital point in planetary space.
+ * @param {float} longPeriapsis - Longitude of periapsis
+ * @param {float} longAscNode - Longitude of ascending node
+ * @param {float} inclination 
+ * @param {float} ra - Right ascension of orbital axis
+ * @param {float} dec - Declination of orbital axis
+ * @param {float} xLocal - x-coordinate in local orbital plane
+ * @param {float} yLocal - y-coordinate in local orbital plane
+ * @param {string} orbitRef - Orbit frame of reference
+ * @param {int} orbitId - System ID of object being orbited
+ * @returns {THREE.Vector3} - Planetary coordinates
+ */
+export function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLocal, yLocal, orbitRef, orbitId) {
     let v = new THREE.Vector3(xLocal, 0, yLocal).applyAxisAngle( ORR.celestialZAxis, longPeriapsis + longAscNode );
     const y = new THREE.Vector3(0, 0, 1);
     switch (orbitRef) {
@@ -44,7 +82,16 @@ export function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLoc
     return v;
 }
 
-export function celestial(longPeriapsis, longAscNode, inclination, xLocal, yLocal) { // legacy version as written in the textbook
+/**
+ * Orient local orbital point in celestial space. Uses textbook calculation.
+ * @param {float} longPeriapsis - Longitude of periapsis
+ * @param {float} longAscNode  - Longitude of ascending node
+ * @param {float} inclination 
+ * @param {float} xLocal - x-coordinate in local orbital plane
+ * @param {float} yLocal - y-coordinate in local orbital plane
+ * @returns {THREE.Vector3} Celestial coordinates
+ */
+export function celestial(longPeriapsis, longAscNode, inclination, xLocal, yLocal) {
     const cosW = Math.cos(longPeriapsis); const sinW = Math.sin(longPeriapsis);
     const cosO = Math.cos(longAscNode); const sinO = Math.sin(longAscNode);
     const cosI = Math.cos(inclination); const sinI = Math.sin(inclination);
@@ -54,12 +101,23 @@ export function celestial(longPeriapsis, longAscNode, inclination, xLocal, yLoca
     return new THREE.Vector3(x, z, y).applyAxisAngle( new THREE.Vector3(1, 0, 0), ORR.eclInclination);
 }
 
+/**
+ * Reorient object's axis of rotation
+ * @param {THREE.Object3D} obj 
+ * @param {float} ra - Right ascension of new axis
+ * @param {float} dec - Declination of new axis
+ */
 export function reAxis(obj, ra, dec) {
     obj.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), Math.PI/2 - dec);
     obj.rotateOnWorldAxis(ORR.celestialZAxis, ra);
 }
 
-export function orbitPath(i) { // plot orbital paths
+/**
+ * Plot orbital paths.
+ * @param {int} i - System ID
+ * @returns {THREE.LineLoop} Path
+ */
+export function orbitPath(i) { 
     ORR.system[i].updateOrbit();
     const orbitPath = ORR.system[i].celestial;
     const orbitGeometry = new THREE.BufferGeometry().setFromPoints( orbitPath );
@@ -69,25 +127,45 @@ export function orbitPath(i) { // plot orbital paths
     return path;
 }
 
-export function redraw(i) { // plot orbital paths
+/**
+ * Redraw path.
+ * @param {int} i - System ID
+ */
+export function redraw(i) {
     ORR.orbitPlot.points = ORR.pointCount;
     ORR.system[i].updateOrbit();
     ORR.paths[i].geometry = new THREE.BufferGeometry().setFromPoints( ORR.system[i].celestial );
     ORR.orbitPlot.points = 1;
 }
 
-export function RADecToVector(ra, dec) { // right ascension and declination to vector
+/**
+ * Convert right ascension and declination to a vector.
+ * @param {float} ra - Right ascension
+ * @param {float} dec - Declination
+ * @returns {THREE.Vector3}
+ */
+export function RADecToVector(ra, dec) { 
     const v = new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), (90-dec)*ORR.toRad);
     return v.applyAxisAngle(new THREE.Vector3(0, 1, 0), ((ra + 6) % 24) * 15 * ORR.toRad );
 }
 
-export function vectortoRadec(v) { // vector to right ascension and declination
+/**
+ * Convert vector to right ascension and declination.
+ * @param {THREE.Vector3} v - Input vector
+ * @returns {object}
+ */
+export function vectortoRadec(v) {
     return { ra: (Math.atan2(v.x, v.z) * ORR.toDeg / 15 + 42 ) % 24, 
         dec:v.angleTo(new THREE.Vector3(v.x, 0, v.z)) * Math.sign(v.y) * ORR.toDeg 
     };
 }
 
-export function decToMinSec(n) { // decimal angle to DMS
+/**
+ * Convert decimal angle to degrees, minutes, and seconds.
+ * @param {float} n - Input angle 
+ * @returns {object}
+ */
+export function decToMinSec(n) { 
     const sign = Math.sign(n);
     n = Math.abs(n);
     let deg = Math.floor(n);
@@ -104,14 +182,32 @@ export function decToMinSec(n) { // decimal angle to DMS
     return { sign:(sign<0) ? "-" : "", deg:deg, min:min, sec:sec }
 }
 
-export function estRadius(h, p = 0.15) { // estimate asteroid radius from absolute magnitude
+/**
+ * Estimate asteroid radius from absolute magnitude.
+ * @param {float} h - Absolute magnitude
+ * @param {float} p - Slope (0.15 by default)
+ * @returns {float} Radius estimate
+ */
+export function estRadius(h, p = 0.15) { 
     return 664.5 / Math.sqrt(p) * Math.pow( 10, h * -0.2);
 }
 
-export function visViva(mu, r, a) { // compute instantaneous orbital speed
+/**
+ * Compute instantaneous orbital speed.
+ * @param {float} mu - Local graviational constant
+ * @param {float} r - Current distance
+ * @param {float} a - Orbit's semimajor axis
+ * @returns {float} Velocity
+ */
+export function visViva(mu, r, a) { 
     return Math.sqrt(mu * (2/r/ORR.AU - 1/a/ORR.AU )) / 1000;
 }
 
+/**
+ * Format latitude and longitude.
+ * @param {float} a - Latitude 
+ * @param {float} b - Longitude 
+ */
 export function displayLatLong(a, b) {
     const lat = decToMinSec(a);
     const lon = decToMinSec(b);
@@ -119,6 +215,10 @@ export function displayLatLong(a, b) {
     $("#long").html(Math.abs(lon.deg) + '&deg;&nbsp;' + lon.min + '&rsquo;&nbsp;' + lon.sec.toFixed(1) + '&rdquo;&nbsp;' + ((lon.sign == "-") ? 'W' : 'E'));
 }
 
+/**
+ * Request latitude and longitude.
+ * @param {*} response 
+ */
 export function getLatLong(response) {
     ORR.groundPosition.latitude = response.coords.latitude;
     ORR.groundPosition.longitude = response.coords.longitude;
@@ -126,23 +226,49 @@ export function getLatLong(response) {
     displayLatLong(ORR.groundPosition.latitude, ORR.groundPosition.longitude);
 }
 
-// temporal functions 
-export function unixToMJD(d) { // Unix time to modified Julian Date
+// TEMPORAL FUNCTIONS
+
+/**
+ * Convert Unix time to modified Julian Date.
+ * @param {float} d - Unix date 
+ * @returns {float} MJD
+ */
+export function unixToMJD(d) { 
     return d / ORR.DayInMillis + ORR.UnixTimeZeroInMJD; 
 } 
 
-export function MJDToEphTime(d) { // MJD to fractional centuries since J2000
+/**
+ * MJD to fractional centuries since J2000.
+ * @param {float} d - MJD
+ * @returns {float} Ephemeris time
+ */
+export function MJDToEphTime(d) { 
     return (d - ORR.J2KInMJD) / ORR.daysPerCent; 
 }
 
-export function EphTimeToMJD(d) { // inverse MJDToEphTime
+/**
+ * Inverse of MJDToEphTime()
+ * @param {float} d - Ephemeris time
+ * @returns {float} MJD
+ */
+export function EphTimeToMJD(d) {
     return d * ORR.daysPerCent + ORR.J2KInMJD;
 }
 
-export function MJDtoUnix(d) { // inverse unixToMJD
+/**
+ * Inverse of inverse unixToMJD()
+ * @param {float} d - MJD
+ * @returns {float} Unix date
+ */
+export function MJDtoUnix(d) {
     return new Date((d - ORR.UnixTimeZeroInMJD) * ORR.DayInMillis);
 }
 
+/**
+ * Format ephemeris time for display.
+ * @param {float} d - Ephemeris time 
+ * @returns {object}
+ */
 export function EphTimeReadout(d) { // display time
     const t = new Date((d * ORR.daysPerCent + ORR.J2KInMJD - ORR.UnixTimeZeroInMJD) * ORR.DayInMillis);
     const era = (t.getFullYear() >= 0) ? "" : " BC";
@@ -154,17 +280,27 @@ export function EphTimeReadout(d) { // display time
             };
 }
 
-export function slowTime() { // slow/reverse time
+/**
+ * Slow or reverse time
+ */
+export function slowTime() {
     ORR.times.speed = Math.max(ORR.times.speed-1, 0);
     ORR.times.rate = ORR.rates[ORR.times.speed];
 }
 
-export function speedTime() { // speeed up time
+/**
+ * Speed up time
+ */
+export function speedTime() {
     ORR.times.speed = Math.min(ORR.times.speed+1, ORR.rates.length-1);
     ORR.times.rate = ORR.rates[ORR.times.speed];
 }
 
-export function setTime(time) { // reset to arbitrary time
+/**
+ * Reset to arbitrary time.
+ * @param {float} time - MJD
+ */
+export function setTime(time) {
     const oldTime = ORR.times.ephTime;
     ORR.times.ephTime = MJDToEphTime(time);
     const delta = ORR.times.ephTime - oldTime;
@@ -180,12 +316,22 @@ export function setTime(time) { // reset to arbitrary time
     ORR.times.rate = ORR.rates[ORR.times.speed];
 }
 
+/**
+ * Local sidereal time.
+ * @param {float} ephTime - Ephemeris time 
+ * @returns {float} - Local sidereal time
+ */
 export function localSiderealTime(ephTime) {
     const t = MJDtoUnix(EphTimeToMJD(ephTime));
     const timeUTC = t.getUTCHours() + t.getUTCMinutes()/60 + t.getUTCSeconds()/3600 + t.getUTCMilliseconds()/3600000;
     return (100.46 + (0.985647 * ephTime * ORR.daysPerCent) + ORR.groundPosition.longitude + (15 * timeUTC) + 360) % 360;
 }
 
+/**
+ * Get RADec relative to geocoordinate on Earth's surface.
+ * @param {object} obj - System object
+ * @returns {object} from vectortoRadec()
+ */
 export function getRA(obj) {
     const earthRad = ORR.system[ORR.specialID.earth].radius / ORR.AU;
         const earthSurfPos = new THREE.Vector3( earthRad * Math.cos(ORR.groundPosition.longitude * ORR.toRad + ORR.system[ORR.specialID.earth].phase), earthRad * Math.sin(ORR.groundPosition.latitude * ORR.toRad), earthRad * Math.sin(ORR.groundPosition.longitude * ORR.toRad + ORR.system[ORR.specialID.earth].phase));
@@ -193,6 +339,13 @@ export function getRA(obj) {
         return vectortoRadec( (obj.sysId == ORR.specialID.earth) ? parallaxPos.multiplyScalar(-1) : obj.celestialPos.clone().sub(parallaxPos) );
 }
 
+/**
+ * Compute altitude and azimuth.
+ * @param {float} ra - Right ascension
+ * @param {float} dec - Declination
+ * @param {float} t - Time
+ * @returns {object}
+ */
 export function altAz(ra, dec, t) {
     const hourAngle = ((localSiderealTime(t) - (ra * 15) + 360) % 360) * ORR.toRad;
     dec *= ORR.toRad;
@@ -210,7 +363,11 @@ export function altAz(ra, dec, t) {
     return { alt: alt, az: az, ha: hourAngle * ORR.toDeg / 15 };
 }
 
-export function riseSet(obj) { // brute force rise/set time solver
+/**
+ * Brute force rise/set time solver.
+ * @param {object} obj - System object
+ */
+export function riseSet(obj) {
     const RADec = getRA(obj);
     const day = (1 / ORR.daysPerCent);
     const min = day / 1440; 
@@ -234,8 +391,14 @@ export function riseSet(obj) { // brute force rise/set time solver
     $("#riseSet, #earthRiseSet").html(readout);
 }
 
-// light functions
-export function apparentMag(i) { // apparent magnitude
+// LIGHT FUNCTIONS
+
+/**
+ * Apparent magnitude.
+ * @param {int} i - System ID 
+ * @returns {float} Magnitude
+ */
+export function apparentMag(i) { 
     const dBO = i.toEarth.length();
     const dBS = i.toSun;
     const cAlpha = (dBO * dBO + dBS * dBS - 1) / (2 * dBO * dBS);
@@ -243,7 +406,12 @@ export function apparentMag(i) { // apparent magnitude
     return i.absoluteMag + 5 * Math.log10( dBS * dBO ) - 2.5 * Math.log10(i.phaseIntegral(alpha));
 }
 
-export function BVToRGB(bv) { // BV color index to RGB
+/**
+ * BV color index to RGB.
+ * @param {float} bv - Color index 
+ * @returns {object} RGB values
+ */
+export function BVToRGB(bv) {
     let t, r, g, b;
     if ((bv >= -0.4) && (bv < 0.0)) { 
         t = (bv + 0.4) / 0.4;
@@ -283,6 +451,12 @@ export function BVToRGB(bv) { // BV color index to RGB
     return {r:r, g:g, b:b};
 }
 
+/**
+ * Magnitude extinction due to atmospheric diffusion.
+ * @param {float} magnitude 
+ * @param {float} alt - Altitude
+ * @returns {object}
+ */
 export function extinction(magnitude, alt) {
     const angle = 90-alt;
     const airmass = Math.min(1/Math.cos(angle * ORR.toRad), Math.max(20, 6.2 * (angle) - 520));
