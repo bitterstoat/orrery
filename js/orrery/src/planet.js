@@ -1,4 +1,3 @@
-import { Vector3 } from '../../../node_modules/three/build/three.module.js';
 import * as ORR from './init.js';
 
 /**
@@ -105,7 +104,7 @@ export class Planet extends ORR.Body {
      * @param {float} meanAnomaly 
      * @param {float} eccentricity 
      * @param {float} semiMajorAxis 
-     * @param {int} points - Number of points, default 1 
+     * @param {number} points - Number of points, default 1 
      * @returns {array} [THREE.Vector3]
      */
     longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, b, c, s, f, points = 1) {

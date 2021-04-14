@@ -70,7 +70,7 @@ $(document).on("keydown", function(event) { // keystroke handler
 
 /**
  * Handle tag clicks.
- * @param {int} t - System ID 
+ * @param {number} t - System ID 
  */
 export function clickTag(t) {
     if ($('#' + t).length < 1) {
@@ -132,7 +132,7 @@ export function clickTag(t) {
 
 /**
  * Unclick a tag.
- * @param {int} t - System ID
+ * @param {number} t - System ID
  */
 export function closeTag(t) {
     t.removeClass( "active" );

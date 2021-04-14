@@ -56,6 +56,10 @@ export const searchLists = { combined: [], planetNames: [], moonNames: [], aster
 export const cameraLocked = { starfieldObj: new THREE.Object3D(), graticule: new THREE.Line() };
 export const orbitPlot = { points: pointCount };
 
+/**
+ * Get HTTP variables.
+ * @returns {object}
+ */
 export function getUrlVars() {
     let vars = {};
     const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {

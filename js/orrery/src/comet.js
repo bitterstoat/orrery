@@ -1,4 +1,4 @@
-import * as ORR from "./init.js"
+import * as ORR from "./init.js";
 
 /**
  * Create a comet.
@@ -11,7 +11,7 @@ export class Comet extends ORR.Asteroid {
         super (params);
         this.info = (this.info == "default") ? "Periodic comet" : this.info;
         this.periapsis = this.hasData(params.q) ? parseFloat(params.q) : 1;
-        this.periapsisTime = this.hasData(params.Tp) ? this.cometDate(params.Tp) : ORR.unixToMJD(Date.parse("2000-01-01T00:00:00"));
+        this.periapsisTime = this.hasData(params.Tp) ? ORR.dateCodeToMJD(params.Tp) : ORR.unixToMJD(Date.parse("2000-01-01T00:00:00"));
         this.semiMajorAxis = this.periapsis / (1 - this.eccentricity);
         this.apoapsis = (1 + this.eccentricity) * this.semiMajorAxis;
         this.period = Math.pow(this.semiMajorAxis, 1.5) / 100; // store period in century time
@@ -25,14 +25,20 @@ export class Comet extends ORR.Asteroid {
         this.wStart = this.longPeriapsis;
     }
 
+    /**
+     * Update Keplerian orbital elements from the given epoch.
+     * @param {float} t - Ephemeris time 
+     */
     set(t) {
         const offset = t - ORR.MJDToEphTime(this.periapsisTime);
         this.meanLongitude = offset * this.lDot + this.wStart;
         this.phase = this.phaseStart;
     }
 
+    /**
+     * Plot full orbit in local space.
+     */
     updateOrbit() {
-        // plot full orbit in local space
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, ORR.orbitPlot.points);
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
@@ -42,12 +48,25 @@ export class Comet extends ORR.Asteroid {
         this.celestialPos = this.celestial[0];
     }
 
+    /**
+     * Update longitude.
+     * @param {float} dt - Delta time
+     */
     update(dt) {
-        this.meanLongitude += (this.lDot * dt); // update groundPosition.longitude
+        this.meanLongitude += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis);
         this.celestialPos = ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
+    /**
+     * Plot longitude points in the orbital plane.
+     * @param {float} meanLongitude
+     * @param {float} longPeriapsis
+     * @param {float} eccentricity 
+     * @param {float} semiMajorAxis 
+     * @param {number} points - Number of points, default 1 
+     * @returns {array} [THREE.Vector3]
+     */
     longPoints(meanLongitude, longPeriapsis, eccentricity, semiMajorAxis, points = 1) {
         const orbitArray = [];
         const span = Math.PI * 2 / points;
@@ -58,17 +77,5 @@ export class Comet extends ORR.Asteroid {
             orbitArray.push(point);
         }
         return orbitArray;
-    }
-
-    /**
-     * Convert datecode to Modified Julian Date
-     * @param {float} d - datecode to parse 
-     * @returns {float} MJD
-     */
-    cometDate(d) {
-        const dayPart = ORR.decToMinSec(parseFloat(d.substr(8))*24);
-        const date = d.substr(0, 4) + "-" + d.substr(4, 2) + "-" + d.substr(6, 2) + "T" + ("0" + dayPart.deg.toString().slice(-1)) + 
-        ":" + ("0" + dayPart.min.toString().slice(-1)) + ":" + ("0" + dayPart.sec.toString().slice(-1));
-        return ORR.unixToMJD(Date.parse(date));
     }
 }

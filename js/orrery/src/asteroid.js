@@ -3,7 +3,7 @@ import * as ORR from './init.js';
 /**
  * Create an asteroid.
  * @constructor
- * @param {int} catalogNumber - Minor Planet Catalog number
+ * @param {number} catalogNumber - Minor Planet Designation
  * @param {float} meanAnomaly - Mean anomaly
  * @param {float} slope - Magnitude slope
  */
@@ -69,7 +69,7 @@ export class Asteroid extends ORR.Body {
      * @param {float} meanAnomaly 
      * @param {float} eccentricity 
      * @param {float} semiMajorAxis 
-     * @param {int} points - Number of points, default 1 
+     * @param {number} points - Number of points, default 1 
      * @returns {array} [THREE.Vector3]
      */
     longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) {

@@ -63,7 +63,7 @@ export function celestial_THREE(longPeriapsis, longAscNode, inclination, xLocal,
  * @param {float} xLocal - x-coordinate in local orbital plane
  * @param {float} yLocal - y-coordinate in local orbital plane
  * @param {string} orbitRef - Orbit frame of reference
- * @param {int} orbitId - System ID of object being orbited
+ * @param {number} orbitId - System ID of object being orbited
  * @returns {THREE.Vector3} - Planetary coordinates
  */
 export function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLocal, yLocal, orbitRef, orbitId) {
@@ -114,7 +114,7 @@ export function reAxis(obj, ra, dec) {
 
 /**
  * Plot orbital paths.
- * @param {int} i - System ID
+ * @param {number} i - System ID
  * @returns {THREE.LineLoop} Path
  */
 export function orbitPath(i) { 
@@ -129,7 +129,7 @@ export function orbitPath(i) {
 
 /**
  * Redraw path.
- * @param {int} i - System ID
+ * @param {number} i - System ID
  */
 export function redraw(i) {
     ORR.orbitPlot.points = ORR.pointCount;
@@ -391,11 +391,23 @@ export function riseSet(obj) {
     $("#riseSet, #earthRiseSet").html(readout);
 }
 
+/**
+ * Convert datecode to Modified Julian Date
+ * @param {float} d - datecode to parse 
+ * @returns {float} MJD
+ */
+export function dateCodeToMJD(d) {
+    const dayPart = ORR.decToMinSec(parseFloat(d.substr(8))*24);
+    const date = d.substr(0, 4) + "-" + d.substr(4, 2) + "-" + d.substr(6, 2) + "T" + ("0" + dayPart.deg.toString().slice(-1)) + 
+    ":" + ("0" + dayPart.min.toString().slice(-1)) + ":" + ("0" + dayPart.sec.toString().slice(-1));
+    return ORR.unixToMJD(Date.parse(date));
+}
+
 // LIGHT FUNCTIONS
 
 /**
  * Apparent magnitude.
- * @param {int} i - System ID 
+ * @param {number} i - System ID 
  * @returns {float} Magnitude
  */
 export function apparentMag(i) { 

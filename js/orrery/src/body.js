@@ -1,9 +1,9 @@
-import * as ORR from "./init.js"
+import * as ORR from "./init.js";
 /**
  * Superclass for celestial bodies. Not intended for direct use.
  * @constructor
  * @param {string} name
- * @param {int} type - Body type (0: planet, 1: dwarf planets, 2: large asteroids or moons, 3: small moons (3 and up not labeled at launch), 4: small asteroids or comets (default type)
+ * @param {number} type - Body type (0: planet, 1: dwarf planets, 2: large asteroids or moons, 3: small moons (3 and up not labeled at launch), 4: small asteroids or comets (default type)
  * @param {float} epoch - in MJD
  * @param {float} semiMajorAxis - in AU
  * @param {float} eccentricity

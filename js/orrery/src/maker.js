@@ -11,7 +11,7 @@ const gratRadius = 1000;
  * @param {url} texture 
  * @param {float} radius 
  * @param {string} name 
- * @param {int} sysId - System ID
+ * @param {number} sysId - System ID
  * @param {float} ringRad - Ring radius
  * @param {url} ringTexture 
  * @param {float} axisDec - Declination of axis
@@ -47,7 +47,7 @@ export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTex
 /**
  * Make point geometry.
  * @param {string} name 
- * @param {int} sysId - System ID
+ * @param {number} sysId - System ID
  * @returns {THREE.Points}
  */
 export function makePoint (name, sysId) {
@@ -59,7 +59,7 @@ export function makePoint (name, sysId) {
 
 /**
  * Make body label.
- * @param {int} i - System ID 
+ * @param {number} i - System ID 
  */
 export function makeLabel(i) {
     $("body").append("<div id='" + i + "' class='label'>" + ORR.system[i].name + "</div>");
@@ -84,7 +84,7 @@ export function makeLabel(i) {
 
 /**
  * Make graticule label.
- * @param {int} i
+ * @param {number} i
  * @param {string} text 
  * @returns {*}
  */

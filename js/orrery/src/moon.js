@@ -77,7 +77,7 @@ export class Moon extends ORR.Body {
      * @param {float} meanAnomaly 
      * @param {float} eccentricity 
      * @param {float} semiMajorAxis 
-     * @param {int} points - Number of points, default 1 
+     * @param {number} points - Number of points, default 1 
      * @returns {array} [THREE.Vector3]
      */
     longPoints(meanAnomaly, eccentricity, semiMajorAxis, points = 1) {
