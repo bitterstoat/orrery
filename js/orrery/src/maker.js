@@ -7,31 +7,24 @@ const gratRadius = 1000;
 
 /**
  * Make 3D object for a celestial body.
- * @param {THREE.Loader} loader 
- * @param {url} texture 
- * @param {float} radius 
- * @param {string} name 
  * @param {number} sysId - System ID
+ * @param {float} radius - Planet radius
  * @param {float} ringRad - Ring radius
- * @param {url} ringTexture 
- * @param {float} axisDec - Declination of axis
- * @param {float} axisRA - Right ascension of axis
- * @param {float} phase - Initial rottion angle
- * @param {float} thetaDot - Rate of rotation
  * @returns {THREE.Object3D}
  */
-export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTexture, axisDec, axisRA, phase, thetaDot) { // make bodies
-    const material = (texture != "default") ? new THREE.MeshStandardMaterial({ map: loader.load('data/' + texture) }) : ORR.defaultMaterial;
+export function makeBody (sysId, radius, ringRad) { // make bodies
+    const body = ORR.system[sysId];
+    const material = (body.texture != "default") ? new THREE.MeshStandardMaterial({ map: ORR.loader.load('data/' + body.texture) }) : ORR.defaultMaterial;
     const planetRadius = radius;
     const geometry = new THREE.IcosahedronGeometry( planetRadius, 5 );
     const sphere = new THREE.Mesh( geometry, material );
-    sphere.name = name;
+    sphere.name = body.name;
     sphere.sysId = sysId;
 
     const ringRadius = (ringRad) ? parseFloat(ringRad) : 0;
     if (ringRadius > 0) {  // make rings
         const geometry = new THREE.RingGeometry(planetRadius * 1.01, ringRadius * planetRadius, 64);
-        const texMap = loader.load('data/' + ringTexture);
+        const texMap = ORR.loader.load('data/' + body.ringTexture);
         const material = new THREE.MeshBasicMaterial({ map: texMap, side:THREE.DoubleSide, transparent: true, combine: THREE.AddOperation });
         const ring = new THREE.Mesh( geometry, material );
         ring.rotateX(Math.PI / 2);
@@ -39,8 +32,8 @@ export function makeBody (loader, texture, radius, name, sysId, ringRad, ringTex
     }
 
     // apply initial rotation
-    ORR.reAxis(sphere, axisRA, axisDec);
-    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), thetaDot * ORR.times.ephTime + Math.PI * phase );
+    ORR.reAxis(sphere, body.axisRA, body.axisDec);
+    sphere.rotateOnAxis(new THREE.Vector3(0, -1, 0), body.thetaDot * ORR.times.ephTime + Math.PI * body.phase );
     return sphere;
 }
 

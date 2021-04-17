@@ -20,7 +20,8 @@ It's definitely better as a desktop web experience than mobile in the current ve
 - HTTPvars for latitiude/longitude, start time, and reducing particle count
 
 ## Setup
-- No node.js setup required. Just clone the repository, start a web server in the root folder and open the index.html in a browser.
+- npm init
+- npm i three-js
 
 ## Usage
 ### Navigation

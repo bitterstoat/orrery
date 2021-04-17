@@ -170,15 +170,10 @@ function launch() {
         if (ORR.times.parsedDate != 0 && !isNaN(ORR.times.parsedDate)) {
             ORR.times.ephTime = MJDToEphTime(unixToMJD(ORR.times.parsedDate));
         }
-        for (let i = 0; i < ORR.system.length; i++) {
-            ORR.searchLists.orderedNames.push(ORR.system[i].name);
-        }
+        ORR.searchLists.orderedNames = ORR.system.map(i => i.name); 
         for (let i = 0; i < ORR.moons.length; i++) {
-            ORR.moons[i].orbitId = ORR.searchLists.orderedNames.findIndex( function(e) {
-                return e == ORR.moons[i].orbiting;
-            });
+            ORR.moons[i].orbitId = ORR.searchLists.orderedNames.findIndex((e) => e == ORR.moons[i].orbiting);
         }
-
         for (let i = 0; i < ORR.system.length; i++) {
             ORR.system[i].set(ORR.times.ephTime);
             const path = ORR.orbitPath(i);
@@ -190,7 +185,7 @@ function launch() {
             }
             if (ORR.system[i].type < 3 || ORR.system[i] instanceof ORR.Moon == true ) {
                 ORR.scene.add(path);
-                ORR.scene.add(ORR.makeBody(ORR.loader, ORR.system[i].texture, ORR.system[i].exagRadius, ORR.system[i].name, i, ORR.system[i].ringRadius, ORR.system[i].ringTexture, ORR.system[i].axisDec, ORR.system[i].axisRA, ORR.system[i].phase, ORR.system[i].thetaDot));
+                ORR.scene.add(ORR.makeBody(i, ORR.system[i].exagRadius, ORR.system[i].ringRadius));
                 ORR.makeLabel(i);
             } else {
                 ORR.scene.add(ORR.makePoint(ORR.system[i].name, i));
@@ -211,13 +206,13 @@ function launch() {
         }
 
         // barycentric bodies
-        ORR.specialID.earth = ORR.searchLists.orderedNames.findIndex( function(e) { return e == "Earth" });
-        ORR.specialID.moon = ORR.searchLists.orderedNames.findIndex( function(e) { return e == "Moon" });
-        ORR.specialID.pluto = ORR.searchLists.orderedNames.findIndex( function(e) { return e == "Pluto" });
-        ORR.specialID.charon = ORR.searchLists.orderedNames.findIndex( function(e) { return e == "Charon" });
+        ORR.specialID.earth = ORR.searchLists.orderedNames.findIndex((e) => e == "Earth");
+        ORR.specialID.moon = ORR.searchLists.orderedNames.findIndex((e) => e == "Moon");
+        ORR.specialID.pluto = ORR.searchLists.orderedNames.findIndex((e) => e == "Pluto");
+        ORR.specialID.charon = ORR.searchLists.orderedNames.findIndex((e) => e == "Charon");
 
         for (let i = 0; i < ORR.precessing.length; i++) {
-            ORR.precessing[i] = ORR.searchLists.orderedNames.findIndex( function(e) { return e == ORR.precessing[i] });
+            ORR.precessing[i] = ORR.searchLists.orderedNames.findIndex((e) => e == ORR.precessing[i]);
         }
 
         $( "#smallRoids" ).html(smallAsteroids);
