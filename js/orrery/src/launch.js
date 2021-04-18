@@ -1,13 +1,11 @@
 import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js"
-// import { VRButton } from "../../../node_modules/three/examples/jsm/webxr/VRButton.js";
 import $ from "../../jquery/jquery.module.js"
 
 let planetData, asteroidData, moonData, cometData, starData;
 let datasets = 0;
 let flags = 0;
 let smallAsteroids = 0;
-export let tags = [];
 export const renderEl = document.body.appendChild( ORR.renderer.domElement );
 
 /* INITITALIZATION */
@@ -21,14 +19,6 @@ $( function() {
     if (!ORR.groundPosition.default) {
         ORR.displayLatLong(ORR.groundPosition.latitude, ORR.groundPosition.longitude);
     }
-
-    /*
-    document.body.appendChild( VRButton.createButton( ORR.renderer ) );
-    ORR.renderer.xr.enabled = true;
-    setTimeout( function() {
-        if ($("#VRButton")[0].innerHTML == "VR NOT SUPPORTED") { $("#VRButton").hide(500); } 
-    }, 3000);
-    */
 });
 
 function fullLoad() {
@@ -216,7 +206,6 @@ function launch() {
         }
 
         $( "#smallRoids" ).html(smallAsteroids);
-        tags = $(".label");
 
         ORR.searchLists.combined = ORR.searchLists.planetNames.concat(ORR.searchLists.moonNames, ORR.searchLists.asteroidNames, ORR.searchLists.cometNames);
 

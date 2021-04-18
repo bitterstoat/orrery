@@ -89,6 +89,7 @@ export class Asteroid extends ORR.Body {
         return (1 - this.slope) * a  + this.slope * b;
     }
 
+    /*
     sieve(obj) {
         const aClasses = [1, 2.5, 2.706, 2.82, 3.03, 3.27];
         const periClasses = [0.7184, 0.9833, 1.1, 29];
@@ -101,4 +102,5 @@ export class Asteroid extends ORR.Body {
         const mNames = ["Hungaria", "Phocaea", "Alinda", "Pallas", "Griqua", "Cybele", "Hilda", "Trojan", "Centaur", "KBO", "Plutino", "Cubewano"];
         return {aN: a, a: aNames[a], pN:p, p: pNames[p], mN: m, m: mNames[m]};
     }
+    */
 }

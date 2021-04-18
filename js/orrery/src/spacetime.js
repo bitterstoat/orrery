@@ -2,6 +2,11 @@ import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js";
 import $ from "../../jquery/jquery.module.js";
 
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const UnixTimeZeroInMJD = 40587; // UNIX time zero as Modified Julian Date
+const J2KInMJD = 51544.5; // Modified Julian Date of January 1, 2000
+const DayInMillis = 86400000; // miliseconds per day
+
 // SPATIAL FUNCTIONS
 
 /**
@@ -234,7 +239,7 @@ export function getLatLong(response) {
  * @returns {float} MJD
  */
 export function unixToMJD(d) { 
-    return d / ORR.DayInMillis + ORR.UnixTimeZeroInMJD; 
+    return d / DayInMillis + UnixTimeZeroInMJD; 
 } 
 
 /**
@@ -243,7 +248,7 @@ export function unixToMJD(d) {
  * @returns {float} Ephemeris time
  */
 export function MJDToEphTime(d) { 
-    return (d - ORR.J2KInMJD) / ORR.daysPerCent; 
+    return (d - J2KInMJD) / ORR.daysPerCent; 
 }
 
 /**
@@ -252,7 +257,7 @@ export function MJDToEphTime(d) {
  * @returns {float} MJD
  */
 export function EphTimeToMJD(d) {
-    return d * ORR.daysPerCent + ORR.J2KInMJD;
+    return d * ORR.daysPerCent + J2KInMJD;
 }
 
 /**
@@ -261,7 +266,7 @@ export function EphTimeToMJD(d) {
  * @returns {float} Unix date
  */
 export function MJDtoUnix(d) {
-    return new Date((d - ORR.UnixTimeZeroInMJD) * ORR.DayInMillis);
+    return new Date((d - UnixTimeZeroInMJD) * DayInMillis);
 }
 
 /**
@@ -270,10 +275,10 @@ export function MJDtoUnix(d) {
  * @returns {object}
  */
 export function EphTimeReadout(d) { // display time
-    const t = new Date((d * ORR.daysPerCent + ORR.J2KInMJD - ORR.UnixTimeZeroInMJD) * ORR.DayInMillis);
+    const t = new Date((d * ORR.daysPerCent + J2KInMJD - UnixTimeZeroInMJD) * DayInMillis);
     const era = (t.getFullYear() >= 0) ? "" : " BC";
     const b = (t.getHours() % 12 == 0) ? 12 : t.getHours() % 12;
-    return { a:ORR.months[t.getMonth()] + " " + (" " + t.getDate()).slice(-2) +", " + Math.abs(parseInt(t.getFullYear())).toString() + era, 
+    return { a:months[t.getMonth()] + " " + (" " + t.getDate()).slice(-2) +", " + Math.abs(parseInt(t.getFullYear())).toString() + era, 
              b: "&nbsp;&nbsp;&bull;&nbsp;&nbsp;" + (" " +  b).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2), 
              c: ":" + ("0" + t.getSeconds()).slice(-2),
              d: (t.getHours() < 12) ? " AM" : " PM"

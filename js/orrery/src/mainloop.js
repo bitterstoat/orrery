@@ -5,6 +5,12 @@ import $ from "../../jquery/jquery.module.js";
 
 export let liveData = false;
 const tempLabels = [];
+const fpsBuffer = [];
+const rateDesc = [ "-5 years/sec", "-1 year/sec", "-100 days/sec", "-20 days/sec", "-1 day/sec", "-1 hour/sec", "Reversed Time", "Paused", "Realtime", "1 hour/sec", "1 day/sec", "20 days/sec", "100 days/sec", "1 year/sec", "5 years/sec"];
+const gravConstant = 6.6743015e-11;
+const sunGravConstant = 1.32712440042e+20; // gravitational constant for heliocentric orbits
+const earthBary = 4670 / 388400; // Earth barycentric offset relative to Moon's semimajor axis
+const plutoBary = 2110 / 19600; // Pluto barycentric offset relative to Charon's semimajor axis
 
 /**
  * MAIN LOOP
@@ -12,12 +18,12 @@ const tempLabels = [];
  */
 export function animate(time) {
     let clockElapsed = 1 / ORR.clock.getDelta();
-    ORR.fpsBuffer.push(clockElapsed);
-    if (ORR.fpsBuffer.length > 7) {
+    fpsBuffer.push(clockElapsed);
+    if (fpsBuffer.length > 7) {
         let sum = 0;
-        for (let i = 0; i < ORR.fpsBuffer.length; i++) { sum += ORR.fpsBuffer[i]; }
-        ORR.times.avgFPS = sum / ORR.fpsBuffer.length;
-        ORR.fpsBuffer.splice(0, ORR.fpsBuffer.length);
+        for (let i = 0; i < fpsBuffer.length; i++) { sum += fpsBuffer[i]; }
+        ORR.times.avgFPS = sum / fpsBuffer.length;
+        fpsBuffer.splice(0, fpsBuffer.length);
         liveData = true;
     }
 
@@ -26,11 +32,11 @@ export function animate(time) {
     ORR.times.ephTime += ORR.times.rate;
     ORR.sun.rotateOnAxis( new THREE.Vector3(0, 1, 0), ORR.sun.thetaDot * ORR.times.rate );
     let readout = ORR.EphTimeReadout(ORR.times.ephTime).a;
-    readout += (ORR.times.speed > (ORR.pauseRate-4) && ORR.times.speed < (ORR.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).b : "";
-    readout += (ORR.times.speed > (ORR.pauseRate-2) && ORR.times.speed < (ORR.pauseRate+2)) ? ORR.EphTimeReadout(ORR.times.ephTime).c : "";
-    readout += (ORR.times.speed > (ORR.pauseRate-4) && ORR.times.speed < (ORR.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).d : "";
+    readout += (ORR.times.speed > (ORR.times.pauseRate-4) && ORR.times.speed < (ORR.times.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).b : "";
+    readout += (ORR.times.speed > (ORR.times.pauseRate-2) && ORR.times.speed < (ORR.times.pauseRate+2)) ? ORR.EphTimeReadout(ORR.times.ephTime).c : "";
+    readout += (ORR.times.speed > (ORR.times.pauseRate-4) && ORR.times.speed < (ORR.times.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).d : "";
     $("#date").html( readout );
-    $("#speed").html( ORR.rateDesc[ORR.times.speed] );
+    $("#speed").html( rateDesc[ORR.times.speed] );
     $("#fps").html(ORR.times.avgFPS.toFixed(2));
     if (ORR.state.extraData) {
         $(".extraData").show();
@@ -106,12 +112,12 @@ export function animate(time) {
         ORR.paths[ORR.moons[i].path].position.y = ORR.system[ORR.paths[ORR.moons[i].path].orbitId].celestialPos.y;
         ORR.paths[ORR.moons[i].path].position.z = ORR.system[ORR.paths[ORR.moons[i].path].orbitId].celestialPos.z;
     }
-    ORR.system[ORR.specialID.earth].baryPos = ORR.system[ORR.specialID.earth].celestialPos.clone().sub(ORR.system[ORR.specialID.moon].celestialPos).multiplyScalar(ORR.earthBary);
+    ORR.system[ORR.specialID.earth].baryPos = ORR.system[ORR.specialID.earth].celestialPos.clone().sub(ORR.system[ORR.specialID.moon].celestialPos).multiplyScalar(earthBary);
     const earthBody = ORR.scene.children[ORR.system[ORR.specialID.earth].childId];
     earthBody.position.x += ORR.system[ORR.specialID.earth].baryPos.x;
     earthBody.position.y += ORR.system[ORR.specialID.earth].baryPos.y;
     earthBody.position.z += ORR.system[ORR.specialID.earth].baryPos.z;
-    const plutoBaryOffset = ORR.system[ORR.specialID.pluto].celestialPos.clone().sub(ORR.system[ORR.specialID.charon].celestialPos).multiplyScalar(ORR.plutoBary, );
+    const plutoBaryOffset = ORR.system[ORR.specialID.pluto].celestialPos.clone().sub(ORR.system[ORR.specialID.charon].celestialPos).multiplyScalar(plutoBary, );
     const plutoBody = ORR.scene.children[ORR.system[ORR.specialID.pluto].childId];
     plutoBody.position.x += plutoBaryOffset.x;
     plutoBody.position.y += plutoBaryOffset.y;
@@ -124,10 +130,10 @@ export function animate(time) {
         const elongation = 180 - ORR.state.clickedPlanet.toEarth.angleTo(ORR.system[ORR.specialID.earth].celestialPos) * ORR.toDeg;
         if (liveData) {
             if (typeof ORR.state.clickedPlanet.orbitId == "undefined") {
-                $("#orbitVel").html(ORR.visViva(ORR.sunGravConstant, ORR.state.clickedPlanet.toSun, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
+                $("#orbitVel").html(ORR.visViva(sunGravConstant, ORR.state.clickedPlanet.toSun, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
             } else {
                 const toOrbiting = ORR.state.clickedPlanet.celestialPos.clone().sub(ORR.system[ORR.state.clickedPlanet.orbitId].celestialPos).length();
-                $("#orbitVel").html(ORR.visViva(ORR.system[ORR.state.clickedPlanet.orbitId].mass * ORR.gravConstant, toOrbiting, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
+                $("#orbitVel").html(ORR.visViva(ORR.system[ORR.state.clickedPlanet.orbitId].mass * gravConstant, toOrbiting, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
             }
             const appMag = ORR.apparentMag(ORR.state.clickedPlanet);
             let magNote = ""

@@ -2,6 +2,10 @@ import * as ORR from "./init.js";
 import * as TWEEN from "../../tween/tween.esm.js";
 import $ from "../../jquery/jquery.module.js";
 
+const planetScale = {f: 1.0};
+const planetMoons = []; // moons of the the currently focused planet
+
+
 function windowResize() { // window setup and resize handler
     ORR.renderer.setSize( window.innerWidth, window.innerHeight );
     ORR.renderer.setPixelRatio( window.devicePixelRatio );
@@ -23,11 +27,11 @@ function onMouseMove(e) {
 }
 
 function pauseResume() {
-    if (ORR.times.speed == ORR.pauseRate) { // resume
+    if (ORR.times.speed == ORR.times.pauseRate) { // resume
         ORR.times.speed = ORR.times.lastSpeed;
     } else { // pause but remeber previous speed
         ORR.times.lastSpeed = ORR.times.speed;
-        ORR.times.speed = ORR.pauseRate;
+        ORR.times.speed = ORR.times.pauseRate;
     }
     ORR.times.rate = ORR.rates[ORR.times.speed];
 }
@@ -156,8 +160,8 @@ export function closeTag(t) {
 function updateScale() {
     for (let i = 0; i < ORR.majorBodies.length; i++) {
         const scaleBody = ORR.scene.children[ORR.majorBodies[i].childId];
-        scaleBody.scale.set(ORR.planetScale.f, ORR.planetScale.f, ORR.planetScale.f);
-        ORR.sun.scale.set(ORR.planetScale.f, ORR.planetScale.f, ORR.planetScale.f);
+        scaleBody.scale.set(planetScale.f, planetScale.f, planetScale.f);
+        ORR.sun.scale.set(planetScale.f, planetScale.f, planetScale.f);
     }
 }
 
@@ -171,7 +175,7 @@ function zoomIn() {
         .onUpdate( () => ORR.camera.updateProjectionMatrix() )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
     
-    const tweenShrink = new TWEEN.Tween(ORR.planetScale).to( {f: 1/ORR.exagScale}, 1000 )
+    const tweenShrink = new TWEEN.Tween(planetScale).to( {f: 1/ORR.exagScale}, 1000 )
         .onUpdate( () => updateScale() )
         .onComplete( function() { 
             ORR.pointMaterial.size = 0.005;
@@ -179,7 +183,7 @@ function zoomIn() {
                 ORR.paths[ORR.state.clickedPlanet.path].material = ORR.transparentMaterial;
                 for (let i = 0; i < ORR.moons.length; i++) {
                     if (ORR.moons[i].orbitId == ORR.state.clickedPlanet.sysId) {
-                        ORR.planetMoons.push(ORR.moons[i]);
+                        planetMoons.push(ORR.moons[i]);
                         $("#" + ORR.moons[i].sysId ).show();
                         ORR.scene.children[ORR.moons[i].childId].material = ORR.pathMaterials[0];
                     }
@@ -199,7 +203,7 @@ function zoomOut() {
     .onUpdate( () => ORR.camera.updateProjectionMatrix() )
     .easing(TWEEN.Easing.Quadratic.InOut).start();
 
-    const tweenGrow = new TWEEN.Tween(ORR.planetScale).to( {f: 1.0}, 1000 )
+    const tweenGrow = new TWEEN.Tween(planetScale).to( {f: 1.0}, 1000 )
         .onStart( function() { 
             ORR.pointMaterial.size = ORR.initialPoint;
             for (let i = 0; i < ORR.paths.length; i++) {
@@ -209,10 +213,10 @@ function zoomOut() {
         .onUpdate( () => updateScale() )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
-    for (let i = 0; i < ORR.planetMoons.length; i++) {
-        $("#" + ORR.planetMoons[i].sysId ).hide();
+    for (let i = 0; i < planetMoons.length; i++) {
+        $("#" + planetMoons[i].sysId ).hide();
     }
-    ORR.planetMoons.splice(0, ORR.planetMoons.length);
+    planetMoons.splice(0, planetMoons.length);
 }
 
 function zoomToggle() {

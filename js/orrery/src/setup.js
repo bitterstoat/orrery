@@ -13,54 +13,41 @@ export const celestialXAxis = new THREE.Vector3(1, 0, 0);
 export const celestialZAxis = new THREE.Vector3(0, -1, 0);
 export const eclInclination = 23.43928 * toRad + Math.PI; // inclination of the ecliptic relative to the celestial sphere
 export const AU = 1.495978707e+11; // astronomical unit
-export const gravConstant = 6.6743015e-11;
-export const sunGravConstant = 1.32712440042e+20; // gravitational constant for heliocentric orbits
-export const earthRadius = 6371000;
-export const earthBary = 4670 / 388400; // Earth barycentric offset relative to Moon's semimajor axis
-export const plutoBary = 2110 / 19600; // Pluto barycentric offset relative to Charon's semimajor axis
+export const exagScale = 500000;
+export const initMinDistance = 1;
+export const initMaxDistance = 100;
+export const initialPoint = 0.01;
 
 // temporal constants
 export const daysPerCent = 36525.6363;
-export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-export const UnixTimeZeroInMJD = 40587; // UNIX time zero as Modified Julian Date
-export const J2KInMJD = 51544.5; // Modified Julian Date of January 1, 2000
-export const DayInMillis = 86400000; // miliseconds per day
-
-// constants
 export const fps = 60; // max FPS
 export const rates = [ -1/20/fps, -1/100/fps, -100/daysPerCent/fps, -20/daysPerCent/fps, -1/daysPerCent/fps, -1/24/daysPerCent/fps, -1/86400/daysPerCent/fps, 0, 1/86400/daysPerCent/fps, 1/24/daysPerCent/fps, 1/daysPerCent/fps, 20/daysPerCent/fps, 100/daysPerCent/fps, 1/100/fps, 1/20/fps]; // centuries per frame
-export const rateDesc = [ "-5 years/sec", "-1 year/sec", "-100 days/sec", "-20 days/sec", "-1 day/sec", "-1 hour/sec", "Reversed Time", "Paused", "Realtime", "1 hour/sec", "1 day/sec", "20 days/sec", "100 days/sec", "1 year/sec", "5 years/sec"];
+
+// constants
 export const pointCount = 180;
-export const materials = {};
-export const pauseRate = 7;
-export const initialPoint = 0.01;
 export const initialFOV = 60;
-export const exagScale = 500000;
-export const initMinDistance = 1;
-export const initMaxDistance = 100; 
 export const system = []; // the solar system as an associative array
 export const majorBodies = []; // bodies that scale on zoom
 export const moons = []; // need late update with planet references
 export const paths = []; // orbital paths
 export const gratLabels = [];
 export const precessing = []; // orbits with temporal drift
-export const planetScale = {f: 1.0};
-export const fpsBuffer = [];
-export const planetMoons = []; // moons of the the currently focused planet
 export const specialID = { earth:0, moon:0, pluto:0, charon:0 };
 export const center = { x:0, y:0 }; // screen center
 export const state = { clickedLabel: "", clickedPlanet: {}, lastClickedPlanet: {}, mousePos: new THREE.Vector3(0, 0, 1), following: false, lastFollow: new THREE.Vector3(), hoverLabel: false, extraData: false };
 export const groundPosition = { latitude: 51.48, longitude: 0, default: true }; // default location is Greenwich
-export const times = { ephTime: ORR.MJDToEphTime(ORR.unixToMJD(Date.now())), speed: 8, lastSpeed: 8, rate: rates[8], avgFPS: 0, parsedDate: 0 };
+export const times = { ephTime: ORR.MJDToEphTime(ORR.unixToMJD(Date.now())), speed: 8, lastSpeed: 8, rate: rates[8], pauseRate: 7, avgFPS: 0, parsedDate: 0 };
 export const searchLists = { combined: [], planetNames: [], moonNames: [], asteroidNames: [], cometNames: [], orderedNames: [] };
 export const cameraLocked = { starfieldObj: new THREE.Object3D(), graticule: new THREE.Line() };
 export const orbitPlot = { points: pointCount };
+
+const materials = {};
 
 /**
  * Get HTTP variables.
  * @returns {object}
  */
-export function getUrlVars() {
+function getUrlVars() {
     let vars = {};
     const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
         vars[key] = value;
@@ -124,15 +111,15 @@ pointGeometry.setAttribute( 'position', new THREE.InstancedBufferAttribute( new 
 
 export function darkenNonBloomed( obj ) {
     if ( typeof obj.glow == "undefined" || obj.glow == false ) {
-        ORR.materials[ obj.uuid ] = obj.material;
+        materials[ obj.uuid ] = obj.material;
         obj.material = ORR.darkMaterial;
     }
 }
 
 export function restoreMaterial( obj ) {
-    if ( ORR.materials[ obj.uuid ] ) {
-        obj.material = ORR.materials[ obj.uuid ];
-        delete ORR.materials[ obj.uuid ];
+    if ( materials[ obj.uuid ] ) {
+        obj.material = materials[ obj.uuid ];
+        delete materials[ obj.uuid ];
     }
 }
 
