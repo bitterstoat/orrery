@@ -17,7 +17,7 @@ export class Asteroid extends ORR.Body {
         this.meanAnomaly = this.hasData(params.m) ? parseFloat(params.m) * ORR.toRad : 0;
         this.phase = 0;
         this.slope = this.hasData(params.G) ? parseFloat(params.G) : 0.15;
-        this.classifications = this.sieve(this);
+        // this.classifications = this.sieve(this);
         this.info = (this.info == "default" && this.catalogNumber > 0) ? "Asteroid" : this.info;
         this.wiki = (this.wiki == "default" && this.catalogNumber > 0 && this.name != "Unnamed") ? "https://en.wikipedia.org/wiki/" + this.name.replace(" ", "_") : this.wiki;
         this.moons = 0;
