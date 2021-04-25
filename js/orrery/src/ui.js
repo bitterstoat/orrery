@@ -36,36 +36,38 @@ function pauseResume() {
     ORR.times.rate = ORR.rates[ORR.times.speed];
 }
 
-$(document).on("keydown", function(event) { // keystroke handler
-    switch(event.keyCode) {
-        case 37 : 
+document.addEventListener("keyup", function(event) { // keystroke handler
+    switch(event.code) {
+        case "ArrowRight" : 
             ORR.slowTime();
         break;
-        case 39 : 
+        case "ArrowLeft" : 
             ORR.speedTime();
         break;
-        case 40 : 
+        case "ArrowDown" : 
             ORR.setTime(ORR.unixToMJD(Date.now()));
         break;
-        case 32 :
+        case "Space" :
             document.activeElement.blur();
             pauseResume();
         break;
-        case 27 : // unclick clicked tag
+        case "Escape" : // unclick clicked tag
             if (ORR.state.clickedLabel != "") {
                 closeTag(ORR.state.clickedLabel);
             }
         break;
-        case 38 :
+        case "ArrowUp" :
             zoomToggle();
         break;
-        case 113:
+        case "F2":
             $("#inputBox").toggle(300);
         break;
-        case 115:
+        case "F4":
+            $(".gratLabel").toggle();
             ORR.cameraLocked.graticule.visible = !ORR.cameraLocked.graticule.visible;
         break;
-        case 119:
+        case "F8":
+            $(".extraData").toggle();
             ORR.state.extraData = !ORR.state.extraData;
         break;
     }
@@ -184,7 +186,7 @@ function zoomIn() {
                 for (let i = 0; i < ORR.moons.length; i++) {
                     if (ORR.moons[i].orbitId == ORR.state.clickedPlanet.sysId) {
                         planetMoons.push(ORR.moons[i]);
-                        $("#" + ORR.moons[i].sysId ).show();
+                        document.getElementById(ORR.moons[i].sysId).style.display = "block";
                         ORR.scene.children[ORR.moons[i].childId].material = ORR.pathMaterials[0];
                     }
                 }
@@ -214,7 +216,7 @@ function zoomOut() {
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
     for (let i = 0; i < planetMoons.length; i++) {
-        $("#" + planetMoons[i].sysId ).hide();
+        document.getElementById(planetMoons[i].sysId).style.display = "none";
     }
     planetMoons.splice(0, planetMoons.length);
 }

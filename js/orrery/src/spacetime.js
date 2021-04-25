@@ -1,6 +1,5 @@
 import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js";
-import $ from "../../jquery/jquery.module.js";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const UnixTimeZeroInMJD = 40587; // UNIX time zero as Modified Julian Date
@@ -216,8 +215,8 @@ export function visViva(mu, r, a) {
 export function displayLatLong(a, b) {
     const lat = decToMinSec(a);
     const lon = decToMinSec(b);
-    $("#lat").html(Math.abs(lat.deg) + '&deg;&nbsp;' + lat.min + '&rsquo;&nbsp;' + lat.sec.toFixed(1) + '&rdquo;&nbsp;' + ((lat.sign == "-") ? 'S,' : 'N,'));
-    $("#long").html(Math.abs(lon.deg) + '&deg;&nbsp;' + lon.min + '&rsquo;&nbsp;' + lon.sec.toFixed(1) + '&rdquo;&nbsp;' + ((lon.sign == "-") ? 'W' : 'E'));
+    document.getElementById("lat").innerHTML = Math.abs(lat.deg) + '&deg;&nbsp;' + lat.min + '&rsquo;&nbsp;' + lat.sec.toFixed(1) + '&rdquo;&nbsp;' + ((lat.sign == "-") ? 'S,' : 'N,');
+    document.getElementById("long").innerHTML = Math.abs(lon.deg) + '&deg;&nbsp;' + lon.min + '&rsquo;&nbsp;' + lon.sec.toFixed(1) + '&rdquo;&nbsp;' + ((lon.sign == "-") ? 'W' : 'E');
 }
 
 /**
@@ -393,7 +392,8 @@ export function riseSet(obj) {
         readout += (crossings[n].type + crossings[n].time + '<br>');
         readout += (crossings[1 - n].type + crossings[1 - n].time + '<br>');
     }
-    $("#riseSet, #earthRiseSet").html(readout);
+    document.getElementById("riseSet").innerHTML = readout;
+    document.getElementById("earthRiseSet").innerHTML = readout;
 }
 
 /**

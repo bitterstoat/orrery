@@ -83,7 +83,7 @@ export function makeLabel(i) {
  */
 export function makeGratLabel(i, text) { 
     $("body").append("<div id='grat" + i + "' class='gratLabel'>" + text + "</div>");
-    return $("#grat" + i);
+    return "grat" + i;
 }
 
 /**

@@ -1,7 +1,6 @@
 import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js";
 import * as TWEEN from "../../tween/tween.esm.js";
-import $ from "../../jquery/jquery.module.js";
 
 export let liveData = false;
 const tempLabels = [];
@@ -35,15 +34,13 @@ export function animate(time) {
     readout += (ORR.times.speed > (ORR.times.pauseRate-4) && ORR.times.speed < (ORR.times.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).b : "";
     readout += (ORR.times.speed > (ORR.times.pauseRate-2) && ORR.times.speed < (ORR.times.pauseRate+2)) ? ORR.EphTimeReadout(ORR.times.ephTime).c : "";
     readout += (ORR.times.speed > (ORR.times.pauseRate-4) && ORR.times.speed < (ORR.times.pauseRate+4)) ? ORR.EphTimeReadout(ORR.times.ephTime).d : "";
-    $("#date").html( readout );
-    $("#speed").html( rateDesc[ORR.times.speed] );
-    $("#fps").html(ORR.times.avgFPS.toFixed(2));
+    document.getElementById("date").innerHTML = readout;
+    document.getElementById("speed").innerHTML = rateDesc[ORR.times.speed];
+    document.getElementById("fps").innerHTML = ORR.times.avgFPS.toFixed(2);
+
     if (ORR.state.extraData) {
-        $(".extraData").show();
-        $("#mjd").html(ORR.EphTimeToMJD(ORR.times.ephTime).toFixed(3));
-        $("#lst").html(ORR.localSiderealTime(ORR.times.ephTime).toFixed(3));
-    } else {
-        $(".extraData").hide();
+        document.getElementById("mjd").innerHTML = ORR.EphTimeToMJD(ORR.times.ephTime).toFixed(3);
+        document.getElementById("lst").innerHTML = ORR.localSiderealTime(ORR.times.ephTime).toFixed(3);
     }
 
     for (let i = 0; i< ORR.precessing.length; i++) {
@@ -62,16 +59,18 @@ export function animate(time) {
         ORR.system[i].toSun = ORR.system[i].celestialPos.length();
         ORR.system[i].toEarth = ORR.system[i].celestialPos.clone().sub(ORR.system[ORR.specialID.earth].celestialPos);
 
-        // compute body's tagspace coordinates and place label
-        const tag = $('#' + i);
+        // compute body's screenspace coordinates and place label
+        const tag = document.getElementById(i);
         const tagPos = new THREE.Vector3().setFromMatrixPosition(body.matrixWorld).project(ORR.camera);
         tagPos.x = (tagPos.x * ORR.center.x) + ORR.center.x;
         tagPos.y = (tagPos.y * ORR.center.y * -1) + ORR.center.y;
-        if (tag.length) {
+        if (tag != undefined) {
             if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
-                tag.css({ "left" : Math.round(tagPos.x) + 10, "top": Math.round(tagPos.y) - 5, "visibility" : "visible" });
+                tag.style.left = (Math.round(tagPos.x) + 10) + "px";
+                tag.style.top = (Math.round(tagPos.y) - 5) + "px";
+                tag.style.visibility = "visible";
             } else {
-                tag.css({ "visibility" : "hidden" });
+                tag.style.visibility = "hidden";
             }
         } else {
             const d = tagPos.distanceTo(ORR.state.mousePos);
@@ -81,8 +80,8 @@ export function animate(time) {
             }
         }
         if (tempLabels.length > 4) {
-            const tag = $("#" + tempLabels.shift());
-            if (!tag.hasClass("active")) {
+            const tag = document.getElementById(tempLabels.shift());
+            if (!tag.classList.contains("active")) {
                 tag.remove();
             }
         }
@@ -90,21 +89,17 @@ export function animate(time) {
 
     // update graticule labels
     if (ORR.cameraLocked.graticule.visible) {
-        $(".gratLabel").show();
         for (let i = 0; i < ORR.gratLabels.length; i++) {
-            const tag = ORR.gratLabels[i].label;
+            const tag = document.getElementById(ORR.gratLabels[i].label);
             const tagPos = new THREE.Vector3(ORR.gratLabels[i].x, ORR.gratLabels[i].y, ORR.gratLabels[i].z).add(ORR.camera.position);
             tagPos.project(ORR.camera);
             tagPos.x = (tagPos.x * ORR.center.x) + ORR.center.x;
             tagPos.y = (tagPos.y * ORR.center.y * -1) + ORR.center.y;
             if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
-                tag.css({ "left" : tagPos.x-20, "top": tagPos.y-5, "visibility" : "visible" });
-            } else {
-                tag.css({ "visibility" : "hidden" });
+                tag.style.left = (tagPos.x - 20) + "px";
+                tag.style.top = (tagPos.y - 5) + "px";
             }
         }
-    } else {
-        $(".gratLabel").hide();
     }
 
     for (let i = 0; i < ORR.moons.length; i++) {
@@ -130,10 +125,10 @@ export function animate(time) {
         const elongation = 180 - ORR.state.clickedPlanet.toEarth.angleTo(ORR.system[ORR.specialID.earth].celestialPos) * ORR.toDeg;
         if (liveData) {
             if (typeof ORR.state.clickedPlanet.orbitId == "undefined") {
-                $("#orbitVel").html(ORR.visViva(sunGravConstant, ORR.state.clickedPlanet.toSun, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
+                document.getElementById("orbitVel").innerHTML = ORR.visViva(sunGravConstant, ORR.state.clickedPlanet.toSun, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3);
             } else {
                 const toOrbiting = ORR.state.clickedPlanet.celestialPos.clone().sub(ORR.system[ORR.state.clickedPlanet.orbitId].celestialPos).length();
-                $("#orbitVel").html(ORR.visViva(ORR.system[ORR.state.clickedPlanet.orbitId].mass * gravConstant, toOrbiting, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3));
+                document.getElementById("orbitVel").innerHTML = ORR.visViva(ORR.system[ORR.state.clickedPlanet.orbitId].mass * gravConstant, toOrbiting, ORR.state.clickedPlanet.semiMajorAxis).toFixed(3);
             }
             const appMag = ORR.apparentMag(ORR.state.clickedPlanet);
             let magNote = ""
@@ -141,27 +136,39 @@ export function animate(time) {
                 const adjMag = ORR.extinction(appMag, AltAz.alt);
                 magNote = "<br>(" + adjMag.mag.toFixed(2) + " under " + adjMag.airmass.toFixed(2) + " airmasses)";
             }
-            $("#appMag").html(appMag.toFixed(2) + magNote);
-            $("#toSun, #earthToSun").html(ORR.state.clickedPlanet.toSun.toFixed(4));
-            $("#toEarth").html(ORR.state.clickedPlanet.toEarth.length().toFixed(4));
+            document.getElementById("appMag").innerHTML = appMag.toFixed(2) + magNote;
+            document.getElementById("toSun").innerHTML = ORR.state.clickedPlanet.toSun.toFixed(4);
+            document.getElementById("earthToSun").innerHTML = ORR.state.clickedPlanet.toSun.toFixed(4);
+            document.getElementById("toEarth").innerHTML = ORR.state.clickedPlanet.toEarth.length().toFixed(4);
             const raDMS = ORR.decToMinSec(RADec.ra);
             const decDMS = ORR.decToMinSec(RADec.dec);
             const altDMS = ORR.decToMinSec(AltAz.alt);
             const azDMS = ORR.decToMinSec(AltAz.az);
-            $("#RA, #sunRA").html(raDMS.sign + raDMS.deg + 'h ' + raDMS.min + '&rsquo; ' + raDMS.sec.toFixed(1));
-            $("#dec, #sunDec").html(decDMS.sign + decDMS.deg + '&deg; ' + decDMS.min + '&rsquo; ' + decDMS.sec.toFixed(1));
-            $("#alt, #sunAlt").html(altDMS.sign + altDMS.deg + '&deg; ' + altDMS.min + '&rsquo; ' + altDMS.sec.toFixed(1));
-            $("#az, #sunAz").html(azDMS.sign + azDMS.deg + '&deg; ' + azDMS.min + '&rsquo; ' + azDMS.sec.toFixed(1));
+            const formattedRA = raDMS.sign + raDMS.deg + 'h ' + raDMS.min + '&rsquo; ' + raDMS.sec.toFixed(1);
+            const formattedDec = decDMS.sign + decDMS.deg + '&deg; ' + decDMS.min + '&rsquo; ' + decDMS.sec.toFixed(1);
+            const formattedAlt = altDMS.sign + altDMS.deg + '&deg; ' + altDMS.min + '&rsquo; ' + altDMS.sec.toFixed(1);
+            const formattedAz = azDMS.sign + azDMS.deg + '&deg; ' + azDMS.min + '&rsquo; ' + azDMS.sec.toFixed(1);
+            document.getElementById("RA").innerHTML = formattedRA;
+            document.getElementById("sunRA").innerHTML = formattedRA;
+            document.getElementById("dec").innerHTML = formattedDec;
+            document.getElementById("sunDec").innerHTML = formattedDec;
+            document.getElementById("alt").innerHTML = formattedAlt;
+            document.getElementById("sunAlt").innerHTML = formattedAlt;
+            document.getElementById("az").innerHTML = formattedAz;
+            document.getElementById("sunAz").innerHTML = formattedAz;
             ORR.riseSet(ORR.state.clickedPlanet);
             if (ORR.state.extraData) {
                 const haDMS = ORR.decToMinSec(AltAz.ha);
-                $("#ha").html(haDMS.deg + 'h ' + haDMS.min + '&rsquo; ' + haDMS.sec.toFixed(1));
+                document.getElementById("ha").innerHTML = haDMS.deg + 'h ' + haDMS.min + '&rsquo; ' + haDMS.sec.toFixed(1);
             }
-            $("#elong").html(elongation.toFixed(3));
+            document.getElementById("elong").innerHTML = elongation.toFixed(3);
             if (ORR.state.hoverLabel) {
                 const toActive = ORR.state.clickedPlanet.celestialPos.clone().sub(ORR.system[ORR.state.hoverLabel[0].id].celestialPos).length();
                 const activeOut = (toActive < 0.001) ? (toActive * ORR.AU).toFixed(1) + ' km' : (toActive).toFixed(3) + ' AU';
-                $("#distToActive").html('<br>' + activeOut);
+                const distTag = document.querySelector("#distToActive");
+                if (distTag != null) {
+                    distTag.innerHTML = '<br>' + activeOut;
+                }
             }
         }
         liveData = false;
@@ -199,20 +206,7 @@ export function animate(time) {
 
     const animateID = requestAnimationFrame( animate );
 
-    /*
-    ORR.renderer.setAnimationLoop( function () {
-        ORR.renderer.render( scene, ORR.camera );
-    });
-    */
-
     if (!ORR.state.showSplash) {
-        $("#splashScreen").hide(300);
+        document.getElementById("splashScreen").style.display = "none";
     }
 }
-
-/*
-renderEl.addEventListener("webglcontextlost", function(event) {
-    event.preventDefault();
-    cancelAnimationFrame(animationID);
-}, false);
-*/

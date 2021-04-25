@@ -14,8 +14,8 @@ $( function() {
     ORR.makeGraticules();
     ORR.makeRefPoints();
     ORR.cameraLocked.graticule.visible = false;
-    $("#info").hide();
-    $("#earth").hide();
+    document.getElementById("info").style.display = "none";
+    document.getElementById("earth").style.display = "none";
     if (!ORR.groundPosition.default) {
         ORR.displayLatLong(ORR.groundPosition.latitude, ORR.groundPosition.longitude);
     }
@@ -205,10 +205,10 @@ function launch() {
             ORR.precessing[i] = ORR.searchLists.orderedNames.findIndex((e) => e == ORR.precessing[i]);
         }
 
-        $( "#smallRoids" ).html(smallAsteroids);
-
+        document.getElementById("smallRoids").innerHTML = smallAsteroids;
+        $(".gratLabel, .extraData").hide();
         ORR.searchLists.combined = ORR.searchLists.planetNames.concat(ORR.searchLists.moonNames, ORR.searchLists.asteroidNames, ORR.searchLists.cometNames);
-
+        
         ORR.animate(); // start the main loop
     }
 }
