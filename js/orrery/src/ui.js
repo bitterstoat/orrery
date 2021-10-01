@@ -38,10 +38,10 @@ function pauseResume() {
 
 document.addEventListener("keyup", function(event) { // keystroke handler
     switch(event.code) {
-        case "ArrowRight" : 
+        case "ArrowLeft" : 
             ORR.slowTime();
         break;
-        case "ArrowLeft" : 
+        case "ArrowRight" : 
             ORR.speedTime();
         break;
         case "ArrowDown" : 
