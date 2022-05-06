@@ -16,7 +16,6 @@ It's definitely better as a desktop web experience than mobile in the current ve
 - Live data readout for the body's physical and orbital characteristics, right ascension/declination and altitude/azimuth coordintes relative to current location, rise and set times, and magnitude adjusted for atmospheric dispersion
 - Links to articles and images from Wikipedia
 - Background stars include all above 7th magnitude
-- Celestial sphere graticule
 - HTTPvars for latitiude/longitude, start time, and reducing particle count
 
 ## Setup
@@ -44,6 +43,7 @@ It's definitely better as a desktop web experience than mobile in the current ve
 - ?n=(integer) Small asteroid limit
 
 ## Potential Roadmap
+- Fix regression: celestial sphere graticule
 - UI scaling for mobile
 - Object count throttling from FPS observation
 - Non-periodic comets/hyperbolic orbits (`Omuamua, etc.)

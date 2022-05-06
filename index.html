@@ -22,6 +22,15 @@
 				gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
 			}
 		</script>
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "three" : "../../../node_modules/three/build/three.module.js", 
+                    "three/examples/jsm/utils/BufferGeometryUtils.js" : "../../../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js"
+                }
+            }
+        </script>
     
         <link rel="stylesheet" href="css/jquery-ui.min.css">
         <link rel="stylesheet" href="css/jquery-ui.structure.min.css">
@@ -180,7 +189,9 @@
                 <b>UP ARROW KEY:</b> Toggle chase mode on focused object<br>
                 <b>ESC:</b> Release focus on object<br>
                 <b>F2:</b> Hide/show UI panels<br>
+                <!--
                 <b>F4:</b> Hide/show celestial sphere<br>
+                -->
                 <b>F8:</b> Hide/show extra time info</p>
                 <p><b>CLICK ON LABELS:</b> Shift focus to object and display info<br>
                 <b>CLICK ON INFO HEADER OR IMAGE:</b> Learn more on Wikipedia<br>
@@ -197,7 +208,7 @@
 
         <div id="splashScreen">
             <img id="logo" src="data/logo.svg">
-            <p>CC BY 4.0 Chris Impink&nbsp;&nbsp;&bull;&nbsp;&nbsp;v1.1.5<br><br>
+            <p>CC BY 4.0 Chris Impink&nbsp;&nbsp;&bull;&nbsp;&nbsp;v1.1.6<br><br>
             Data courtesy of <a href="http://nasa.gov" target="_blank">NASA</a>, <a href="http://jpl.nasa.gov" target="_blank">JPL</a>, <a href="http://en.wikipedia.org" target="_blank">Wikipedia</a>, and <a href="https://www.solarsystemscope.com" target="_blank">Solar System Scope</a>.<br>
             Built with <a href="http://threejs.org" target="_blank">three.js</a> and <a href="http:jquery-ui.com" target="_blank">jQueryUI</a>. Available on <a href="https://github.com/bitterstoat/orrery" target="_blank">GitHub</a>.</p>
             <button id="clearSplash">Close</button>
