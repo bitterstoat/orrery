@@ -18,13 +18,13 @@
   },
   "homepage": "https://github.com/bitterstoat/orrery#readme",
   "devDependencies": {
-    "jsdoc": "^3.6.6",
-    "three": "^0.127.0",
-    "typescript": "^4.2.4"
+    "jsdoc": "^3.6.10",
+    "three": "^0.140.0",
+    "typescript": "^4.6.4"
   },
   "dependencies": {
     "jquery": "^3.6.0",
-    "jquery-ui": "^1.12.1",
+    "jquery-ui": "^1.13.1",
     "tween.js": "^16.6.0"
   }
 }
