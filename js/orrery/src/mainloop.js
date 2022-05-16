@@ -91,6 +91,7 @@ export function animate(time) {
     if (ORR.cameraLocked.graticule.visible) {
         for (let i = 0; i < ORR.gratLabels.length; i++) {
             const tag = document.getElementById(ORR.gratLabels[i].label);
+            tag.style.visibility = "hidden";
             const tagPos = new THREE.Vector3(ORR.gratLabels[i].x, ORR.gratLabels[i].y, ORR.gratLabels[i].z).add(ORR.camera.position);
             tagPos.project(ORR.camera);
             tagPos.x = (tagPos.x * ORR.center.x) + ORR.center.x;
@@ -98,6 +99,7 @@ export function animate(time) {
             if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
                 tag.style.left = (tagPos.x - 20) + "px";
                 tag.style.top = (tagPos.y - 5) + "px";
+                tag.style.visibility = "visible";
             }
         }
     }

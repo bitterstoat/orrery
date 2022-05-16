@@ -1,6 +1,6 @@
 import * as ORR from "./init.js";
 import * as THREE from "../../../node_modules/three/build/three.module.js";
-// import { BufferGeometryUtils } from "../../../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js";
+import { mergeBufferGeometries } from "../../../node_modules/three/examples/jsm/utils/BufferGeometryUtils.js";
 import $ from "../../jquery/jquery.module.js";
 
 const gratRadius = 1000;
@@ -120,13 +120,12 @@ export function makeGraticules() {
 
     ringGeometry.rotateX(ORR.eclInclination);
     rings.push(ringGeometry);
-    // const longSphereGeometry = BufferGeometryUtils.mergeBufferGeometries(rings);
+    const longSphereGeometry = mergeBufferGeometries(rings);
     const ringMaterial = new THREE.LineBasicMaterial({ color: 0x222211, linewidth: 1 });
-    /* const graticule = new THREE.LineLoop( longSphereGeometry, ringMaterial);
+    const graticule = new THREE.LineLoop( longSphereGeometry, ringMaterial);
     graticule.name = "graticule";
     ORR.scene.add(graticule);
     ORR.cameraLocked.graticule = graticule;
-    */ 
 }
 
 /**

@@ -62,12 +62,10 @@ document.addEventListener("keyup", function(event) { // keystroke handler
         case "F2":
             $("#inputBox").toggle(300);
         break;
-        /*
         case "F4":
             $(".gratLabel").toggle();
             ORR.cameraLocked.graticule.visible = !ORR.cameraLocked.graticule.visible;
         break;
-        */
         case "F8":
             $(".extraData").toggle();
             ORR.state.extraData = !ORR.state.extraData;
