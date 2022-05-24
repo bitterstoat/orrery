@@ -43,7 +43,6 @@ It's definitely better as a desktop web experience than mobile in the current ve
 - ?n=(integer) Small asteroid limit
 
 ## Potential Roadmap
-- Fix regression: celestial sphere graticule
 - UI scaling for mobile
 - Object count throttling from FPS observation
 - Non-periodic comets/hyperbolic orbits (`Omuamua, etc.)
