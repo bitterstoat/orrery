@@ -18,7 +18,7 @@ const plutoBary = 2110 / 19600; // Pluto barycentric offset relative to Charon's
 export function animate(time) {
     let clockElapsed = 1 / ORR.clock.getDelta();
     fpsBuffer.push(clockElapsed);
-    if (fpsBuffer.length > 7) {
+    if (fpsBuffer.length > 19) {
         let sum = 0;
         for (let i = 0; i < fpsBuffer.length; i++) { sum += fpsBuffer[i]; }
         ORR.times.avgFPS = sum / fpsBuffer.length;
@@ -66,8 +66,8 @@ export function animate(time) {
         tagPos.y = (tagPos.y * ORR.center.y * -1) + ORR.center.y;
         if (tag != undefined) {
             if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
-                tag.style.left = (Math.round(tagPos.x) + 10) + "px";
-                tag.style.top = (Math.round(tagPos.y) - 5) + "px";
+                tag.style.left = Math.round(tagPos.x) + 10 + "px";
+                tag.style.top = Math.round(tagPos.y) - 5 + "px";
                 tag.style.visibility = "visible";
             } else {
                 tag.style.visibility = "hidden";
@@ -97,8 +97,8 @@ export function animate(time) {
             tagPos.x = (tagPos.x * ORR.center.x) + ORR.center.x;
             tagPos.y = (tagPos.y * ORR.center.y * -1) + ORR.center.y;
             if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
-                tag.style.left = (tagPos.x - 20) + "px";
-                tag.style.top = (tagPos.y - 5) + "px";
+                tag.style.left = Math.round(tagPos.x) - 20 + "px";
+                tag.style.top = Math.round(tagPos.y) - 5 + "px";
                 tag.style.visibility = "visible";
             }
         }

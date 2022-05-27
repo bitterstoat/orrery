@@ -41,6 +41,24 @@ export function kepler(e, m) { // numerical approximation of Kepler's equation
     return result;
 }
 
+/**
+ * Compute hyperbolic eccentric anolmaly numerically through Kepler's equation.
+ * @param {float} e - Eccentricity
+ * @param {float} m - Mean anomaly
+ * @returns {float} - Hyperbolic eccentric anomaly
+ */
+ export function hypKepler(e, m) { // numerical approximation of hyperbolic Kepler's equation
+    let result = 0;
+    let lastResult, delta;
+    const tolerance = 0.00000001;
+    do {
+        lastResult = result;
+        result = e * Math.sinh(m) - m;
+        delta = result - lastResult;
+    }
+    while ( Math.abs(delta) > tolerance );
+    return result;
+}
 
 /**
  * Orient local orbital point in celestial space. Uses THREE functions.
