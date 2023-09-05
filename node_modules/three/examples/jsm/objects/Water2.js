@@ -27,6 +27,8 @@ class Water extends Mesh {
 
 		super( geometry );
 
+		this.isWater = true;
+
 		this.type = 'Water';
 
 		const scope = this;
@@ -201,8 +203,6 @@ class Water extends Mesh {
 
 }
 
-Water.prototype.isWater = true;
-
 Water.WaterShader = {
 
 	uniforms: {
@@ -348,7 +348,7 @@ Water.WaterShader = {
 			gl_FragColor = vec4( color, 1.0 ) * mix( refractColor, reflectColor, reflectance );
 
 			#include <tonemapping_fragment>
-			#include <encodings_fragment>
+			#include <colorspace_fragment>
 			#include <fog_fragment>
 
 		}`

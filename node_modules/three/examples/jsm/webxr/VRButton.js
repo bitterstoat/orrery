@@ -1,12 +1,6 @@
 class VRButton {
 
-	static createButton( renderer, options ) {
-
-		if ( options ) {
-
-			console.error( 'THREE.VRButton: The "options" parameter has been removed. Please set the reference space type via renderer.xr.setReferenceSpaceType() instead.' );
-
-		}
+	static createButton( renderer ) {
 
 		const button = document.createElement( 'button' );
 
@@ -180,8 +174,6 @@ class VRButton {
 
 	}
 
-	static xrSessionIsGranted = false;
-
 	static registerSessionGrantedListener() {
 
 		if ( 'xr' in navigator ) {
@@ -202,6 +194,7 @@ class VRButton {
 
 }
 
+VRButton.xrSessionIsGranted = false;
 VRButton.registerSessionGrantedListener();
 
 export { VRButton };

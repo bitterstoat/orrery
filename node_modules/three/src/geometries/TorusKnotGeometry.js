@@ -7,6 +7,7 @@ class TorusKnotGeometry extends BufferGeometry {
 	constructor( radius = 1, tube = 0.4, tubularSegments = 64, radialSegments = 8, p = 2, q = 3 ) {
 
 		super();
+
 		this.type = 'TorusKnotGeometry';
 
 		this.parameters = {
@@ -145,6 +146,16 @@ class TorusKnotGeometry extends BufferGeometry {
 
 	}
 
+	copy( source ) {
+
+		super.copy( source );
+
+		this.parameters = Object.assign( {}, source.parameters );
+
+		return this;
+
+	}
+
 	static fromJSON( data ) {
 
 		return new TorusKnotGeometry( data.radius, data.tube, data.tubularSegments, data.radialSegments, data.p, data.q );
@@ -153,4 +164,4 @@ class TorusKnotGeometry extends BufferGeometry {
 
 }
 
-export { TorusKnotGeometry, TorusKnotGeometry as TorusKnotBufferGeometry };
+export { TorusKnotGeometry };

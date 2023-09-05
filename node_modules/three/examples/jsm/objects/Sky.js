@@ -38,11 +38,11 @@ class Sky extends Mesh {
 
 		super( new BoxGeometry( 1, 1, 1 ), material );
 
+		this.isSky = true;
+
 	}
 
 }
-
-Sky.prototype.isSky = true;
 
 Sky.SkyShader = {
 
@@ -210,7 +210,7 @@ Sky.SkyShader = {
 			gl_FragColor = vec4( retColor, 1.0 );
 
 			#include <tonemapping_fragment>
-			#include <encodings_fragment>
+			#include <colorspace_fragment>
 
 		}`
 

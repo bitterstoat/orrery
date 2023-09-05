@@ -169,8 +169,13 @@ class Audio extends Object3D {
 
 		this._progress = 0;
 
-		this.source.stop();
-		this.source.onended = null;
+		if ( this.source !== null ) {
+
+			this.source.stop();
+			this.source.onended = null;
+
+		}
+
 		this.isPlaying = false;
 
 		return this;
@@ -204,6 +209,12 @@ class Audio extends Object3D {
 	}
 
 	disconnect() {
+
+		if ( this._connected === false ) {
+
+			return;
+
+		}
 
 		if ( this.filters.length > 0 ) {
 

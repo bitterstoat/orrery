@@ -1,6 +1,6 @@
 {
   "name": "orrery",
-  "version": "1.1.5",
+  "version": "1.1.7",
   "description": "An interactive map of the Solar System created with Three.js and jQuery.",
   "main": "js/orrery/launch.js",
   "scripts": {
@@ -19,12 +19,12 @@
   "homepage": "https://github.com/bitterstoat/orrery#readme",
   "devDependencies": {
     "jsdoc": "^3.6.10",
-    "three": "^0.140.0",
-    "typescript": "^4.6.4"
+    "three": "^0.156",
+    "typescript": "^4.7.4"
   },
   "dependencies": {
-    "jquery": "^3.6.0",
-    "jquery-ui": "^1.13.1",
-    "tween.js": "^16.6.0"
+    "jquery": "^3.7.1",
+    "jquery-ui": "^1.13.2",
+    "@tweenjs/tween.js": "^16.6.0"
   }
 }

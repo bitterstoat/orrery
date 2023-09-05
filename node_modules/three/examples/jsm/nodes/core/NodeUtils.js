@@ -1,68 +1,147 @@
 import { Color, Matrix3, Matrix4, Vector2, Vector3, Vector4 } from 'three';
 
-export const getNodesKeys = ( object ) => {
+export function getCacheKey( object ) {
 
-	const props = [];
+	let cacheKey = '{';
 
-	for ( const name in object ) {
+	if ( object.isNode === true ) {
 
-		const value = object[ name ];
+		cacheKey += `uuid:"${ object.uuid }"`;
 
-		if ( value && value.isNode === true ) {
+	}
 
-			props.push( name );
+	for ( const { property, index, childNode } of getNodeChildren( object ) ) {
+
+		// @TODO: Think about implement NodeArray and NodeObject.
+
+		let childCacheKey = getCacheKey( childNode );
+		if ( ! childCacheKey.includes( ',' ) ) childCacheKey = childCacheKey.slice( childCacheKey.indexOf( '"' ), childCacheKey.indexOf( '}' ) );
+		cacheKey += `,${ property }${ index !== undefined ? '/' + index : '' }:${ childCacheKey }`;
+
+	}
+
+	cacheKey += '}';
+
+	return cacheKey;
+
+}
+
+export function* getNodeChildren( node, toJSON = false ) {
+
+	for ( const property in node ) {
+
+		// Ignore private properties.
+		if ( property.startsWith( '_' ) === true ) continue;
+
+		const object = node[ property ];
+
+		if ( Array.isArray( object ) === true ) {
+
+			for ( let i = 0; i < object.length; i ++ ) {
+
+				const child = object[ i ];
+
+				if ( child && ( child.isNode === true || toJSON && typeof child.toJSON === 'function' ) ) {
+
+					yield { property, index: i, childNode: child };
+
+				}
+
+			}
+
+		} else if ( object && object.isNode === true ) {
+
+			yield { property, childNode: object };
+
+		} else if ( typeof object === 'object' ) {
+
+			for ( const subProperty in object ) {
+
+				const child = object[ subProperty ];
+
+				if ( child && ( child.isNode === true || toJSON && typeof child.toJSON === 'function' ) ) {
+
+					yield { property, index: subProperty, childNode: child };
+
+				}
+
+			}
 
 		}
 
 	}
 
-	return props;
+}
 
-};
+export function getValueType( value ) {
 
-export const getValueType = ( value ) => {
+	if ( value === undefined || value === null ) return null;
 
-	if ( typeof value === 'number' ) {
+	const typeOf = typeof value;
+
+	if ( value.isNode === true ) {
+
+		return 'node';
+
+	} else if ( typeOf === 'number' ) {
 
 		return 'float';
 
-	} else if ( typeof value === 'boolean' ) {
+	} else if ( typeOf === 'boolean' ) {
 
 		return 'bool';
 
-	} else if ( value?.isVector2 === true ) {
+	} else if ( typeOf === 'string' ) {
+
+		return 'string';
+
+	} else if ( typeOf === 'function' ) {
+
+		return 'shader';
+
+	} else if ( value.isVector2 === true ) {
 
 		return 'vec2';
 
-	} else if ( value?.isVector3 === true ) {
+	} else if ( value.isVector3 === true ) {
 
 		return 'vec3';
 
-	} else if ( value?.isVector4 === true ) {
+	} else if ( value.isVector4 === true ) {
 
 		return 'vec4';
 
-	} else if ( value?.isMatrix3 === true ) {
+	} else if ( value.isMatrix3 === true ) {
 
 		return 'mat3';
 
-	} else if ( value?.isMatrix4 === true ) {
+	} else if ( value.isMatrix4 === true ) {
 
 		return 'mat4';
 
-	} else if ( value?.isColor === true ) {
+	} else if ( value.isColor === true ) {
 
 		return 'color';
+
+	} else if ( value instanceof ArrayBuffer ) {
+
+		return 'ArrayBuffer';
 
 	}
 
 	return null;
 
-};
+}
 
-export const getValueFromType = ( type, ...params ) => {
+export function getValueFromType( type, ...params ) {
 
-	const last4 = type?.slice( -4 );
+	const last4 = type ? type.slice( - 4 ) : undefined;
+
+	if ( ( last4 === 'vec2' || last4 === 'vec3' || last4 === 'vec4' ) && params.length === 1 ) { // ensure same behaviour as in NodeBuilder.format()
+
+		params = last4 === 'vec2' ? [ params[ 0 ], params[ 0 ] ] : [ params[ 0 ], params[ 0 ], params[ 0 ] ];
+
+	}
 
 	if ( type === 'color' ) {
 
@@ -90,14 +169,44 @@ export const getValueFromType = ( type, ...params ) => {
 
 	} else if ( type === 'bool' ) {
 
-		return false;
+		return params[ 0 ] || false;
 
 	} else if ( ( type === 'float' ) || ( type === 'int' ) || ( type === 'uint' ) ) {
 
-		return 0;
+		return params[ 0 ] || 0;
+
+	} else if ( type === 'string' ) {
+
+		return params[ 0 ] || '';
+
+	} else if ( type === 'ArrayBuffer' ) {
+
+		return base64ToArrayBuffer( params[ 0 ] );
 
 	}
 
 	return null;
 
-};
+}
+
+export function arrayBufferToBase64( arrayBuffer ) {
+
+	let chars = '';
+
+	const array = new Uint8Array( arrayBuffer );
+
+	for ( let i = 0; i < array.length; i ++ ) {
+
+		chars += String.fromCharCode( array[ i ] );
+
+	}
+
+	return btoa( chars );
+
+}
+
+export function base64ToArrayBuffer( base64 ) {
+
+	return Uint8Array.from( atob( base64 ), c => c.charCodeAt( 0 ) ).buffer;
+
+}
