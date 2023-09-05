@@ -99,7 +99,7 @@ export function planetary(longPeriapsis, longAscNode, inclination, ra, dec, xLoc
             v.applyAxisAngle(y, Math.PI/2 - ORR.system[orbitId].axisDec + inclination).applyAxisAngle(ORR.celestialZAxis, ORR.system[orbitId].axisRA);
         break;
         default: // aka "E", relative to the ecliptic
-            v = celestial(longPeriapsis, longAscNode, inclination, xLocal, yLocal);
+            v = celestial_THREE(longPeriapsis, longAscNode, inclination, xLocal, yLocal);
     }
     return v;
 }

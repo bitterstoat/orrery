@@ -426,7 +426,7 @@ ShaderLib[ 'line' ] = {
 			gl_FragColor = vec4( diffuseColor.rgb, alpha );
 
 			#include <tonemapping_fragment>
-			#include <encodings_fragment>
+			#include <colorspace_fragment>
 			#include <fog_fragment>
 			#include <premultiplied_alpha_fragment>
 
@@ -450,6 +450,8 @@ class LineMaterial extends ShaderMaterial {
 			clipping: true // required for clipping support
 
 		} );
+
+		this.isLineMaterial = true;
 
 		Object.defineProperties( this, {
 
@@ -696,7 +698,5 @@ class LineMaterial extends ShaderMaterial {
 	}
 
 }
-
-LineMaterial.prototype.isLineMaterial = true;
 
 export { LineMaterial };

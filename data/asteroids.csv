@@ -1,5 +1,5 @@
 num,name,type,epoch,a,e,inc,w,omega,m,H,G,mass,axisRA,axisDec,thetaDot,info,wiki,wikipic,texture,radius
-,Ceres,2,58600,2.7691651,0.07600903,10.59407,73.59769,80.30553,77.3720975,3.4,0.12,,291.42744,66.76033,34777395.6185524,Dwarf planet (MPD 1),Ceres_(dwarf_planet),thumb/7/76/Ceres_-_RC3_-_Haulani_Crater_%2822381131691%29_%28cropped%29.jpg/330px-Ceres_-_RC3_-_Haulani_Crater_%2822381131691%29_%28cropped%29.jpg,1k_ceres.jpg,469.7
+1,Ceres,2,58600,2.7691651,0.07600903,10.59407,73.59769,80.30553,77.3720975,3.4,0.12,,291.42744,66.76033,34777395.6185524,Dwarf planet,Ceres_(dwarf_planet),thumb/7/76/Ceres_-_RC3_-_Haulani_Crater_%2822381131691%29_%28cropped%29.jpg/330px-Ceres_-_RC3_-_Haulani_Crater_%2822381131691%29_%28cropped%29.jpg,1k_ceres.jpg,469.7
 2,Pallas,2,59000,2.7738414,0.22997226,34.83293,310.20239,173.02474,144.9756755,4.2,0.11,,0,90,40390109.0462295,Main belt asteroid,2_Pallas,d/d4/Potw1749a_Pallas_crop.png,,256
 3,Juno,2,59000,2.6682853,0.25693643,12.99104,248.06619,169.85148,125.4353546,5.33,0.32,,0,90,43769209.4313454,Main belt asteroid,3_Juno,thumb/2/21/Juno_4_wavelengths.jpg/375px-Juno_4_wavelengths.jpg,,123.5
 4,Vesta,2,58600,2.3614179,0.08872146,7.14177,150.72854,103.8108,95.8619377,3,0.32,,316,48,59074503.931112,Main belt asteroid,4_Vesta,thumb/5/51/Vesta_in_natural_color.jpg/390px-Vesta_in_natural_color.jpg,,262.7
@@ -26,7 +26,7 @@ num,name,type,epoch,a,e,inc,w,omega,m,H,G,mass,axisRA,axisDec,thetaDot,info,wiki
 532,Herculina,2,59000,2.7746428,0.17577981,16.31595,76.50307,107.52987,69.3890694,5.9,0.26,,0,90,33554066.9856459,Main belt asteroid,532_Herculina,thumb/9/94/532Herculina_%28Lightcurve_Inversion%29.png/398px-532Herculina_%28Lightcurve_Inversion%29.png,,111
 624,Hektor,1,59000,5.2622597,0.02279653,18.1577,184.2439,342.79103,202.5084853,7.3,0.15,0.079,0,90,45600173.3978759,Trojan asteroid,624_Hektor,,,125
 704,Interamnia,2,59000,3.056687,0.1550201,17.31016,94.87291,280.28671,174.4596292,6.4,-0.02,,0,90,36221743.5140243,Main belt asteroid,704_Interamnia,thumb/2/24/SPHERE_image_of_Interamnia.jpg/375px-SPHERE_image_of_Interamnia.jpg,,166
-854,Frostia,3,59000,2.3688298,0.17374373,6.08631,84.21196,190.58346,147.2487902,11.9,0.15,1E-05,0,90,,,,,,
+854,Frostia,3,59000,2.3688298,0.17374373,6.08631,84.21196,190.58346,147.2487902,11.9,0.15,0.00001,0,90,,,,,,
 951,Gaspra,2,59000,2.2092378,0.17384991,4.10699,129.92059,253.05233,172.9363571,11.5,0.15,,10,27,44813405.2825902,Main belt asteroid,951_Gaspra,thumb/8/81/951_Gaspra.jpg/420px-951_Gaspra.jpg,,6.266
 1566,Icarus,2,59000,1.0781689,0.82702135,22.82211,31.39334,87.99755,192.0831792,16.9,0.15,,0,90,139118321.283724,Apollo asteroid,1566_Icarus,6/66/Icarus_Goldstone_radar_Jun17.jpg,,0.73
 2060,Chiron,2,59000,13.6857064,0.37878367,6.93955,339.81026,209.24244,172.8369428,5.8,0.15,,0,90,45056539.1205026,Centaur asteroid,2060_Chiron,thumb/9/94/2060_Chiron.jpg/375px-2060_Chiron.jpg,,108
@@ -52,5 +52,7 @@ num,name,type,epoch,a,e,inc,w,omega,m,H,G,mass,axisRA,axisDec,thetaDot,info,wiki
 ,Gonggong,2,59000,67.4735756,0.50051766,30.6566,207.67156,336.85389,106.0046466,1.6,0.15,17.5,0,90,56252406.4171123,Dwarf planet (MPD 225088),225088_Gonggong,thumb/9/95/2007_OR10_and_its_moon.png/375px-2007_OR10_and_its_moon.png,,615
 471143,Dziewanna,2,59000,70.3213981,0.53790382,29.47724,284.53526,346.27443,348.7661562,3.9,0.15,,0,90,44635926.4497878,Possible dwarf planet,471143_Dziewanna,,,235
 486958,Arrokoth,2,58600,44.6736039,0.05230625,2.44794,181.48456,159.1041,316.551,11.1,0.15,,317.5,24.89,19800225.8752667,Kuiper Belt object,486958_Arrokoth,thumb/0/09/UltimaThule_CA06_color_vertical_%28rotated%29.png/375px-UltimaThule_CA06_color_vertical_%28rotated%29.png,,15
-,2018 VG18,2,59000.5,81.336,0.53531,24.403,16.753,245.363,158.009,3.5,0.15,,,,,Kuiper Belt object,2018_VG18,,,
-,2018 AG37,2,58538.5,86,0.685,18.71,250.52,68.53,117.87,4.185,0.15,,,,,Kuiper Belt object,2018_AG37,,,
+,2018 VG18,2,59000.5,81.336,0.53531,24.403,16.753,245.363,158.009,3.5,0.15,,0,90,,Kuiper Belt object,2018_VG18,,,
+,2018 AG37,2,58538.5,86,0.685,18.71,250.52,68.53,117.87,4.185,0.15,,0,90,,Kuiper Belt object,2018_AG37,,,
+,2021 DR15,2,59600,67.171,0.4369,30.691,21.846,334.122,334.122,3.61,0.15,,0,90,,Kuiper Belt object,2021_DR15,,,
+589683,2010 RF43,2,59000,49.692,0.2457,30.638,193.48,25.32,97.52,3.9,0.15,,0,90,,Kuiper Belt object,(589683)_2010_RF43,,,

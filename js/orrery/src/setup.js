@@ -34,7 +34,7 @@ export const gratLabels = [];
 export const precessing = []; // orbits with temporal drift
 export const specialID = { earth:0, moon:0, pluto:0, charon:0 };
 export const center = { x:0, y:0 }; // screen center
-export const state = { clickedLabel: "", clickedPlanet: {}, lastClickedPlanet: {}, mousePos: new THREE.Vector3(0, 0, 1), following: false, lastFollow: new THREE.Vector3(), hoverLabel: false, extraData: false };
+export const state = { clickedLabel: "", clickedPlanet: {}, lastClickedPlanet: {}, mousePos: new THREE.Vector3(0, 0, 1), following: false, lastFollow: new THREE.Vector3(), hoverLabel: false, extraData: false, orbitOpacity:0.5 };
 export const groundPosition = { latitude: 51.48, longitude: 0, default: true }; // default location is Greenwich
 export const times = { ephTime: ORR.MJDToEphTime(ORR.unixToMJD(Date.now())), speed: 8, lastSpeed: 8, rate: rates[8], pauseRate: 7, avgFPS: 0, parsedDate: 0 };
 export const searchLists = { combined: [], planetNames: [], moonNames: [], asteroidNames: [], cometNames: [], orderedNames: [] };
@@ -93,18 +93,28 @@ export const renderer = new THREE.WebGLRenderer( {
 
 // standard materials
 export const loader = new THREE.TextureLoader();
-export const pathMaterials = [ // path materials
-    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.5 }),
-    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.3 }),
-    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.25 }),
-    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.2 }),
-    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.2 })
-];
 export const selectedPathMat = new THREE.LineBasicMaterial({ color: 0x3366ff, linewidth: 1.5, transparent:true, opacity: 0.7 });
 export const defaultMaterial = new THREE.MeshStandardMaterial({ map: loader.load('data/1k_eris_fictional.jpg')});
 export const pointMaterial = new THREE.PointsMaterial( { color: 0xffffff, alphaMap: loader.load('data/disc.png'), size: initialPoint, transparent: true } );
 export const darkMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
 export const transparentMaterial = new THREE.LineBasicMaterial( { transparent: true, opacity: 0 } );
+
+// orbit path materials
+export let pathMaterials = [
+    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.5 }),
+    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.35 }),
+    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.3 }),
+    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.25 }),
+    new THREE.LineBasicMaterial({ color: 0x0033ff, linewidth: 1, transparent:true, opacity: 0.2 })
+];
+export function setPathMaterials(n) { [
+        { opacity: 1.0 * n },
+        { opacity: 0.7 * n },
+        { opacity: 0.6 * n },
+        { opacity: 0.5 * n },
+        { opacity: 0.4 * n },
+    ]
+}
 
 export const pointGeometry = new THREE.InstancedBufferGeometry();
 pointGeometry.setAttribute( 'position', new THREE.InstancedBufferAttribute( new Float32Array([0,0,0]), 3 ) );
@@ -131,8 +141,8 @@ bloomLayer.set( BLOOM_SCENE );
 export const renderScene = new RenderPass( scene, camera );
 export const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
 bloomPass.threshold = 0.15;
-bloomPass.strength = 7;
-bloomPass.radius = 0;
+bloomPass.strength = 3;
+bloomPass.radius = 1;
 
 export const bloomComposer = new EffectComposer( renderer );
 bloomComposer.renderToScreen = false;
@@ -157,15 +167,15 @@ finalComposer.addPass( renderScene );
 finalComposer.addPass( finalPass );
 
 // backdrop and lighting
-const ambient = new THREE.AmbientLight( 0x101022 );
-const sunlight = new THREE.PointLight( 0xffffff, 1 );
+const ambient = new THREE.AmbientLight( 0x303040 );
+const sunlight = new THREE.PointLight( 0xffffff, 3, 0, 0.1 );
 
 scene.add(sunlight, ambient);
 
 // skysphere
 const textureEquirec = loader.load( 'data/starmap_2020_8k.jpg' );
 textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
-textureEquirec.encoding = THREE.sRGBEncoding;
+textureEquirec.colorSpace = THREE.SRGBColorSpace;
 scene.background = textureEquirec;
 const geometry = new THREE.IcosahedronGeometry( 1000, 2 );
 const sphereMaterial = new THREE.MeshBasicMaterial( { envMap: textureEquirec } );

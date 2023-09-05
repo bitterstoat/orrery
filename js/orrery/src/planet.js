@@ -72,7 +72,7 @@ export class Planet extends ORR.Body {
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
         for (let i=0; i<this.localOrbit.length; i++) {
-            this.celestial.push(ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
+            this.celestial.push(ORR.celestial_THREE(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
         }
         this.celestialPos = this.celestial[0];
     }
@@ -84,7 +84,7 @@ export class Planet extends ORR.Body {
     update(dt) {  
         this.meanLongitude += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis, this.b, this.c, this.s, this.f)
-        this.celestialPos = ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
+        this.celestialPos = ORR.celestial_THREE(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
     /**

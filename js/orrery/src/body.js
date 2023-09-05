@@ -25,6 +25,7 @@ import * as ORR from "./init.js";
 export class Body {
     constructor (params) {
         this.name = this.hasData(params.name) ? params.name : "Unnamed";
+        this.label = this.name;
         this.type = this.hasData(params.type) ? parseFloat(params.type) : 4;
         this.epoch = this.hasData(params.epoch) ? parseFloat(params.epoch) : 51544.5;
         this.semiMajorAxis = this.hasData(params.a) ? parseFloat(params.a) : 1;

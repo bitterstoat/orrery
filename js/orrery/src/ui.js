@@ -169,7 +169,6 @@ function updateScale() {
 
 function zoomIn() {
     ORR.controls.minDistance = ORR.state.clickedPlanet.radius / ORR.AU * 100000;
-    const currentCam = ORR.camera.position.clone().sub(ORR.state.clickedPlanet.celestialPos).length();
     const tweenPushIn = new TWEEN.Tween(ORR.controls).to( {maxDistance: ORR.initMaxDistance / ORR.state.clickedPlanet.zoomRatio}, 1000 )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
@@ -197,7 +196,6 @@ function zoomIn() {
 
 function zoomOut() {
     ORR.controls.maxDistance = ORR.initMaxDistance;
-    const currentCam = ORR.camera.position.clone().sub(ORR.state.lastClickedPlanet.celestialPos).length();
     const tweenPushOut = new TWEEN.Tween(ORR.controls).to( {minDistance: ORR.initMinDistance}, 1000 )
         .easing(TWEEN.Easing.Quadratic.InOut).start();
 
@@ -317,4 +315,16 @@ $("#openSplash").on("click", function() {
     ORR.state.showSplash = true;
     $("#splashScreen").show(300);
     $("#clearSplash").css({"visibility": "visible"});
+});
+
+$( "#slider" ).slider({
+    min: 0,
+    max: 100,
+    value: 50,
+    stop: function( event, ui ) {
+        ORR.setPathMaterials(ui.value / 100);
+        for (let i = 0; i < ORR.system.length; i++) {
+            ORR.redraw(i);
+        }
+    }
 });

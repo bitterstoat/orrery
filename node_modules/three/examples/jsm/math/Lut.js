@@ -1,11 +1,14 @@
 import {
 	Color,
+	LinearSRGBColorSpace,
 	MathUtils
 } from 'three';
 
 class Lut {
 
  	constructor( colormap, count = 32 ) {
+
+		this.isLut = true;
 
 		this.lut = [];
 		this.map = [];
@@ -73,8 +76,8 @@ class Lut {
 					const min = this.map[ j ][ 0 ];
 					const max = this.map[ j + 1 ][ 0 ];
 
-					minColor.set( this.map[ j ][ 1 ] );
-					maxColor.set( this.map[ j + 1 ][ 1 ] );
+					minColor.setHex( this.map[ j ][ 1 ], LinearSRGBColorSpace );
+					maxColor.setHex( this.map[ j + 1 ][ 1 ], LinearSRGBColorSpace );
 
 					const color = new Color().lerpColors( minColor, maxColor, ( alpha - min ) / ( max - min ) );
 
@@ -163,8 +166,8 @@ class Lut {
 					const min = this.map[ j - 1 ][ 0 ];
 					const max = this.map[ j ][ 0 ];
 
-					minColor.set( this.map[ j - 1 ][ 1 ] );
-					maxColor.set( this.map[ j ][ 1 ] );
+					minColor.setHex( this.map[ j - 1 ][ 1 ], LinearSRGBColorSpace );
+					maxColor.setHex( this.map[ j ][ 1 ], LinearSRGBColorSpace );
 
 					finalColor.lerpColors( minColor, maxColor, ( i - min ) / ( max - min ) );
 
@@ -188,8 +191,6 @@ class Lut {
 	}
 
 }
-
-Lut.prototype.isLut = true;
 
 const ColorMapKeywords = {
 

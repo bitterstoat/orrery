@@ -55,6 +55,7 @@ a {
     top: -999px;
     left: -999px;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 a:hover, .label:hover {
@@ -79,12 +80,12 @@ a:hover, .label:hover {
 }
 
 #autocomplete, #manualLat, #manualLon, #manualYear, #manualDay, #manualTime {
-    position:relative;
+    position: relative;
     font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #222;
     color: #fff;
     font-size: 16px;
-    z-index:5;
+    z-index: 5;
     border-right-color: #272727;
     border-bottom-color: #444;
 }
@@ -94,7 +95,7 @@ a:hover, .label:hover {
 }
 
 #manualLat, #manualLon, #manualYear, #manualDay, #manualTime {
-    width:50px;
+    width: 50px;
 }
 
 #inputBox { 
@@ -103,7 +104,7 @@ a:hover, .label:hover {
     font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;
     background-color: rgba(17, 17, 17, 0.5);
     font-size: 0.8em;
-    z-index:4;
+    z-index: 4;
 }
 
 #date {
@@ -199,7 +200,7 @@ button img {
 }
 
 #clearSplash, #openSplash {
-    width:50px;
+    width: 50px;
     text-align: center;
     color: #aaa;
     font-family: 'barlowregular', Tahoma, Geneva, Verdana, sans-serif;

@@ -55,7 +55,7 @@ export function makePoint (name, sysId) {
  * @param {number} i - System ID 
  */
 export function makeLabel(i) {
-    $("body").append("<div id='" + i + "' class='label'>" + ORR.system[i].name + "</div>");
+    $("body").append("<div id='" + i + "' class='label'>" + ORR.system[i].label + "</div>");
     $("#" + i).addClass( "tag" + ORR.system[i].type ).on("click", function() {
         $(".label").removeClass( "active" );
         if ( ORR.state.clickedLabel != "" && $(this)[0].id == ORR.state.clickedLabel[0].id ) {

@@ -10,12 +10,14 @@ const gravConstant = 6.6743015e-11;
 const sunGravConstant = 1.32712440042e+20; // gravitational constant for heliocentric orbits
 const earthBary = 4670 / 388400; // Earth barycentric offset relative to Moon's semimajor axis
 const plutoBary = 2110 / 19600; // Pluto barycentric offset relative to Charon's semimajor axis
+let redrawLabels = false;
 
 /**
  * MAIN LOOP
  * @param {float} time
  */
 export function animate(time) {
+    redrawLabels = !redrawLabels;
     let clockElapsed = 1 / ORR.clock.getDelta();
     fpsBuffer.push(clockElapsed);
     if (fpsBuffer.length > 19) {
@@ -64,25 +66,27 @@ export function animate(time) {
         const tagPos = new THREE.Vector3().setFromMatrixPosition(body.matrixWorld).project(ORR.camera);
         tagPos.x = (tagPos.x * ORR.center.x) + ORR.center.x;
         tagPos.y = (tagPos.y * ORR.center.y * -1) + ORR.center.y;
-        if (tag != undefined) {
-            if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
-                tag.style.left = Math.round(tagPos.x) + 10 + "px";
-                tag.style.top = Math.round(tagPos.y) - 5 + "px";
-                tag.style.visibility = "visible";
+        if (redrawLabels) {
+            if (tag != undefined) {
+                if (Math.abs(tagPos.x - ORR.center.x) < ORR.center.x && Math.abs(tagPos.y - ORR.center.y) < ORR.center.y && tagPos.z < 1) {
+                    tag.style.left = Math.round(tagPos.x) + 10 + "px";
+                    tag.style.top = Math.round(tagPos.y) - 5 + "px";
+                    tag.style.visibility = "visible";
+                } else {
+                    tag.style.visibility = "hidden";
+                }
             } else {
-                tag.style.visibility = "hidden";
+                const d = tagPos.distanceTo(ORR.state.mousePos);
+                if (d < 15) {
+                    ORR.makeLabel(i);
+                    tempLabels.push(i);
+                }
             }
-        } else {
-            const d = tagPos.distanceTo(ORR.state.mousePos);
-            if (d < 15) {
-                ORR.makeLabel(i);
-                tempLabels.push(i);
-            }
-        }
-        if (tempLabels.length > 4) {
-            const tag = document.getElementById(tempLabels.shift());
-            if (!tag.classList.contains("active")) {
-                tag.remove();
+            if (tempLabels.length > 4) {
+                const tag = document.getElementById(tempLabels.shift());
+                if (!tag.classList.contains("active")) {
+                    tag.remove();
+                }
             }
         }
     }

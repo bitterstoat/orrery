@@ -6,10 +6,14 @@ import * as ORR from "./init.js";
  * @param {float} periapsis - Periapsis distance in AU
  * @param {float} periapsisTime - Time of periapsis in simple timecode
  */
-export class Comet extends ORR.Asteroid {
+
+
+export class Comet extends ORR.Body {
     constructor(params) {
         super (params);
-        this.info = (this.info == "default") ? "Periodic comet" : this.info;
+        
+        this.name = this.name;
+        this.label = this.name;
         this.periapsis = this.hasData(params.q) ? parseFloat(params.q) : 1;
         this.periapsisTime = this.hasData(params.Tp) ? ORR.dateCodeToMJD(params.Tp) : ORR.unixToMJD(Date.parse("2000-01-01T00:00:00"));
         this.semiMajorAxis = this.periapsis / (1 - this.eccentricity);
@@ -18,12 +22,22 @@ export class Comet extends ORR.Asteroid {
         this.lDot = 360 / this.period * ORR.toRad; // get lDot from period
         this.longPeriapsis = this.w;
         this.argPeriapsis = this.longPeriapsis - this.longAscNode;
-        this.meanAnomaly = this.meanLongitude - this.longPeriapsis;
 
+        this.meanAnomaly = this.hasData(params.m) ? parseFloat(params.m) * ORR.toRad : 0;
+        this.phase = 0;
+        this.slope = this.hasData(params.G) ? parseFloat(params.G) : 0.15;
+        // this.classifications = this.sieve(this);
+        this.info = (this.info == "default") ? "Periodic comet" : this.info;
+        this.wiki = (this.wiki == "default" && this.catalogNumber > 0 && this.name != "Unnamed") ? "https://en.wikipedia.org/wiki/" + this.name.replace(" ", "_") : this.wiki;
+        
         // retain initial epoch values
+        this.mStart = this.meanAnomaly;
         this.incStart = this.inclination;
         this.wStart = this.longPeriapsis;
-    }
+        this.phaseStart = this.phase;
+    } 
+
+
 
     /**
      * Update Keplerian orbital elements from the given epoch.
@@ -43,7 +57,7 @@ export class Comet extends ORR.Asteroid {
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
         for (let i=0; i<this.localOrbit.length; i++) {
-            this.celestial.push(ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
+            this.celestial.push(ORR.celestial_THREE(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
         }
         this.celestialPos = this.celestial[0];
     }
@@ -55,7 +69,7 @@ export class Comet extends ORR.Asteroid {
     update(dt) {
         this.meanLongitude += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanLongitude, this.longPeriapsis, this.eccentricity, this.semiMajorAxis);
-        this.celestialPos = ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
+        this.celestialPos = ORR.celestial_THREE(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
     /**

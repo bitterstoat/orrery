@@ -11,6 +11,11 @@ export class Asteroid extends ORR.Body {
     constructor(params) {
         super (params);
         this.catalogNumber = this.hasData(params.num) ? parseFloat(params.num) : 0;
+        this.info = (this.info == "default") ? "Asteroid" : this.info;
+        if (this.catalogNumber > 0) {
+            this.info += " (Minor Planet " + this.catalogNumber + ")";
+        }
+        this.label = this.name;
         this.name = (this.catalogNumber != 0) ? this.catalogNumber + " " + this.name : this.name;
         this.lDot = 360 / this.period * ORR.toRad; // get lDot from period
         this.argPeriapsis = this.w;
@@ -18,7 +23,6 @@ export class Asteroid extends ORR.Body {
         this.phase = 0;
         this.slope = this.hasData(params.G) ? parseFloat(params.G) : 0.15;
         // this.classifications = this.sieve(this);
-        this.info = (this.info == "default" && this.catalogNumber > 0) ? "Asteroid" : this.info;
         this.wiki = (this.wiki == "default" && this.catalogNumber > 0 && this.name != "Unnamed") ? "https://en.wikipedia.org/wiki/" + this.name.replace(" ", "_") : this.wiki;
         this.moons = 0;
         this.largestMoon = "";
@@ -49,7 +53,7 @@ export class Asteroid extends ORR.Body {
 
         this.celestial = []; // compute celestial coordinates; celestialPos is current location
         for (let i=0; i<this.localOrbit.length; i++) {
-            this.celestial.push(ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
+            this.celestial.push(ORR.celestial_THREE(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[i].x, this.localOrbit[i].y));
         }
         this.celestialPos = this.celestial[0];
     }
@@ -61,7 +65,7 @@ export class Asteroid extends ORR.Body {
     update(dt) {
         this.meanAnomaly += (this.lDot * dt);
         this.localOrbit = this.longPoints(this.meanAnomaly, this.eccentricity, this.semiMajorAxis);
-        this.celestialPos = ORR.celestial(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
+        this.celestialPos = ORR.celestial_THREE(this.argPeriapsis, this.longAscNode, this.inclination, this.localOrbit[0].x, this.localOrbit[0].y);
     }
 
     /**
